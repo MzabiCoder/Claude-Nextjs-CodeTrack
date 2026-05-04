@@ -361,6 +361,13 @@ devstash/
 - [Linear](https://linear.app) — minimal, developer-focused UI
 - [Raycast](https://raycast.com) — fast access and keyboard-first UX
 
+### Screenshots
+
+Refer to the screenshots below as a base for the dashaboard UI. It doesn not have to be exact. Use it as a reference:
+
+@context/screenshots/dashboard-ui-main.png
+@context/screenshots/dashboard-ui-drawer.png
+
 ### Design Tokens
 - **Mode:** Dark by default, light mode optional
 - **Typography:** Clean, generous whitespace
