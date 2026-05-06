@@ -1,4 +1,4 @@
-# 🗃️ DevStash — Project Overview
+# 🗃️ DevStash
 
 > **One fast, searchable, AI-enhanced hub for all your dev knowledge & resources.**
 
