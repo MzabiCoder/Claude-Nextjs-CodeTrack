@@ -4,7 +4,7 @@ Dashboard UI Phase 3 — Main Content Area
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
@@ -45,3 +45,10 @@ In Progress
 - Added most recent collections section using mock data
 - Added user avatar area at the bottom of the sidebar
 - Sidebar renders as a sheet/drawer on mobile using ShadCN Sheet component
+
+### 2026-05-06 — Dashboard UI Phase 3 ✅ Completed
+- Added 4 stats cards (total items, collections, favorite items, favorite collections)
+- Added recent collections grid sorted by most recently updated
+- Added pinned items section (conditionally rendered)
+- Added 10 most recent items section sorted by creation date
+- Refactored layout to a server component; extracted `DashboardShell` as the client boundary for sidebar/mobile state
