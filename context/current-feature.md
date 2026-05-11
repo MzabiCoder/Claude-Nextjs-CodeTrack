@@ -1,25 +1,25 @@
 # Current Feature
 
-Dashboard Collections
+Dashboard Items
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Create `src/lib/db/collections.ts` with data fetching functions
-- Fetch collections directly in server component (no mock data)
-- Collection card border color derived from most-used content type in that collection
-- Show small icons of all types present in that collection
-- Keep the current design (reference `context/screenshots/dashboard-ui-main.png`)
+- Create `src/lib/db/items.ts` with data fetching functions
+- Fetch items directly in server component (no mock data)
+- Item card icon/border derived from the item type
+- Display item type tags and all currently displayed item info
+- If there are no pinned items, nothing should display there
 - Update collection stats display
 
 ## Notes
 
-- Spec: `context/features/dashboard-collections-spec.md`
-- Do not add items underneath cards yet — that comes later
+- Spec: `context/features/dashboard-items-spec.md`
 - Replace mock data from `src/lib/mock-data.ts` with real Neon DB data via Prisma
+- Reference `context/screenshots/dashboard-ui-main.png` for layout/design
 
 ## History
 
@@ -66,3 +66,17 @@ In Progress
 - Created demo user (demo@devstash.io) with bcryptjs-hashed password (12 rounds)
 - Upserted all 7 system item types
 - Created 5 collections with realistic items assigned
+
+### 2026-05-11 — Dashboard Collections ✅ Completed
+- Created `src/lib/db/collections.ts` with data fetching functions
+- Replaced mock collections data with real Neon DB data via Prisma
+- Collection card border color derived from most-used item type in that collection
+- Added small type icons displaying all item types present in each collection
+- Updated collection stats display on dashboard
+
+### 2026-05-11 — Dashboard Items ✅ Completed
+- Created `src/lib/db/items.ts` with `getPinnedItems` and `getRecentItems` functions
+- Replaced mock items data with real Neon DB data via Prisma
+- Item card icon and border color derived from item type
+- Item type displayed as a colored badge alongside tag chips
+- Pinned section conditionally hidden when no pinned items exist
