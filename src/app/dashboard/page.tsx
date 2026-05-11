@@ -1,19 +1,15 @@
-import { mockItems, mockItemTypes } from '@/lib/mock-data';
 import { getDashboardCollections, getDashboardStats } from '@/lib/db/collections';
+import { getPinnedItems, getRecentItems } from '@/lib/db/items';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
 import { ItemCard } from '@/components/dashboard/ItemCard';
 
-const pinnedItems = mockItems.filter((i) => i.isPinned);
-
-const recentItems = [...mockItems]
-  .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-  .slice(0, 10);
-
 export default async function DashboardPage() {
-  const [collections, stats] = await Promise.all([
+  const [collections, stats, pinnedItems, recentItems] = await Promise.all([
     getDashboardCollections(),
     getDashboardStats(),
+    getPinnedItems(),
+    getRecentItems(),
   ]);
 
   return (
@@ -52,7 +48,7 @@ export default async function DashboardPage() {
           <h2 className="text-lg font-semibold mb-4">Pinned</h2>
           <div className="space-y-3">
             {pinnedItems.map((item) => (
-              <ItemCard key={item.id} item={item} itemTypes={mockItemTypes} />
+              <ItemCard key={item.id} item={item} />
             ))}
           </div>
         </section>
@@ -62,7 +58,7 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold mb-4">Recent Items</h2>
         <div className="space-y-3">
           {recentItems.map((item) => (
-            <ItemCard key={item.id} item={item} itemTypes={mockItemTypes} />
+            <ItemCard key={item.id} item={item} />
           ))}
         </div>
       </section>

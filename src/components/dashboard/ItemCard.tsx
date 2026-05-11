@@ -1,5 +1,6 @@
 import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Pin } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
+import { type ItemForCard } from '@/lib/db/items';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -11,39 +12,13 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Link,
 };
 
-interface ItemType {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-}
-
-interface Item {
-  id: string;
-  title: string;
-  description?: string | null;
-  isFavorite: boolean;
-  isPinned: boolean;
-  language?: string | null;
-  itemTypeId: string;
-  tags: string[];
-  createdAt: Date;
-}
-
 function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export function ItemCard({
-  item,
-  itemTypes,
-}: {
-  item: Item;
-  itemTypes: ItemType[];
-}) {
-  const type = itemTypes.find((t) => t.id === item.itemTypeId);
-  const Icon = type ? (ICON_MAP[type.icon] ?? Code) : Code;
-  const color = type?.color ?? '#6b7280';
+export function ItemCard({ item }: { item: ItemForCard }) {
+  const Icon = ICON_MAP[item.itemType.icon] ?? Code;
+  const color = item.itemType.color;
 
   return (
     <div className="flex items-start gap-4 rounded-lg border bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer">
@@ -64,18 +39,22 @@ export function ItemCard({
           <p className="text-sm text-muted-foreground line-clamp-1 mb-2">{item.description}</p>
         )}
 
-        {item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {item.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className="rounded px-1.5 py-0.5 text-xs font-medium"
+            style={{ backgroundColor: `${color}20`, color }}
+          >
+            {item.itemType.name}
+          </span>
+          {item.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
 
       <span className="shrink-0 text-xs text-muted-foreground">{formatDate(item.createdAt)}</span>
