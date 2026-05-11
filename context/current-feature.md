@@ -1,6 +1,6 @@
 # Current Feature
 
-Seed Data
+Dashboard Collections
 
 ## Status
 
@@ -8,18 +8,18 @@ In Progress
 
 ## Goals
 
-- Overwrite `prisma/seed.ts` with full sample data for development and demos
-- Create a demo user (demo@devstash.io) with bcryptjs-hashed password
-- Upsert all 7 system item types
-- Create 5 collections with realistic items assigned
+- Create `src/lib/db/collections.ts` with data fetching functions
+- Fetch collections directly in server component (no mock data)
+- Collection card border color derived from most-used content type in that collection
+- Show small icons of all types present in that collection
+- Keep the current design (reference `context/screenshots/dashboard-ui-main.png`)
+- Update collection stats display
 
 ## Notes
 
-- Spec: `context/features/seed-spec.md`
-- Use `bcryptjs` (not `bcrypt`) for password hashing — 12 rounds
-- Run with `npx prisma db seed` after implementation
-- Seed is idempotent — safe to re-run (use upsert where possible)
-- Item type compound unique key is `{ name, userId }` — system types have `userId: null`, use `findFirst` not `where` with null (Prisma 7 restriction)
+- Spec: `context/features/dashboard-collections-spec.md`
+- Do not add items underneath cards yet — that comes later
+- Replace mock data from `src/lib/mock-data.ts` with real Neon DB data via Prisma
 
 ## History
 
@@ -60,3 +60,9 @@ In Progress
 - Created full schema: User, Item, ItemType, Collection, ItemCollection, Tag, and NextAuth models
 - Added initial migration and seeded 7 system item types
 - Added `src/lib/prisma.ts` singleton client
+
+### 2026-05-11 — Seed Demo Data ✅ Completed
+- Overwrote `prisma/seed.ts` with full sample data
+- Created demo user (demo@devstash.io) with bcryptjs-hashed password (12 rounds)
+- Upserted all 7 system item types
+- Created 5 collections with realistic items assigned
