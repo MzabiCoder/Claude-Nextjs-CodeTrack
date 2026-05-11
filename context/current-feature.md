@@ -1,6 +1,6 @@
 # Current Feature
 
-Prisma + Neon PostgreSQL Setup
+Seed Data
 
 ## Status
 
@@ -8,34 +8,18 @@ In Progress
 
 ## Goals
 
-- Install and configure Prisma 7 ORM
-- Connect to Neon PostgreSQL (serverless) via `DATABASE_URL`
-- Create initial schema based on data models in `context/project-overview.md`
-- Include NextAuth models (Account, Session, VerificationToken)
-- Add appropriate indexes and cascade deletes
-- Create initial migration (never use `db push`)
-- Seed system item types via `prisma/seed.ts`
+- Overwrite `prisma/seed.ts` with full sample data for development and demos
+- Create a demo user (demo@devstash.io) with bcryptjs-hashed password
+- Upsert all 7 system item types
+- Create 5 collections with realistic items assigned
 
 ## Notes
 
-- Spec: `context/features/database-spec.md`
-- Use Prisma 7 — read the upgrade guide before implementing (breaking changes from v6)
-- Development branch maps to `DATABASE_URL`; production branch is separate
-- Always use `prisma migrate dev` for schema changes, never `prisma db push`
-- Seed data: 7 system item types (snippet, prompt, command, note, file, image, link)
-
-## Prisma 7 Key Differences from v6
-
-- Generator provider: `prisma-client` (not `prisma-client-js`)
-- Output path required in generator block (no longer auto-generated into `node_modules`)
-- New `prisma.config.ts` at root replaces env loading and wires schema/migrations/seed
-- All databases require a driver adapter — use `@prisma/adapter-neon` + `PrismaNeon` for Neon
-- `url` is no longer allowed in the schema's `datasource` block — URL goes in `prisma.config.ts` only
-- Generated client entry point is `client.ts` (not `index.ts`) — import from `@/generated/prisma/client`
-- Automatic `.env` loading removed — use `import "dotenv/config"` in config and seed files
-- Automatic seeding on migrate removed — must run `prisma db seed` explicitly
-- `null` not accepted in compound unique `where` clause — use `findFirst` for nullable unique fields
-- Requires Node.js 22.12+ or 20.19+
+- Spec: `context/features/seed-spec.md`
+- Use `bcryptjs` (not `bcrypt`) for password hashing — 12 rounds
+- Run with `npx prisma db seed` after implementation
+- Seed is idempotent — safe to re-run (use upsert where possible)
+- Item type compound unique key is `{ name, userId }` — system types have `userId: null`, use `findFirst` not `where` with null (Prisma 7 restriction)
 
 ## History
 
@@ -69,3 +53,10 @@ In Progress
 - Added pinned items section (conditionally rendered)
 - Added 10 most recent items section sorted by creation date
 - Refactored layout to a server component; extracted `DashboardShell` as the client boundary for sidebar/mobile state
+
+### 2026-05-11 — Prisma + Neon PostgreSQL Setup ✅ Completed
+- Installed Prisma 7 with `@prisma/adapter-neon` driver adapter
+- Configured `prisma.config.ts` with schema, migrations, and seed paths
+- Created full schema: User, Item, ItemType, Collection, ItemCollection, Tag, and NextAuth models
+- Added initial migration and seeded 7 system item types
+- Added `src/lib/prisma.ts` singleton client
