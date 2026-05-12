@@ -56,11 +56,12 @@ async function main() {
   // ── React Patterns ──────────────────────────────────────────────
   const reactPatterns = await prisma.collection.upsert({
     where: { id: "seed-collection-react-patterns" },
-    update: {},
+    update: { isFavorite: true },
     create: {
       id: "seed-collection-react-patterns",
       name: "React Patterns",
       description: "Reusable React patterns and hooks",
+      isFavorite: true,
       userId: user.id,
     },
   });
@@ -183,11 +184,12 @@ export function truncate(str: string, maxLength: number): string {
   // ── AI Workflows ─────────────────────────────────────────────────
   const aiWorkflows = await prisma.collection.upsert({
     where: { id: "seed-collection-ai-workflows" },
-    update: {},
+    update: { isFavorite: true },
     create: {
       id: "seed-collection-ai-workflows",
       name: "AI Workflows",
       description: "AI prompts and workflow automations",
+      isFavorite: true,
       userId: user.id,
     },
   });

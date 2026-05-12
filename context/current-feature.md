@@ -1,6 +1,6 @@
 # Current Feature
 
-Dashboard Items
+Stats & Sidebar
 
 ## Status
 
@@ -8,18 +8,18 @@ Completed
 
 ## Goals
 
-- Create `src/lib/db/items.ts` with data fetching functions
-- Fetch items directly in server component (no mock data)
-- Item card icon/border derived from the item type
-- Display item type tags and all currently displayed item info
-- If there are no pinned items, nothing should display there
-- Update collection stats display
+- Display stats (total items, collections, favorites) from real DB data, keeping current design/layout
+- Display system item types in sidebar with their icons, linking to `/items/[typename]`
+- Display real collection data in sidebar (favorites + recents)
+- Add "View all collections" link under the collections list linking to `/collections`
+- Keep star icons for favorite collections; show a colored circle on recent collections based on most-used item type
+- Create `src/lib/db/stats.ts` (or reuse existing db files) for stats fetching functions
 
 ## Notes
 
-- Spec: `context/features/dashboard-items-spec.md`
+- Spec: `context/features/stats-sidebar-spec.md`
 - Replace mock data from `src/lib/mock-data.ts` with real Neon DB data via Prisma
-- Reference `context/screenshots/dashboard-ui-main.png` for layout/design
+- Reference `src/lib/db/collections.ts` for patterns
 
 ## History
 
@@ -80,3 +80,11 @@ Completed
 - Item card icon and border color derived from item type
 - Item type displayed as a colored badge alongside tag chips
 - Pinned section conditionally hidden when no pinned items exist
+
+### 2026-05-12 — Stats & Sidebar ✅ Completed
+- Created `src/lib/db/sidebar.ts` with `getSidebarData()` fetching real item types (with per-type counts) and collections (with dominant color and item count)
+- Replaced all mock data in `Sidebar.tsx` with real DB data
+- Item types in sidebar now link to `/items/[typename]` with live counts
+- Favorite collections show star icon with item count; recent (non-favorite) collections show a colored circle based on dominant item type, also with item count
+- Added "View all collections →" link at the bottom of the collections section
+- Updated seed to mark React Patterns and AI Workflows as favorites (`isFavorite: true`)

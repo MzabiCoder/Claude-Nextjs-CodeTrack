@@ -3,8 +3,14 @@
 import { useState } from 'react';
 import { TopBar } from '@/components/dashboard/TopBar';
 import { Sidebar } from '@/components/dashboard/Sidebar';
+import type { SidebarData } from '@/lib/db/sidebar';
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+interface DashboardShellProps {
+  children: React.ReactNode;
+  sidebarData: SidebarData;
+}
+
+export function DashboardShell({ children, sidebarData }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -14,6 +20,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <Sidebar
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
+          sidebarData={sidebarData}
         />
         <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>

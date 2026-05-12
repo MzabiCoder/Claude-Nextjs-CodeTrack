@@ -7,12 +7,7 @@ import {
   Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, Settings, ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  mockItemTypes,
-  mockCollections,
-  mockUser,
-  mockItemTypeCounts,
-} from '@/lib/mock-data';
+import type { SidebarData } from '@/lib/db/sidebar';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 
@@ -26,10 +21,16 @@ const TYPE_ICONS: Record<string, React.ElementType> = {
   link: LinkIcon,
 };
 
-function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
+function SidebarContent({
+  collapsed = false,
+  sidebarData,
+}: {
+  collapsed?: boolean;
+  sidebarData: SidebarData;
+}) {
   const [collectionsOpen, setCollectionsOpen] = useState(true);
-  const favoriteCollections = mockCollections.filter((c) => c.isFavorite);
-  const allCollections = mockCollections.filter((c) => !c.isFavorite);
+  const favoriteCollections = sidebarData.collections.filter((c) => c.isFavorite);
+  const recentCollections = sidebarData.collections.filter((c) => !c.isFavorite);
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -41,10 +42,8 @@ function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
           </p>
         )}
         <nav className="space-y-0.5">
-          {mockItemTypes.map((type) => {
+          {sidebarData.itemTypes.map((type) => {
             const Icon = TYPE_ICONS[type.name] ?? Code;
-            const count =
-              mockItemTypeCounts[type.name as keyof typeof mockItemTypeCounts] ?? 0;
             return (
               <Link
                 key={type.id}
@@ -63,7 +62,7 @@ function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
                   <>
                     <span className="flex-1 capitalize">{type.name}s</span>
                     <span className="text-xs tabular-nums text-muted-foreground">
-                      {count}
+                      {type.count}
                     </span>
                   </>
                 )}
@@ -94,41 +93,55 @@ function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
           {collectionsOpen && (
             <>
               {/* Favorites */}
-              <div className="mb-3">
-                <p className="px-2 mb-1 text-xs text-muted-foreground">Favorites</p>
-                <nav className="space-y-0.5">
-                  {favoriteCollections.map((col) => (
-                    <Link
-                      key={col.id}
-                      href={`/collections/${col.id}`}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                    >
-                      <Star className="h-3.5 w-3.5 shrink-0 text-yellow-400 fill-yellow-400" />
-                      <span className="truncate">{col.name}</span>
-                    </Link>
-                  ))}
-                </nav>
-              </div>
+              {favoriteCollections.length > 0 && (
+                <div className="mb-3">
+                  <p className="px-2 mb-1 text-xs text-muted-foreground">Favorites</p>
+                  <nav className="space-y-0.5">
+                    {favoriteCollections.map((col) => (
+                      <Link
+                        key={col.id}
+                        href={`/collections/${col.id}`}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                      >
+                        <Star className="h-3.5 w-3.5 shrink-0 text-yellow-400 fill-yellow-400" />
+                        <span className="truncate flex-1">{col.name}</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              )}
 
-              {/* All Collections */}
-              <div>
-                <p className="px-2 mb-1 text-xs text-muted-foreground">All Collections</p>
-                <nav className="space-y-0.5">
-                  {allCollections.map((col) => (
-                    <Link
-                      key={col.id}
-                      href={`/collections/${col.id}`}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                    >
-                      <span className="h-3.5 w-3.5 rounded-sm bg-muted shrink-0" />
-                      <span className="truncate flex-1">{col.name}</span>
-                      <span className="text-xs tabular-nums text-muted-foreground">
-                        {col.itemCount}
-                      </span>
-                    </Link>
-                  ))}
-                </nav>
-              </div>
+              {/* Recent */}
+              {recentCollections.length > 0 && (
+                <div>
+                  <p className="px-2 mb-1 text-xs text-muted-foreground">Recent</p>
+                  <nav className="space-y-0.5">
+                    {recentCollections.map((col) => (
+                      <Link
+                        key={col.id}
+                        href={`/collections/${col.id}`}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                      >
+                        <span
+                          className="h-3.5 w-3.5 rounded-full shrink-0"
+                          style={{ backgroundColor: col.dominantColor }}
+                        />
+                        <span className="truncate flex-1">{col.name}</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* View all link */}
+              <Link
+                href="/collections"
+                className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                View all collections →
+              </Link>
             </>
           )}
         </div>
@@ -143,17 +156,13 @@ function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
           )}
         >
           <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
-            {mockUser.name?.charAt(0) ?? 'U'}
+            D
           </div>
           {!collapsed && (
             <>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium leading-tight truncate">
-                  {mockUser.name}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {mockUser.email}
-                </p>
+                <p className="text-sm font-medium leading-tight truncate">Demo User</p>
+                <p className="text-xs text-muted-foreground truncate">demo@devstash.io</p>
               </div>
               <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
                 <Settings className="h-3.5 w-3.5" />
@@ -169,9 +178,10 @@ function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
 interface SidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
+  sidebarData: SidebarData;
 }
 
-export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
+export function Sidebar({ mobileOpen, onMobileClose, sidebarData }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -203,14 +213,14 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             )}
           </Button>
         </div>
-        <SidebarContent collapsed={collapsed} />
+        <SidebarContent collapsed={collapsed} sidebarData={sidebarData} />
       </aside>
 
       {/* Mobile Sheet */}
       <Sheet open={mobileOpen} onOpenChange={onMobileClose}>
         <SheetContent side="left" className="w-56 p-0 bg-sidebar">
           <div className="pt-10">
-            <SidebarContent />
+            <SidebarContent sidebarData={sidebarData} />
           </div>
         </SheetContent>
       </Sheet>
