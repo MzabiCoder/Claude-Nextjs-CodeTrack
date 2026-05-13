@@ -1,22 +1,16 @@
-# Current Feature: Add Pro Badge to Sidebar
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add a PRO badge next to the "file" item type in the sidebar
-- Add a PRO badge next to the "image" item type in the sidebar
-- Use the ShadCN UI Badge component
-- Badge must be clean and subtle
-- Badge text must be "PRO" (all uppercase)
+<!-- Add goals here -->
 
 ## Notes
 
-- Spec: `context/features/add-pro-badge-sidebar.md`
-- Only applies to "file" and "image" types in the sidebar item type list
-- Use existing ShadCN Badge component (install if not already added)
+<!-- Add notes here -->
 
 ## History
 
@@ -85,3 +79,9 @@ In Progress
 - Favorite collections show star icon with item count; recent (non-favorite) collections show a colored circle based on dominant item type, also with item count
 - Added "View all collections →" link at the bottom of the collections section
 - Updated seed to mark React Patterns and AI Workflows as favorites (`isFavorite: true`)
+
+### 2026-05-13 — Pro Badge in Sidebar ✅ Completed
+- Installed ShadCN Badge component (`src/components/ui/badge.tsx`)
+- Added PRO badge next to "file" and "image" types in `Sidebar.tsx`
+- Badge uses `variant="secondary"` for a clean, subtle appearance
+- Badge is hidden when sidebar is collapsed (icon-only mode)
