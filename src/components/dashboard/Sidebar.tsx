@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import type { SidebarData } from '@/lib/db/sidebar';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
   snippet: Code,
@@ -60,8 +61,13 @@ function SidebarContent({
                 />
                 {!collapsed && (
                   <>
-                    <span className="flex-1 capitalize">{type.name}s</span>
-                    <span className="text-xs tabular-nums text-muted-foreground">
+                    <span className="capitalize">{type.name}s</span>
+                    {(type.name === 'file' || type.name === 'image') && (
+                      <Badge variant="secondary" className="h-4 px-1 text-[10px] font-semibold leading-none">
+                        PRO
+                      </Badge>
+                    )}
+                    <span className="ml-auto text-xs tabular-nums text-muted-foreground">
                       {type.count}
                     </span>
                   </>
