@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getDominantColor } from './utils';
 
 export type CollectionForCard = {
   id: string;
@@ -14,11 +15,21 @@ export type CollectionForCard = {
 export async function getDashboardCollections(): Promise<CollectionForCard[]> {
   const collections = await prisma.collection.findMany({
     orderBy: { updatedAt: 'desc' },
-    include: {
+    take: 6,
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      isFavorite: true,
+      updatedAt: true,
       items: {
-        include: {
+        select: {
           item: {
-            include: { itemType: true },
+            select: {
+              itemType: {
+                select: { id: true, name: true, icon: true, color: true },
+              },
+            },
           },
         },
       },
@@ -37,7 +48,6 @@ export async function getDashboardCollections(): Promise<CollectionForCard[]> {
     }, {});
 
     const sorted = Object.values(typeCounts).sort((a, b) => b.count - a.count);
-    const dominant = sorted[0];
 
     return {
       id: collection.id,
@@ -46,7 +56,7 @@ export async function getDashboardCollections(): Promise<CollectionForCard[]> {
       isFavorite: collection.isFavorite,
       updatedAt: collection.updatedAt,
       itemCount: collection.items.length,
-      dominantColor: dominant?.type.color ?? '#6b7280',
+      dominantColor: getDominantColor(collection.items),
       typeIcons: sorted.map((tc) => ({
         id: tc.type.id,
         name: tc.type.name,

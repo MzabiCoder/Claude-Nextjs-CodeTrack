@@ -2,15 +2,25 @@
 
 ## Status
 
-Not Started
+In Progress
+
+
 
 ## Goals
 
-<!-- Add goals here -->
+Fix quick-win issues identified by the code-scanner audit. No auth-related changes — userId scoping is deferred until NextAuth is implemented.
+
+1. **Add row limits to unbounded Prisma queries** — `getDashboardCollections` and `getSidebarData` perform full nested joins with no `take` cap; add limits to prevent performance degradation as data grows.
+2. **Extract duplicate dominant-color logic** — identical `reduce`/`sort` logic exists in both `collections.ts` and `sidebar.ts`; extract to a shared `src/lib/db/utils.ts` utility.
+3. **Add `loading.tsx` for `/dashboard`** — five Prisma queries run before anything renders; add a skeleton to improve perceived performance.
+4. **Redirect root `/` to `/dashboard`** — the root page currently renders a placeholder `<h1>nextjs-claude</h1>`.
+5. **Fix app metadata** — title and description are still the Next.js scaffold defaults.
+6. **Fix naive URL pluralization in sidebar** — `${type.name}s` will produce invalid routes for custom types; use a slug map instead.
 
 ## Notes
 
-<!-- Add notes here -->
+- Do not add `userId` scoping to any DB query — authentication is not yet implemented.
+- Dominant-color utility should live in `src/lib/db/utils.ts` and be imported by both `collections.ts` and `sidebar.ts`.
 
 ## History
 
