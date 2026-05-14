@@ -22,6 +22,16 @@ const TYPE_ICONS: Record<string, React.ElementType> = {
   link: LinkIcon,
 };
 
+const TYPE_SLUGS: Record<string, string> = {
+  snippet: 'snippets',
+  prompt: 'prompts',
+  command: 'commands',
+  note: 'notes',
+  file: 'files',
+  image: 'images',
+  link: 'links',
+};
+
 function SidebarContent({
   collapsed = false,
   sidebarData,
@@ -48,12 +58,12 @@ function SidebarContent({
             return (
               <Link
                 key={type.id}
-                href={`/items/${type.name}s`}
+                href={`/items/${TYPE_SLUGS[type.name] ?? `${type.name}s`}`}
                 className={cn(
                   'flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
                   collapsed && 'justify-center px-0'
                 )}
-                title={collapsed ? `${type.name}s` : undefined}
+                title={collapsed ? (TYPE_SLUGS[type.name] ?? `${type.name}s`) : undefined}
               >
                 <Icon
                   className="h-4 w-4 shrink-0"
@@ -61,7 +71,7 @@ function SidebarContent({
                 />
                 {!collapsed && (
                   <>
-                    <span className="capitalize">{type.name}s</span>
+                    <span className="capitalize">{TYPE_SLUGS[type.name] ?? `${type.name}s`}</span>
                     {(type.name === 'file' || type.name === 'image') && (
                       <Badge variant="secondary" className="h-4 px-1 text-[10px] font-semibold leading-none">
                         PRO

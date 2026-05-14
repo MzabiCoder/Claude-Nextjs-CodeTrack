@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getDominantColor } from './utils';
 
 export type SidebarItemType = {
   id: string;
@@ -29,9 +30,21 @@ export async function getSidebarData(): Promise<SidebarData> {
     }),
     prisma.collection.findMany({
       orderBy: [{ isFavorite: 'desc' }, { updatedAt: 'desc' }],
-      include: {
+      take: 20,
+      select: {
+        id: true,
+        name: true,
+        isFavorite: true,
         items: {
-          include: { item: { include: { itemType: true } } },
+          select: {
+            item: {
+              select: {
+                itemType: {
+                  select: { id: true, color: true },
+                },
+              },
+            },
+          },
         },
       },
     }),
@@ -45,26 +58,12 @@ export async function getSidebarData(): Promise<SidebarData> {
       color: type.color,
       count: type._count.items,
     })),
-    collections: collections.map((collection) => {
-      const typeCounts = collection.items.reduce<Record<string, { count: number; color: string }>>(
-        (acc, ic) => {
-          const { id, color } = ic.item.itemType;
-          if (!acc[id]) acc[id] = { count: 0, color };
-          acc[id].count++;
-          return acc;
-        },
-        {}
-      );
-
-      const dominant = Object.values(typeCounts).sort((a, b) => b.count - a.count)[0];
-
-      return {
-        id: collection.id,
-        name: collection.name,
-        isFavorite: collection.isFavorite,
-        dominantColor: dominant?.color ?? '#6b7280',
-        itemCount: collection.items.length,
-      };
-    }),
+    collections: collections.map((collection) => ({
+      id: collection.id,
+      name: collection.name,
+      isFavorite: collection.isFavorite,
+      dominantColor: getDominantColor(collection.items),
+      itemCount: collection.items.length,
+    })),
   };
 }
