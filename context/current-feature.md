@@ -2,25 +2,15 @@
 
 ## Status
 
-In Progress
-
-
+Not Started
 
 ## Goals
 
-Fix quick-win issues identified by the code-scanner audit. No auth-related changes — userId scoping is deferred until NextAuth is implemented.
-
-1. **Add row limits to unbounded Prisma queries** — `getDashboardCollections` and `getSidebarData` perform full nested joins with no `take` cap; add limits to prevent performance degradation as data grows.
-2. **Extract duplicate dominant-color logic** — identical `reduce`/`sort` logic exists in both `collections.ts` and `sidebar.ts`; extract to a shared `src/lib/db/utils.ts` utility.
-3. **Add `loading.tsx` for `/dashboard`** — five Prisma queries run before anything renders; add a skeleton to improve perceived performance.
-4. **Redirect root `/` to `/dashboard`** — the root page currently renders a placeholder `<h1>nextjs-claude</h1>`.
-5. **Fix app metadata** — title and description are still the Next.js scaffold defaults.
-6. **Fix naive URL pluralization in sidebar** — `${type.name}s` will produce invalid routes for custom types; use a slug map instead.
+<!-- Add goals here -->
 
 ## Notes
 
-- Do not add `userId` scoping to any DB query — authentication is not yet implemented.
-- Dominant-color utility should live in `src/lib/db/utils.ts` and be imported by both `collections.ts` and `sidebar.ts`.
+<!-- Add notes here -->
 
 ## History
 
@@ -95,3 +85,12 @@ Fix quick-win issues identified by the code-scanner audit. No auth-related chang
 - Added PRO badge next to "file" and "image" types in `Sidebar.tsx`
 - Badge uses `variant="secondary"` for a clean, subtle appearance
 - Badge is hidden when sidebar is collapsed (icon-only mode)
+
+### 2026-05-14 — Audit Quick-Wins ✅ Completed
+- Added `take: 6` to `getDashboardCollections` and `take: 20` to `getSidebarData`; both switched from `include` to `select` to narrow fetched fields
+- Extracted `getDominantColor()` to `src/lib/db/utils.ts`; imported by both `collections.ts` and `sidebar.ts` to remove duplicate reduce/sort logic
+- Added Prisma migration `add_query_indexes` with 5 new indexes: `items(isFavorite)`, `items(isPinned)`, `collections(updatedAt)`, `collections(isFavorite, updatedAt)`, `item_collections(collectionId)`
+- Added `src/app/dashboard/loading.tsx` skeleton (header, stats cards, collections grid, items list)
+- Root `/` now redirects to `/dashboard`
+- Fixed app metadata: title `DevStash`, meaningful description
+- Replaced `${type.name}s` URL construction with `TYPE_SLUGS` map in `Sidebar.tsx`
