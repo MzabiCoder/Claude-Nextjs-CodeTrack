@@ -94,3 +94,11 @@ Not Started
 - Root `/` now redirects to `/dashboard`
 - Fixed app metadata: title `DevStash`, meaningful description
 - Replaced `${type.name}s` URL construction with `TYPE_SLUGS` map in `Sidebar.tsx`
+
+### 2026-05-19 — Auth Phase 1: NextAuth v5 + GitHub OAuth ✅ Completed
+- Installed `next-auth@beta` and `@auth/prisma-adapter`
+- Created `src/auth.config.ts` (edge-safe, GitHub provider only) and `src/auth.ts` (PrismaAdapter + JWT strategy + session callback)
+- Added `src/app/api/auth/[...nextauth]/route.ts` exporting GET/POST handlers
+- Added `src/proxy.ts` protecting `/dashboard/*` — unauthenticated users redirected to `/api/auth/signin`
+- Extended `Session` type with `user.id` via `src/types/next-auth.d.ts`
+- Added `suppressHydrationWarning` to `<html>`, `<body>`, and `<input>` to silence browser extension attribute injection
