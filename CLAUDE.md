@@ -11,6 +11,21 @@ Read the following to get the full contextof of the project:
 - @context/ai-interaction.md
 - @context/current-feature.md
  
+## Neon MCP Rules
+
+**ALWAYS** use these defaults for every Neon MCP tool call:
+
+| Setting | Value |
+|---|---|
+| Project | **Codecenter** (`wild-dew-50108356`) |
+| Branch | **Devolement** (`br-green-mountain-apnpzhgx`) |
+
+**NEVER** target the `production` branch (`br-green-resonance-apn39bgv`) unless the user explicitly says "production" or "prod" in their message.
+
+If a Neon tool call does not require a `branchId`, still default to Devolement mentally — never infer production.
+
+---
+
 ## Commands
 
 ```bash
