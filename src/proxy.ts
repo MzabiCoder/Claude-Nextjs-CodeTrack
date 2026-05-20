@@ -8,7 +8,7 @@ export const proxy = auth((req) => {
   const isOnDashboard = req.nextUrl.pathname.startsWith("/dashboard");
 
   if (isOnDashboard && !isLoggedIn) {
-    const signInUrl = new URL("/api/auth/signin", req.nextUrl);
+    const signInUrl = new URL("/sign-in", req.nextUrl);
     return Response.redirect(signInUrl);
   }
 });
