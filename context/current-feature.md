@@ -1,25 +1,16 @@
-# Current Feature: Auth Phase 2 — Email/Password Provider
+# Current Feature
 
 ## Status
 
-Complete
+Not Started
 
 ## Goals
 
-- Add Credentials provider (email/password) to NextAuth v5
-- Create `/api/auth/register` route (name, email, password, confirmPassword)
-- Validate passwords match, check for existing user, hash with bcryptjs, create user
-- `auth.config.ts`: Credentials provider with `authorize: () => null` placeholder (edge-safe)
-- `auth.ts`: Override Credentials provider with real bcrypt validation
-- Verify GitHub OAuth still works after changes
+<!-- Add goals here -->
 
 ## Notes
 
-- bcryptjs is already installed
-- Password field already exists on User model (added in auth-phase-1)
-- Follow the split-config pattern: edge-safe placeholder in `auth.config.ts`, real logic in `auth.ts`
-- Registration route returns `{ success, error }` JSON responses
-- Testing: curl registration → sign in via `/api/auth/signin` → verify dashboard redirect
+<!-- Add notes here -->
 
 ## History
 
