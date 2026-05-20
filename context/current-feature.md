@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Auth Phase 2 — Email/Password Provider
 
 ## Status
 
-Not Started
+Complete
 
 ## Goals
 
-<!-- Add goals here -->
+- Add Credentials provider (email/password) to NextAuth v5
+- Create `/api/auth/register` route (name, email, password, confirmPassword)
+- Validate passwords match, check for existing user, hash with bcryptjs, create user
+- `auth.config.ts`: Credentials provider with `authorize: () => null` placeholder (edge-safe)
+- `auth.ts`: Override Credentials provider with real bcrypt validation
+- Verify GitHub OAuth still works after changes
 
 ## Notes
 
-<!-- Add notes here -->
+- bcryptjs is already installed
+- Password field already exists on User model (added in auth-phase-1)
+- Follow the split-config pattern: edge-safe placeholder in `auth.config.ts`, real logic in `auth.ts`
+- Registration route returns `{ success, error }` JSON responses
+- Testing: curl registration → sign in via `/api/auth/signin` → verify dashboard redirect
 
 ## History
 
@@ -94,6 +103,14 @@ Not Started
 - Root `/` now redirects to `/dashboard`
 - Fixed app metadata: title `DevStash`, meaningful description
 - Replaced `${type.name}s` URL construction with `TYPE_SLUGS` map in `Sidebar.tsx`
+
+### 2026-05-20 — Auth Phase 2: Email/Password Credentials ✅ Completed
+- Added Credentials provider to `auth.config.ts` with `authorize: () => null` placeholder (edge-safe)
+- Overrode Credentials in `auth.ts` with real bcrypt validation (password lookup, `bcrypt.compare`)
+- Created `POST /api/auth/register` route — validates fields, checks for existing email, hashes with bcryptjs (12 rounds), creates user
+- Created custom sign-in page at `/sign-in` matching dashboard dark theme (GitHub button + email/password form)
+- Wired `pages: { signIn: "/sign-in" }` in `auth.ts` and updated proxy redirect accordingly
+- Fixed: silent catch in register route now logs errors; loading state always resets in sign-in form
 
 ### 2026-05-19 — Auth Phase 1: NextAuth v5 + GitHub OAuth ✅ Completed
 - Installed `next-auth@beta` and `@auth/prisma-adapter`
