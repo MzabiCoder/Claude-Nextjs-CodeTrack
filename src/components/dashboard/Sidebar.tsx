@@ -4,13 +4,22 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Code, Sparkles, Terminal, StickyNote, File, Image as ImageIcon,
-  Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, Settings, ChevronDown,
+  Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, ChevronDown, LogOut, User,
 } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 import type { SidebarData } from '@/lib/db/sidebar';
+import type { SessionUser } from '@/components/dashboard/DashboardShell';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar } from '@/components/shared/Avatar';
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
   snippet: Code,
@@ -35,9 +44,11 @@ const TYPE_SLUGS: Record<string, string> = {
 function SidebarContent({
   collapsed = false,
   sidebarData,
+  user,
 }: {
   collapsed?: boolean;
   sidebarData: SidebarData;
+  user: SessionUser | null;
 }) {
   const [collectionsOpen, setCollectionsOpen] = useState(true);
   const favoriteCollections = sidebarData.collections.filter((c) => c.isFavorite);
@@ -165,27 +176,39 @@ function SidebarContent({
 
       {/* User */}
       <div className="mt-auto px-3 py-3 border-t border-border">
-        <div
-          className={cn(
-            'flex items-center gap-2.5',
-            collapsed && 'justify-center'
-          )}
-        >
-          <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
-            D
-          </div>
-          {!collapsed && (
-            <>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium leading-tight truncate">Demo User</p>
-                <p className="text-xs text-muted-foreground truncate">demo@devstash.io</p>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              'flex items-center gap-2.5 w-full rounded-md px-1 py-1 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              collapsed && 'justify-center px-0'
+            )}
+          >
+            <Avatar name={user?.name} email={user?.email} image={user?.image} size={28} />
+            {!collapsed && (
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-medium leading-tight truncate">{user?.name ?? "User"}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
-                <Settings className="h-3.5 w-3.5" />
-              </Button>
-            </>
-          )}
-        </div>
+            )}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" className="w-52">
+            <div className="px-1.5 py-1 border-b border-border mb-1">
+              <p className="text-sm font-medium truncate">{user?.name ?? "User"}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            </div>
+            <DropdownMenuItem onClick={() => { window.location.href = "/profile"; }}>
+              <User className="h-4 w-4" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
@@ -195,9 +218,10 @@ interface SidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
   sidebarData: SidebarData;
+  user: SessionUser | null;
 }
 
-export function Sidebar({ mobileOpen, onMobileClose, sidebarData }: SidebarProps) {
+export function Sidebar({ mobileOpen, onMobileClose, sidebarData, user }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -229,14 +253,14 @@ export function Sidebar({ mobileOpen, onMobileClose, sidebarData }: SidebarProps
             )}
           </Button>
         </div>
-        <SidebarContent collapsed={collapsed} sidebarData={sidebarData} />
+        <SidebarContent collapsed={collapsed} sidebarData={sidebarData} user={user} />
       </aside>
 
       {/* Mobile Sheet */}
       <Sheet open={mobileOpen} onOpenChange={onMobileClose}>
         <SheetContent side="left" className="w-56 p-0 bg-sidebar">
           <div className="pt-10">
-            <SidebarContent sidebarData={sidebarData} />
+            <SidebarContent sidebarData={sidebarData} user={user} />
           </div>
         </SheetContent>
       </Sheet>
