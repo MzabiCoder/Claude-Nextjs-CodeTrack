@@ -1,25 +1,16 @@
-# Current Feature: Auth Phase 3 — Register Page UI & Session Display
+# Current Feature
 
 ## Status
 
-Complete
+Not Started
 
 ## Goals
 
-- Build `/register` page matching `/sign-in` dark style (Name, Email, Password, Confirm Password)
-- Validate passwords match client-side; POST to `/api/auth/register`; redirect to `/sign-in` on success
-- Show success banner on `/sign-in` when `?registered=1` param is present
-- Replace Sidebar bottom placeholder with real session: avatar/initials + name + sign-out dropdown
-- Reusable `Avatar` component: GitHub image if available, otherwise two-letter initials (e.g. "Brad Traversy" → "BT")
-- Clicking avatar opens dropdown with "Sign out" → `signOut({ callbackUrl: "/sign-in" })`
-- Clicking the avatar icon navigates to `/profile`
+<!-- Add goals here -->
 
 ## Notes
 
-- Sign-in page is already done (auth-phase-2) — only `/register` and sidebar session are needed
-- Use `auth()` from `@/auth` in server components; pass session as props, do not use `useSession`
-- Install ShadCN DropdownMenu if not already present
-- Avatar component lives in `src/components/shared/Avatar.tsx` for reuse across TopBar and Sidebar
+<!-- Add notes here -->
 
 ## History
 
