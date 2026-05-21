@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 interface Props {
   callbackUrl: string;
   urlError?: string;
+  registered?: boolean;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -16,7 +17,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   CredentialsSignin: "Invalid email or password.",
 };
 
-export function SignInForm({ callbackUrl, urlError }: Props) {
+export function SignInForm({ callbackUrl, urlError, registered }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<"github" | "credentials" | null>(null);
@@ -55,6 +56,10 @@ export function SignInForm({ callbackUrl, urlError }: Props) {
           <h1 className="text-xl font-semibold">Sign in</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Welcome back</p>
         </div>
+
+        {registered && (
+          <p className="text-sm text-emerald-400">Account created — sign in to continue.</p>
+        )}
 
         {errorMessage && (
           <p className="text-sm text-destructive">{errorMessage}</p>

@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Auth Phase 3 — Register Page UI & Session Display
 
 ## Status
 
-Not Started
+Complete
 
 ## Goals
 
-<!-- Add goals here -->
+- Build `/register` page matching `/sign-in` dark style (Name, Email, Password, Confirm Password)
+- Validate passwords match client-side; POST to `/api/auth/register`; redirect to `/sign-in` on success
+- Show success banner on `/sign-in` when `?registered=1` param is present
+- Replace Sidebar bottom placeholder with real session: avatar/initials + name + sign-out dropdown
+- Reusable `Avatar` component: GitHub image if available, otherwise two-letter initials (e.g. "Brad Traversy" → "BT")
+- Clicking avatar opens dropdown with "Sign out" → `signOut({ callbackUrl: "/sign-in" })`
+- Clicking the avatar icon navigates to `/profile`
 
 ## Notes
 
-<!-- Add notes here -->
+- Sign-in page is already done (auth-phase-2) — only `/register` and sidebar session are needed
+- Use `auth()` from `@/auth` in server components; pass session as props, do not use `useSession`
+- Install ShadCN DropdownMenu if not already present
+- Avatar component lives in `src/components/shared/Avatar.tsx` for reuse across TopBar and Sidebar
 
 ## History
 
@@ -94,6 +103,18 @@ Not Started
 - Root `/` now redirects to `/dashboard`
 - Fixed app metadata: title `DevStash`, meaningful description
 - Replaced `${type.name}s` URL construction with `TYPE_SLUGS` map in `Sidebar.tsx`
+
+### 2026-05-21 — Auth Phase 3: Register Page UI & Session Display ✅ Completed
+- Created `/register` page matching sign-in dark style (Name, Email, Password, Confirm Password)
+- Client-side password match validation; POSTs to `/api/auth/register`; redirects to `/sign-in?registered=1` on success
+- Added Sonner toast notification on successful registration ("Account created! You can now sign in.")
+- Added `?registered=1` success banner on sign-in page
+- Created reusable `Avatar` component (`src/components/shared/Avatar.tsx`) — GitHub image or two-letter initials fallback
+- Replaced Sidebar bottom placeholder with real session: avatar + name + email + sign-out dropdown (ShadCN DropdownMenu via base-ui)
+- Added user avatar + dropdown to TopBar right side (Profile link + Sign out)
+- Session fetched via `auth()` in `dashboard/layout.tsx`, passed as props — no `useSession`
+- Added GitHub avatar domain to `next.config.ts` for `next/image`
+- All app pages set to `force-dynamic` (no static prerendering)
 
 ### 2026-05-20 — Auth Phase 2: Email/Password Credentials ✅ Completed
 - Added Credentials provider to `auth.config.ts` with `authorize: () => null` placeholder (edge-safe)
