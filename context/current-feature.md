@@ -1,29 +1,16 @@
-# Current Feature: Auth Phase 4 — Email Verification on Register
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Complete -->
 
 ## Goals
 
-- Install Resend and create `src/lib/resend.ts` client singleton
-- On register (`/api/auth/register`): generate a UUID token, store it in the `VerificationToken` table, send a verification email via Resend with a `/verify-email?token=...` link
-- Create `/api/auth/verify-email` GET route: validate token expiry, set `emailVerified` on the user, delete the token, redirect to `/login?verified=true`
-- Block unverified Credentials users from signing in in `auth.ts` `authorize()` — return null with a hint so the sign-in page can display "Please verify your email first"
-- Create `/verify-email` page showing "Check your inbox" after registration
-- Show verification error/success feedback on the login page (reads `?verified=true` or `?error=unverified` query params)
-- GitHub OAuth users skip verification (they are verified by GitHub — `emailVerified` is set by the adapter automatically)
+<!-- bullet points -->
 
 ## Notes
 
-- Resend API key is in `.env` as `RESENT_API_KEY` (note the typo — use this exact env var name)
-- `VerificationToken` model already exists in the schema (NextAuth table): `identifier`, `token`, `expires`; use `identifier = email`, `token = UUID`, `expires = now + 24h`
-- `emailVerified` field already exists on `User` model
-- The register route currently creates the user and returns `{ success: true }` — update it to also generate and send the verification email before returning
-- Do NOT send verification emails for GitHub OAuth sign-ins; only Credentials registrations need this
-- Token expiry: 24 hours
-- Resend sender: `onboarding@resend.dev` (Resend's shared domain — swap for `noreply@devstash.io` once domain is set up)
-- Keep email template simple: plain HTML with a clearly visible verify button/link
+<!-- additional context -->
 
 ## History
 
@@ -115,3 +102,12 @@ In Progress
 - Added `src/proxy.ts` protecting `/dashboard/*` — unauthenticated users redirected to `/api/auth/signin`
 - Extended `Session` type with `user.id` via `src/types/next-auth.d.ts`
 - Added `suppressHydrationWarning` to `<html>`, `<body>`, and `<input>` to silence browser extension attribute injection
+
+### 2026-05-29 — Auth Phase 4: Email Verification on Register ✅ Completed
+- Installed Resend; added `src/lib/resend.ts` singleton (reads `RESENT_API_KEY`)
+- Register route generates UUID token, stores in `VerificationToken` (24h expiry), sends verification email via `onboarding@resend.dev`
+- Added `GET /api/auth/verify-email`: validates token expiry, sets `emailVerified` on user, deletes token, redirects to `/sign-in?verified=true` (or error states for invalid/expired tokens)
+- `auth.ts` blocks unverified Credentials users via custom `UnverifiedEmail extends CredentialsSignin` error (code: `"unverified"`); GitHub OAuth unaffected
+- Added `/verify-email` "check your inbox" page shown immediately after registration
+- Sign-in page handles `?verified=true` (success banner), `?error=unverified`, `?error=InvalidToken`, `?error=ExpiredToken`
+- Added `scripts/reset-users.ts` to wipe all users and content except `demo@devstash.io` (dry-run by default, `--execute` to apply)
