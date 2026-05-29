@@ -1,23 +1,16 @@
-# Current Feature: Email Verification Toggle
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Complete -->
 
 ## Goals
 
-- Add `EMAIL_VERIFICATION_ENABLED` env var (set to `false` to bypass verification)
-- Create `src/lib/flags.ts` with a single exported `EMAIL_VERIFICATION_ENABLED` boolean read from the env var (defaults to `true` if unset)
-- Register route (`/api/auth/register`): when disabled, skip token creation and email send, instead set `emailVerified: new Date()` immediately on the new user, and include `skipVerification: true` in the JSON response
-- `RegisterForm.tsx`: redirect to `/verify-email` when `skipVerification` is false/absent, redirect to `/sign-in?registered=1` when `skipVerification` is true
-- `auth.ts` authorize check for `emailVerified` requires no changes — disabled mode auto-verifies at register so users always pass
+<!-- bullet points -->
 
 ## Notes
 
-- Flag lives in `src/lib/flags.ts` as a single source of truth; both the register route and any future feature that needs it import from there
-- `EMAIL_VERIFICATION_ENABLED=false` → bypass; anything else (including unset) → enforce verification
-- The `auth.ts` `UnverifiedEmail` block stays as-is — it still works correctly in both modes
-- Add the var to `.env` commented out with a note, so it's easy to find
+<!-- additional context -->
 
 ## History
 
@@ -109,6 +102,13 @@ In Progress
 - Added `src/proxy.ts` protecting `/dashboard/*` — unauthenticated users redirected to `/api/auth/signin`
 - Extended `Session` type with `user.id` via `src/types/next-auth.d.ts`
 - Added `suppressHydrationWarning` to `<html>`, `<body>`, and `<input>` to silence browser extension attribute injection
+
+### 2026-05-29 — Email Verification Toggle ✅ Completed
+- Added `src/lib/flags.ts` as single source of truth for `EMAIL_VERIFICATION_ENABLED` (defaults `true`; set env var to `"false"` to bypass)
+- Register route branches on flag: disabled path sets `emailVerified: new Date()` immediately and returns `skipVerification: true`, skipping token creation and Resend email
+- `RegisterForm.tsx` reads `skipVerification` from response — redirects to `/sign-in?registered=1` when bypassed, `/verify-email` when enforced
+- Set `EMAIL_VERIFICATION_ENABLED=false` in `.env` while sending domain is not yet configured
+- Fixed pre-existing duplicate `not` key bug in `scripts/reset-users.ts` itemType query
 
 ### 2026-05-29 — Auth Phase 4: Email Verification on Register ✅ Completed
 - Installed Resend; added `src/lib/resend.ts` singleton (reads `RESENT_API_KEY`)
