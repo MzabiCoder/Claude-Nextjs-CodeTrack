@@ -1,28 +1,16 @@
-# Current Feature: Forgot Password
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Complete -->
 
 ## Goals
 
-- Add "Forgot password?" link on the sign-in page that navigates to a `/forgot-password` route
-- Build `/forgot-password` page with an email input form
-- Create `POST /api/auth/forgot-password` route: validates email, generates a UUID token, stores it in `VerificationToken` with a 1-hour expiry, and sends a reset link via Resend
-- Build `/reset-password?token=...` page with a new-password + confirm-password form
-- Create `POST /api/auth/reset-password` route: validates token expiry, hashes and updates the user's password, deletes the token, redirects to `/sign-in?reset=true`
-- Sign-in page handles `?reset=true` with a success banner
-- No new Prisma model — reuse the existing `VerificationToken` model (use a `identifier` prefix like `"reset:"` to distinguish from email-verification tokens)
+<!-- bullet points -->
 
 ## Notes
 
-- Reuse the existing `VerificationToken` model; distinguish reset tokens from email-verification tokens via `identifier` prefix (e.g. `"reset:user@email.com"`)
-- Token expiry: 1 hour (shorter than email verification's 24h)
-- Only users with `password` set (Credentials users) should receive reset emails; GitHub OAuth users have no password to reset — show a friendly message if the email belongs to an OAuth-only account
-- Use the same Resend singleton from `src/lib/resend.ts`
-- Email sending should use `onboarding@resend.dev` (same as verification emails, until a custom domain is configured)
-- `EMAIL_VERIFICATION_ENABLED` flag does NOT affect password reset — reset emails always send
-- Follow the same form/UX patterns as the existing sign-in and register pages
+<!-- additional context -->
 
 ## History
 
@@ -130,3 +118,12 @@ In Progress
 - Added `/verify-email` "check your inbox" page shown immediately after registration
 - Sign-in page handles `?verified=true` (success banner), `?error=unverified`, `?error=InvalidToken`, `?error=ExpiredToken`
 - Added `scripts/reset-users.ts` to wipe all users and content except `demo@devstash.io` (dry-run by default, `--execute` to apply)
+
+### 2026-05-29 — Forgot Password ✅ Completed
+- Added "Forgot password?" link inline with the Password label on the sign-in page
+- Built `/forgot-password` page with email form (`ForgotPasswordForm.tsx`) — shows "check your inbox" state on submit, and a GitHub account message for OAuth-only users
+- Created `POST /api/auth/forgot-password`: looks up user, deletes any existing reset token, creates a new `VerificationToken` with `identifier = "reset:{email}"` and 1-hour expiry, sends reset link via Resend
+- Built `/reset-password?token=...` page — redirects to `/forgot-password` if no token in URL
+- Created `POST /api/auth/reset-password`: validates token has `"reset:"` prefix and is not expired, hashes new password with bcrypt (12 rounds), updates user, deletes token
+- Sign-in page handles `?reset=true` with a green success banner
+- No new Prisma models — reused `VerificationToken` with identifier prefix to distinguish from email-verification tokens
