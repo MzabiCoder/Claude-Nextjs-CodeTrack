@@ -1,7 +1,7 @@
 import { SignInForm } from "./SignInForm";
 
 interface Props {
-  searchParams: Promise<{ error?: string; callbackUrl?: string; registered?: string; verified?: string }>;
+  searchParams: Promise<{ error?: string; callbackUrl?: string; registered?: string; verified?: string; reset?: string }>;
 }
 
 export default async function SignInPage({ searchParams }: Props) {
@@ -14,6 +14,7 @@ export default async function SignInPage({ searchParams }: Props) {
         urlError={params.error}
         registered={params.registered === "1"}
         verified={params.verified === "true"}
+        reset={params.reset === "true"}
       />
     </div>
   );

@@ -1,16 +1,28 @@
-# Current Feature
+# Current Feature: Forgot Password
 
 ## Status
 
-<!-- Not Started | In Progress | Complete -->
+In Progress
 
 ## Goals
 
-<!-- bullet points -->
+- Add "Forgot password?" link on the sign-in page that navigates to a `/forgot-password` route
+- Build `/forgot-password` page with an email input form
+- Create `POST /api/auth/forgot-password` route: validates email, generates a UUID token, stores it in `VerificationToken` with a 1-hour expiry, and sends a reset link via Resend
+- Build `/reset-password?token=...` page with a new-password + confirm-password form
+- Create `POST /api/auth/reset-password` route: validates token expiry, hashes and updates the user's password, deletes the token, redirects to `/sign-in?reset=true`
+- Sign-in page handles `?reset=true` with a success banner
+- No new Prisma model — reuse the existing `VerificationToken` model (use a `identifier` prefix like `"reset:"` to distinguish from email-verification tokens)
 
 ## Notes
 
-<!-- additional context -->
+- Reuse the existing `VerificationToken` model; distinguish reset tokens from email-verification tokens via `identifier` prefix (e.g. `"reset:user@email.com"`)
+- Token expiry: 1 hour (shorter than email verification's 24h)
+- Only users with `password` set (Credentials users) should receive reset emails; GitHub OAuth users have no password to reset — show a friendly message if the email belongs to an OAuth-only account
+- Use the same Resend singleton from `src/lib/resend.ts`
+- Email sending should use `onboarding@resend.dev` (same as verification emails, until a custom domain is configured)
+- `EMAIL_VERIFICATION_ENABLED` flag does NOT affect password reset — reset emails always send
+- Follow the same form/UX patterns as the existing sign-in and register pages
 
 ## History
 
