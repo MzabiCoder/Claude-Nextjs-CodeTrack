@@ -1,10 +1,14 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import authConfig from "./auth.config";
+
+class UnverifiedEmail extends CredentialsSignin {
+  code = "unverified";
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -31,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
-          select: { id: true, name: true, email: true, image: true, password: true },
+          select: { id: true, name: true, email: true, image: true, password: true, emailVerified: true },
         });
 
         if (!user?.password) return null;
@@ -42,6 +46,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!passwordMatch) return null;
+
+        if (!user.emailVerified) throw new UnverifiedEmail();
 
         return { id: user.id, name: user.name, email: user.email, image: user.image };
       },

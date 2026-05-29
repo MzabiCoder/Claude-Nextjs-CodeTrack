@@ -9,15 +9,19 @@ interface Props {
   callbackUrl: string;
   urlError?: string;
   registered?: boolean;
+  verified?: boolean;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
   OAuthCallbackError: "GitHub sign-in failed. Please try again.",
   OAuthSignin: "GitHub sign-in failed. Please try again.",
   CredentialsSignin: "Invalid email or password.",
+  unverified: "Please verify your email before signing in. Check your inbox.",
+  InvalidToken: "This verification link is invalid.",
+  ExpiredToken: "This verification link has expired. Please register again.",
 };
 
-export function SignInForm({ callbackUrl, urlError, registered }: Props) {
+export function SignInForm({ callbackUrl, urlError, registered, verified }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<"github" | "credentials" | null>(null);
@@ -40,7 +44,7 @@ export function SignInForm({ callbackUrl, urlError, registered }: Props) {
     });
 
     if (result?.error) {
-      setCredError("Invalid email or password.");
+      setCredError(ERROR_MESSAGES[result.error] ?? "Something went wrong. Please try again.");
       setLoading(null);
     } else if (result?.url) {
       window.location.href = result.url;
@@ -57,8 +61,12 @@ export function SignInForm({ callbackUrl, urlError, registered }: Props) {
           <p className="text-sm text-muted-foreground mt-0.5">Welcome back</p>
         </div>
 
-        {registered && (
-          <p className="text-sm text-emerald-400">Account created — sign in to continue.</p>
+        {verified && (
+          <p className="text-sm text-emerald-400">Email verified — you can now sign in.</p>
+        )}
+
+        {!verified && registered && (
+          <p className="text-sm text-emerald-400">Account created — check your inbox to verify your email.</p>
         )}
 
         {errorMessage && (

@@ -1,16 +1,29 @@
-# Current Feature
+# Current Feature: Auth Phase 4 — Email Verification on Register
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Install Resend and create `src/lib/resend.ts` client singleton
+- On register (`/api/auth/register`): generate a UUID token, store it in the `VerificationToken` table, send a verification email via Resend with a `/verify-email?token=...` link
+- Create `/api/auth/verify-email` GET route: validate token expiry, set `emailVerified` on the user, delete the token, redirect to `/login?verified=true`
+- Block unverified Credentials users from signing in in `auth.ts` `authorize()` — return null with a hint so the sign-in page can display "Please verify your email first"
+- Create `/verify-email` page showing "Check your inbox" after registration
+- Show verification error/success feedback on the login page (reads `?verified=true` or `?error=unverified` query params)
+- GitHub OAuth users skip verification (they are verified by GitHub — `emailVerified` is set by the adapter automatically)
 
 ## Notes
 
-<!-- Add notes here -->
+- Resend API key is in `.env` as `RESENT_API_KEY` (note the typo — use this exact env var name)
+- `VerificationToken` model already exists in the schema (NextAuth table): `identifier`, `token`, `expires`; use `identifier = email`, `token = UUID`, `expires = now + 24h`
+- `emailVerified` field already exists on `User` model
+- The register route currently creates the user and returns `{ success: true }` — update it to also generate and send the verification email before returning
+- Do NOT send verification emails for GitHub OAuth sign-ins; only Credentials registrations need this
+- Token expiry: 24 hours
+- Resend sender: `onboarding@resend.dev` (Resend's shared domain — swap for `noreply@devstash.io` once domain is set up)
+- Keep email template simple: plain HTML with a clearly visible verify button/link
 
 ## History
 
@@ -73,7 +86,7 @@ Not Started
 - Pinned section conditionally hidden when no pinned items exist
 
 ### 2026-05-12 — Stats & Sidebar ✅ Completed
-- Created `src/lib/db/sidebar.ts` with `getSidebarData()` fetching real item types (with per-type counts) and collections (with dominant color and item count)
+- Created `src/lib/db/sidebar.ts` with `getSidebarData()` fetchinDevStashg real item types (with per-type counts) and collections (with dominant color and item count)
 - Replaced all mock data in `Sidebar.tsx` with real DB data
 - Item types in sidebar now link to `/items/[typename]` with live counts
 - Favorite collections show star icon with item count; recent (non-favorite) collections show a colored circle based on dominant item type, also with item count
@@ -94,26 +107,6 @@ Not Started
 - Root `/` now redirects to `/dashboard`
 - Fixed app metadata: title `DevStash`, meaningful description
 - Replaced `${type.name}s` URL construction with `TYPE_SLUGS` map in `Sidebar.tsx`
-
-### 2026-05-21 — Auth Phase 3: Register Page UI & Session Display ✅ Completed
-- Created `/register` page matching sign-in dark style (Name, Email, Password, Confirm Password)
-- Client-side password match validation; POSTs to `/api/auth/register`; redirects to `/sign-in?registered=1` on success
-- Added Sonner toast notification on successful registration ("Account created! You can now sign in.")
-- Added `?registered=1` success banner on sign-in page
-- Created reusable `Avatar` component (`src/components/shared/Avatar.tsx`) — GitHub image or two-letter initials fallback
-- Replaced Sidebar bottom placeholder with real session: avatar + name + email + sign-out dropdown (ShadCN DropdownMenu via base-ui)
-- Added user avatar + dropdown to TopBar right side (Profile link + Sign out)
-- Session fetched via `auth()` in `dashboard/layout.tsx`, passed as props — no `useSession`
-- Added GitHub avatar domain to `next.config.ts` for `next/image`
-- All app pages set to `force-dynamic` (no static prerendering)
-
-### 2026-05-20 — Auth Phase 2: Email/Password Credentials ✅ Completed
-- Added Credentials provider to `auth.config.ts` with `authorize: () => null` placeholder (edge-safe)
-- Overrode Credentials in `auth.ts` with real bcrypt validation (password lookup, `bcrypt.compare`)
-- Created `POST /api/auth/register` route — validates fields, checks for existing email, hashes with bcryptjs (12 rounds), creates user
-- Created custom sign-in page at `/sign-in` matching dashboard dark theme (GitHub button + email/password form)
-- Wired `pages: { signIn: "/sign-in" }` in `auth.ts` and updated proxy redirect accordingly
-- Fixed: silent catch in register route now logs errors; loading state always resets in sign-in form
 
 ### 2026-05-19 — Auth Phase 1: NextAuth v5 + GitHub OAuth ✅ Completed
 - Installed `next-auth@beta` and `@auth/prisma-adapter`
