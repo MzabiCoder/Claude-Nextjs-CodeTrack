@@ -1,16 +1,23 @@
-# Current Feature
+# Current Feature: Email Verification Toggle
 
 ## Status
 
-<!-- Not Started | In Progress | Complete -->
+In Progress
 
 ## Goals
 
-<!-- bullet points -->
+- Add `EMAIL_VERIFICATION_ENABLED` env var (set to `false` to bypass verification)
+- Create `src/lib/flags.ts` with a single exported `EMAIL_VERIFICATION_ENABLED` boolean read from the env var (defaults to `true` if unset)
+- Register route (`/api/auth/register`): when disabled, skip token creation and email send, instead set `emailVerified: new Date()` immediately on the new user, and include `skipVerification: true` in the JSON response
+- `RegisterForm.tsx`: redirect to `/verify-email` when `skipVerification` is false/absent, redirect to `/sign-in?registered=1` when `skipVerification` is true
+- `auth.ts` authorize check for `emailVerified` requires no changes — disabled mode auto-verifies at register so users always pass
 
 ## Notes
 
-<!-- additional context -->
+- Flag lives in `src/lib/flags.ts` as a single source of truth; both the register route and any future feature that needs it import from there
+- `EMAIL_VERIFICATION_ENABLED=false` → bypass; anything else (including unset) → enforce verification
+- The `auth.ts` `UnverifiedEmail` block stays as-is — it still works correctly in both modes
+- Add the var to `.env` commented out with a note, so it's easy to find
 
 ## History
 

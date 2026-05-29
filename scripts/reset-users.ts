@@ -73,7 +73,7 @@ async function main() {
 
   // 3. Custom item types belonging to deleted users (system types have userId = null)
   const deletedTypes = await prisma.itemType.deleteMany({
-    where: { userId: { not: demoId, not: null } },
+    where: { AND: [{ userId: { not: null } }, { userId: { not: demoId } }] },
   });
 
   // 4. OAuth accounts and sessions
