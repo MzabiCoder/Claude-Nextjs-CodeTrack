@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { resend } from "@/lib/resend";
+import { EMAIL_VERIFICATION_ENABLED } from "@/lib/flags";
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,6 +30,14 @@ export async function POST(req: NextRequest) {
     }
 
     const hashed = await bcrypt.hash(password, 12);
+
+    if (!EMAIL_VERIFICATION_ENABLED) {
+      await prisma.user.create({
+        data: { name, email, password: hashed, emailVerified: new Date() },
+      });
+      return NextResponse.json({ success: true, skipVerification: true }, { status: 201 });
+    }
+
     await prisma.user.create({ data: { name, email, password: hashed } });
 
     const token = randomUUID();
