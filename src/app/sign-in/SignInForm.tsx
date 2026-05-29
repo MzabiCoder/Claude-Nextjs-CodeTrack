@@ -10,6 +10,7 @@ interface Props {
   urlError?: string;
   registered?: boolean;
   verified?: boolean;
+  reset?: boolean;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -21,7 +22,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   ExpiredToken: "This verification link has expired. Please register again.",
 };
 
-export function SignInForm({ callbackUrl, urlError, registered, verified }: Props) {
+export function SignInForm({ callbackUrl, urlError, registered, verified, reset }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<"github" | "credentials" | null>(null);
@@ -61,11 +62,15 @@ export function SignInForm({ callbackUrl, urlError, registered, verified }: Prop
           <p className="text-sm text-muted-foreground mt-0.5">Welcome back</p>
         </div>
 
-        {verified && (
+        {reset && (
+          <p className="text-sm text-emerald-400">Password reset — you can now sign in with your new password.</p>
+        )}
+
+        {!reset && verified && (
           <p className="text-sm text-emerald-400">Email verified — you can now sign in.</p>
         )}
 
-        {!verified && registered && (
+        {!reset && !verified && registered && (
           <p className="text-sm text-emerald-400">Account created — check your inbox to verify your email.</p>
         )}
 
@@ -120,9 +125,17 @@ export function SignInForm({ callbackUrl, urlError, registered, verified }: Prop
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium" htmlFor="password">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium" htmlFor="password">
+                Password
+              </label>
+              <a
+                href="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Forgot password?
+              </a>
+            </div>
             <Input
               id="password"
               type="password"
