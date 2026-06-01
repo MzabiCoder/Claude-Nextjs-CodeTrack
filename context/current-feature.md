@@ -1,25 +1,16 @@
-# Current Feature: Profile Page
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `/profile` route (protected — requires authentication)
-- Display user info: name, email, avatar (GitHub image if OAuth, otherwise initials fallback), account creation date
-- Show usage stats: total items, total collections, and a per-type item count breakdown (snippet, prompt, command, note, link, file, image)
-- Add "Change password" section (email/password users only — hidden for GitHub OAuth users)
-- Add "Delete account" action with a confirmation dialog to prevent accidental deletion
+<!-- Add goals here -->
 
 ## Notes
 
-- Avatar: use `user.image` from session/DB if present (GitHub OAuth), otherwise derive initials from `user.name` or `user.email`
-- Change password: only shown when `user.password` is set (Credentials users); POSTs to a new `POST /api/user/change-password` route — validates current password, then hashes and updates
-- Delete account: confirmation dialog (ShadCN AlertDialog); POSTs to `DELETE /api/user` — cascades delete via Prisma (all items, collections, tokens), then signs the user out and redirects to `/`
-- Data fetching: server component fetches Prisma directly (stats query); profile actions (change password, delete) use client form + fetch to API routes
-- Route protection: add `/profile` to the middleware matcher in `src/proxy.ts`
-- Follow existing auth page patterns for form layout and error display
+<!-- Add notes here -->
 
 ## History
 
@@ -136,3 +127,12 @@ In Progress
 - Created `POST /api/auth/reset-password`: validates token has `"reset:"` prefix and is not expired, hashes new password with bcrypt (12 rounds), updates user, deletes token
 - Sign-in page handles `?reset=true` with a green success banner
 - No new Prisma models — reused `VerificationToken` with identifier prefix to distinguish from email-verification tokens
+
+### 2026-06-01 — Profile Page ✅ Completed
+- Created `/profile` route protected by middleware (`src/proxy.ts`)
+- Server component fetches user info and usage stats directly via Prisma (`src/lib/db/profile.ts`)
+- Displays avatar (GitHub image or initials fallback), name, email, and account creation date
+- Shows usage stats: total items and collections, plus per-type item count breakdown
+- Added `ChangePasswordForm.tsx` (shown only for Credentials users with `user.password` set); POSTs to `POST /api/user/change-password`
+- Added `DeleteAccountDialog.tsx` using ShadCN AlertDialog for confirmation; POSTs to `DELETE /api/user` — cascades delete via Prisma then signs out and redirects to `/`
+- Installed ShadCN AlertDialog component (`src/components/ui/alert-dialog.tsx`)
