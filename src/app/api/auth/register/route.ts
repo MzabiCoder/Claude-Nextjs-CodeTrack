@@ -4,9 +4,17 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { EMAIL_VERIFICATION_ENABLED } from "@/lib/flags";
+import { checkRateLimit, getIP, rateLimiters, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getIP(req);
+    const rl = await checkRateLimit(rateLimiters.register, ip);
+    if (rl.limited) {
+      const { body, headers } = rateLimitResponse(rl.retryAfter);
+      return NextResponse.json(body, { status: 429, headers });
+    }
+
     const { name, email, password, confirmPassword } = await req.json();
 
     if (!name || !email || !password || !confirmPassword) {
