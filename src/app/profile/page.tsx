@@ -1,30 +1,9 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getProfileData } from "@/lib/db/profile";
+import { Avatar } from "@/components/shared/Avatar";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { DeleteAccountDialog } from "./DeleteAccountDialog";
-
-function Avatar({ name, email, image }: { name?: string | null; email?: string | null; image?: string | null }) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={name ?? "Avatar"}
-        className="w-16 h-16 rounded-full object-cover"
-      />
-    );
-  }
-
-  const initials = name
-    ? name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
-    : (email?.[0] ?? "?").toUpperCase();
-
-  return (
-    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-xl font-semibold text-muted-foreground">
-      {initials}
-    </div>
-  );
-}
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -51,7 +30,7 @@ export default async function ProfilePage() {
 
       {/* User info */}
       <div className="bg-card border border-border rounded-xl p-6 flex items-center gap-5">
-        <Avatar name={user.name} email={user.email} image={user.image} />
+        <Avatar name={user.name} email={user.email} image={user.image} size={64} />
         <div className="min-w-0">
           <p className="font-semibold text-lg truncate">{user.name ?? "No name set"}</p>
           <p className="text-sm text-muted-foreground truncate">{user.email}</p>
