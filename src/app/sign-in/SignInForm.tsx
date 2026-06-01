@@ -20,6 +20,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   unverified: "Please verify your email before signing in. Check your inbox.",
   InvalidToken: "This verification link is invalid.",
   ExpiredToken: "This verification link has expired. Please register again.",
+  rate_limited: "Too many sign-in attempts. Please try again in a few minutes.",
 };
 
 export function SignInForm({ callbackUrl, urlError, registered, verified, reset }: Props) {
