@@ -1,27 +1,16 @@
-# Current Feature: Rate Limiting for Auth
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add rate limiting to `/api/auth/register` (3 attempts / 1 hour / by IP)
-- Add rate limiting to `/api/auth/forgot-password` (3 attempts / 1 hour / by IP)
-- Add rate limiting to `/api/auth/reset-password` (5 attempts / 15 min / by IP)
-- Add rate limiting to `/api/auth/resend-verification` (3 attempts / 15 min / by IP + email)
-- Create `src/lib/rate-limit.ts` reusable utility (Upstash Redis, sliding window)
-- Return 429 with `{ error: "..." }` and `Retry-After` header when limit exceeded
-- Display rate limit errors via toast on the frontend
+<!-- Add goals here -->
 
 ## Notes
 
-- Use `@upstash/ratelimit` with sliding window algorithm
-- Extract IP from `x-forwarded-for` header (Vercel) with fallback to `127.0.0.1`
-- Rate limiting must fail open — if Upstash is unavailable, allow the request through
-- Login (`/api/auth/callback/credentials`) limiting is deferred — NextAuth intercepts that route before custom middleware can act on it; may need a custom sign-in handler
-- Env vars needed: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (already set in `.env.production` and Vercel)
-- 429 error format: `{ error: "Too many attempts. Please try again in X minutes." }`
+<!-- Add notes here -->
 
 ## History
 
@@ -147,3 +136,12 @@ In Progress
 - Added `ChangePasswordForm.tsx` (shown only for Credentials users with `user.password` set); POSTs to `POST /api/user/change-password`
 - Added `DeleteAccountDialog.tsx` using ShadCN AlertDialog for confirmation; POSTs to `DELETE /api/user` — cascades delete via Prisma then signs out and redirects to `/`
 - Installed ShadCN AlertDialog component (`src/components/ui/alert-dialog.tsx`)
+
+### 2026-06-01 — Rate Limiting for Auth ✅ Completed
+- Created `src/lib/rate-limit.ts` with Upstash Redis sliding window limiters, IP extraction, fail-open error handling, and `rateLimitResponse()` helper
+- Rate limited `POST /api/auth/register` (3 attempts / 1 hour / by IP)
+- Rate limited `POST /api/auth/forgot-password` (3 attempts / 1 hour / by IP)
+- Rate limited `POST /api/auth/reset-password` (5 attempts / 15 min / by IP)
+- Added login rate limiting inside NextAuth `authorize()` (5 attempts / 15 min / IP + email) via `RateLimited extends CredentialsSignin` error class
+- `SignInForm.tsx` maps `rate_limited` error code to user-friendly message
+- All routes return 429 with `{ error: "Too many attempts..." }` and `Retry-After` header; fail open if Upstash is unavailable
