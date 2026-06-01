@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Profile Page
 
 ## Status
 
-<!-- Not Started | In Progress | Complete -->
+In Progress
 
 ## Goals
 
-<!-- bullet points -->
+- Create `/profile` route (protected — requires authentication)
+- Display user info: name, email, avatar (GitHub image if OAuth, otherwise initials fallback), account creation date
+- Show usage stats: total items, total collections, and a per-type item count breakdown (snippet, prompt, command, note, link, file, image)
+- Add "Change password" section (email/password users only — hidden for GitHub OAuth users)
+- Add "Delete account" action with a confirmation dialog to prevent accidental deletion
 
 ## Notes
 
-<!-- additional context -->
+- Avatar: use `user.image` from session/DB if present (GitHub OAuth), otherwise derive initials from `user.name` or `user.email`
+- Change password: only shown when `user.password` is set (Credentials users); POSTs to a new `POST /api/user/change-password` route — validates current password, then hashes and updates
+- Delete account: confirmation dialog (ShadCN AlertDialog); POSTs to `DELETE /api/user` — cascades delete via Prisma (all items, collections, tokens), then signs the user out and redirects to `/`
+- Data fetching: server component fetches Prisma directly (stats query); profile actions (change password, delete) use client form + fetch to API routes
+- Route protection: add `/profile` to the middleware matcher in `src/proxy.ts`
+- Follow existing auth page patterns for form layout and error display
 
 ## History
 
