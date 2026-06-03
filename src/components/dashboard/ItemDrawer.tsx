@@ -8,7 +8,17 @@ import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { updateItem } from '@/actions/items';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { updateItem, deleteItem } from '@/actions/items';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link,
@@ -98,6 +108,8 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -120,7 +132,26 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
 
   function handleClose() {
     setIsEditing(false);
+    setDeleteOpen(false);
     onClose();
+  }
+
+  async function handleDelete() {
+    if (!item) return;
+    setDeleting(true);
+    try {
+      const result = await deleteItem(item.id);
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      setDeleteOpen(false);
+      onClose();
+      toast.success('Item deleted');
+      router.refresh();
+    } finally {
+      setDeleting(false);
+    }
   }
 
   function enterEditMode() {
@@ -187,6 +218,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const showUrl = typeName === 'link';
 
   return (
+    <>
     <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
       <SheetContent side="right" className="overflow-y-auto gap-0 p-0">
         {loading ? (
@@ -281,6 +313,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                     variant="ghost"
                     size="sm"
                     className="ml-auto text-destructive hover:text-destructive"
+                    onClick={() => setDeleteOpen(true)}
                   >
                     <Trash2 className="h-4 w-4" />
                     Delete
@@ -464,5 +497,28 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
         ) : null}
       </SheetContent>
     </Sheet>
+
+    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete item?</AlertDialogTitle>
+          <AlertDialogDescription>
+            <span className="font-medium text-foreground">{item?.title}</span> will be permanently
+            deleted. This cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={deleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleting ? 'Deleting…' : 'Delete'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

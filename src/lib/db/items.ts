@@ -171,6 +171,13 @@ export async function updateItemById(
   };
 }
 
+export async function deleteItemById(userId: string, id: string): Promise<boolean> {
+  const existing = await prisma.item.findFirst({ where: { id, userId }, select: { id: true } });
+  if (!existing) return false;
+  await prisma.item.delete({ where: { id } });
+  return true;
+}
+
 export async function getItemsByType(typeSlug: string): Promise<ItemForCard[]> {
   const typeName = SLUG_TO_TYPE[typeSlug];
   if (!typeName) return [];

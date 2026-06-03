@@ -1,16 +1,24 @@
-# Current Feature
+# Current Feature — Item Delete
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Delete button in the item drawer action bar opens a ShadCN AlertDialog confirmation
+- Confirmation dialog describes what will be deleted (item title) and has Cancel / Delete buttons
+- On confirm: calls a `deleteItem(itemId)` server action, closes the drawer, shows a success toast, and triggers `router.refresh()` to update the card list
+- On error: shows an error toast, dialog closes
+- `deleteItem(itemId)` server action in `src/actions/items.ts` — auth check via `auth()`, ownership validation, deletes item via Prisma
+- `deleteItemById(userId, id)` query in `src/lib/db/items.ts` — verifies ownership, deletes record (cascades to tags/collections via Prisma schema)
 
 ## Notes
 
-<!-- Add notes here -->
+- AlertDialog is already installed (`src/components/ui/alert-dialog.tsx`) — reuse it
+- No new Prisma models or migrations needed
+- Server action follows the existing `{ success, data, error }` pattern in `src/actions/items.ts`
+- Keep the Delete button in the action bar (view mode only, not visible in edit mode)
 
 ## History
 
