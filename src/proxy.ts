@@ -7,8 +7,9 @@ export const proxy = auth((req) => {
   const isLoggedIn = !!req.auth;
   const isOnDashboard = req.nextUrl.pathname.startsWith("/dashboard");
   const isOnProfile = req.nextUrl.pathname.startsWith("/profile");
+  const isOnItems = req.nextUrl.pathname.startsWith("/items");
 
-  if ((isOnDashboard || isOnProfile) && !isLoggedIn) {
+  if ((isOnDashboard || isOnProfile || isOnItems) && !isLoggedIn) {
     const signInUrl = new URL("/sign-in", req.nextUrl);
     return Response.redirect(signInUrl);
   }
