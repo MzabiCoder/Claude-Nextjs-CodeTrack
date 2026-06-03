@@ -137,6 +137,13 @@ Not Started
 - Added `DeleteAccountDialog.tsx` using ShadCN AlertDialog for confirmation; POSTs to `DELETE /api/user` — cascades delete via Prisma then signs out and redirects to `/`
 - Installed ShadCN AlertDialog component (`src/components/ui/alert-dialog.tsx`)
 
+### 2026-06-03 — Items List View ✅ Completed
+- Created dynamic route `src/app/items/[type]/page.tsx` — server component, handles all 7 type slugs, returns 404 for unknown types
+- Added `src/app/items/layout.tsx` wrapping children in `DashboardShell` (same pattern as dashboard layout)
+- Added `getItemsByType(typeSlug)` to `src/lib/db/items.ts` with a `SLUG_TO_TYPE` reverse map
+- Two-column responsive grid (`grid-cols-1 md:grid-cols-2`) using existing `ItemCard` component
+- Protected `/items` routes in `src/proxy.ts` alongside `/dashboard` and `/profile`
+
 ### 2026-06-01 — Rate Limiting for Auth ✅ Completed
 - Created `src/lib/rate-limit.ts` with Upstash Redis sliding window limiters, IP extraction, fail-open error handling, and `rateLimitResponse()` helper
 - Rate limited `POST /api/auth/register` (3 attempts / 1 hour / by IP)
