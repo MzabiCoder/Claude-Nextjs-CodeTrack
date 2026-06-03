@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { ContentType } from '@/generated/prisma/enums';
 
 const SLUG_TO_TYPE: Record<string, string> = {
   snippets: 'snippet',
@@ -169,6 +170,57 @@ export async function updateItemById(
     tags: updated.tags.map((t) => t.name),
     collections: updated.collections.map((ic) => ic.collection),
   };
+}
+
+const TYPE_TO_CONTENT_TYPE: Record<string, ContentType> = {
+  snippet: ContentType.TEXT,
+  prompt: ContentType.TEXT,
+  command: ContentType.TEXT,
+  note: ContentType.TEXT,
+  link: ContentType.URL,
+};
+
+export type CreateItemData = {
+  typeName: string;
+  title: string;
+  description: string | null;
+  content: string | null;
+  url: string | null;
+  language: string | null;
+  tags: string[];
+};
+
+export async function createItemInDb(userId: string, data: CreateItemData): Promise<ItemForCard | null> {
+  const contentType = TYPE_TO_CONTENT_TYPE[data.typeName];
+  if (!contentType) return null;
+
+  const itemType = await prisma.itemType.findFirst({
+    where: { name: data.typeName },
+    select: { id: true },
+  });
+  if (!itemType) return null;
+
+  const created = await prisma.item.create({
+    data: {
+      userId,
+      itemTypeId: itemType.id,
+      contentType,
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      url: data.url,
+      language: data.language,
+      tags: {
+        connectOrCreate: data.tags.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+    },
+    select: itemSelect,
+  });
+
+  return mapItem(created);
 }
 
 export async function deleteItemById(userId: string, id: string): Promise<boolean> {

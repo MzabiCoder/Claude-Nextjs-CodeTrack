@@ -1,16 +1,79 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { deleteItem } from './items';
+import { deleteItem, createItem } from './items';
 
 vi.mock('@/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/lib/db/items', () => ({
   deleteItemById: vi.fn(),
   updateItemById: vi.fn(),
+  createItemInDb: vi.fn(),
 }));
 
 const { auth } = await import('@/auth');
-const { deleteItemById } = await import('@/lib/db/items');
+const { deleteItemById, createItemInDb } = await import('@/lib/db/items');
 const mockAuth = vi.mocked(auth);
 const mockDeleteItemById = vi.mocked(deleteItemById);
+const mockCreateItemInDb = vi.mocked(createItemInDb);
+
+const baseCardItem = {
+  id: 'item-1',
+  title: 'My Snippet',
+  description: null,
+  isFavorite: false,
+  isPinned: false,
+  language: 'typescript',
+  createdAt: new Date('2026-01-01'),
+  tags: [],
+  itemType: { id: 'type-1', name: 'snippet', icon: 'Code', color: '#3b82f6' },
+};
+
+describe('createItem', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns unauthorized when there is no session', async () => {
+    mockAuth.mockResolvedValue(null);
+    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    expect(result).toEqual({ success: false, error: 'Unauthorized' });
+  });
+
+  it('returns unauthorized when session has no user id', async () => {
+    mockAuth.mockResolvedValue({ user: {} } as never);
+    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    expect(result).toEqual({ success: false, error: 'Unauthorized' });
+  });
+
+  it('returns validation error when title is empty', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    const result = await createItem({ typeName: 'snippet', title: '   ', tags: [] });
+    expect(result).toEqual({ success: false, error: 'Title is required' });
+  });
+
+  it('returns error when link type has no url', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    const result = await createItem({ typeName: 'link', title: 'My Link', tags: [] });
+    expect(result).toEqual({ success: false, error: 'URL is required for link items' });
+  });
+
+  it('returns error when createItemInDb returns null', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    mockCreateItemInDb.mockResolvedValue(null);
+    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    expect(result).toEqual({ success: false, error: 'Failed to create item' });
+  });
+
+  it('scopes createItemInDb to the authenticated user id', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-42' } } as never);
+    mockCreateItemInDb.mockResolvedValue(baseCardItem);
+    await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    expect(mockCreateItemInDb).toHaveBeenCalledWith('user-42', expect.objectContaining({ typeName: 'snippet' }));
+  });
+
+  it('returns success when item is created', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    mockCreateItemInDb.mockResolvedValue(baseCardItem);
+    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    expect(result).toEqual({ success: true });
+  });
+});
 
 describe('deleteItem', () => {
   beforeEach(() => vi.clearAllMocks());
