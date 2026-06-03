@@ -1,28 +1,16 @@
-# Current Feature: Item Create
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- "New Item" button in top bar opens a shadcn Dialog modal
-- Type selector lets user pick from: snippet, prompt, command, note, link
-- Fields shown dynamically based on selected type:
-  - All types: title (required), description, tags
-  - snippet/command: content, language
-  - prompt/note: content
-  - link: URL (required)
-- `createItem` server action with Zod validation
-- `createItemInDb` (or similar) query function in `lib/db/items.ts`
-- Toast on success, modal closes and page refreshes
+<!-- Add goals here -->
 
 ## Notes
 
-- Skip file/image types in the modal (Pro-only, not in scope)
-- Follow existing `{ success, data, error }` pattern from `src/actions/items.ts`
-- Follow existing Zod v4 schema style from `updateItem`
-- Use shadcn Dialog component (install if not already present)
+<!-- Add notes here -->
 
 ## History
 
@@ -188,6 +176,14 @@ In Progress
 - Created `src/actions/items.ts` with `updateItem(itemId, data)` — Zod v4 schema validates all fields, `auth()` session check, `{ success, data, error }` return pattern
 - Added `updateItemById(userId, id, data)` to `src/lib/db/items.ts` — ownership check, tag disconnect-all + connect-or-create, returns updated `ItemDetail`
 - Installed `zod` as an explicit dependency (was previously transitive only)
+
+### 2026-06-03 — Item Create ✅ Completed
+- Installed ShadCN Dialog component (`src/components/ui/dialog.tsx`)
+- Created `NewItemDialog.tsx` — type selector (snippet/prompt/command/note/link), dynamic fields per type, toast on success, closes and refreshes on create
+- Added `createItemInDb(userId, data)` to `src/lib/db/items.ts` — looks up itemType by name, maps to `ContentType` enum, creates item with tag `connectOrCreate`
+- Added `createItem(data)` server action to `src/actions/items.ts` — Zod v4 validation, auth check, link URL required guard, `{ success }` or `{ success: false, error }` return
+- Wired "New Item" button in `TopBar` → `newItemOpen` state in `DashboardShell` → `NewItemDialog`
+- 12 new unit tests (6 for `createItem`, 5 for `createItemInDb`, 1 for `deleteItemById`); 32 total passing
 
 ### 2026-06-03 — Item Delete ✅ Completed
 - Delete button in the drawer action bar (view mode only) opens a ShadCN AlertDialog showing the item title
