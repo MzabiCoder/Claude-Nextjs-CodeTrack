@@ -29,9 +29,11 @@ If a Neon tool call does not require a `branchId`, still default to Devolement m
 ## Commands
 
 ```bash
-npm run dev       # start dev server (Next.js on port 3000)
-npm run build     # production build
-npm run start     # serve production build
-npm run lint      # run ESLint
+npm run dev         # start dev server (Next.js on port 3000)
+npm run build       # production build
+npm run start       # serve production build
+npm run lint        # run ESLint
+npm run test        # run unit tests (single run)
+npm run test:watch  # run unit tests in watch mode
 ```
  

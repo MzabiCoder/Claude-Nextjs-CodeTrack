@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
     "db:studio": "prisma studio"
   },
   "dependencies": {
@@ -43,6 +45,8 @@
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.8"
   }
 }
