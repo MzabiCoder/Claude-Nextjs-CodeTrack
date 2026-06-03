@@ -137,6 +137,10 @@ Not Started
 - Added `DeleteAccountDialog.tsx` using ShadCN AlertDialog for confirmation; POSTs to `DELETE /api/user` — cascades delete via Prisma then signs out and redirects to `/`
 - Installed ShadCN AlertDialog component (`src/components/ui/alert-dialog.tsx`)
 
+### 2026-06-03 — Item List View 3-Column Layout ✅ Completed
+- Updated `/items/[type]` grid from `md:grid-cols-2` to `md:grid-cols-2 lg:grid-cols-3`
+- Responsive: 1 col on mobile, 2 on md, 3 on lg+
+
 ### 2026-06-03 — Items List View ✅ Completed
 - Created dynamic route `src/app/items/[type]/page.tsx` — server component, handles all 7 type slugs, returns 404 for unknown types
 - Added `src/app/items/layout.tsx` wrapping children in `DashboardShell` (same pattern as dashboard layout)
