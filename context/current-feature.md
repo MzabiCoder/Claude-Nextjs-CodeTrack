@@ -1,24 +1,16 @@
-# Current Feature — Item Delete
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Delete button in the item drawer action bar opens a ShadCN AlertDialog confirmation
-- Confirmation dialog describes what will be deleted (item title) and has Cancel / Delete buttons
-- On confirm: calls a `deleteItem(itemId)` server action, closes the drawer, shows a success toast, and triggers `router.refresh()` to update the card list
-- On error: shows an error toast, dialog closes
-- `deleteItem(itemId)` server action in `src/actions/items.ts` — auth check via `auth()`, ownership validation, deletes item via Prisma
-- `deleteItemById(userId, id)` query in `src/lib/db/items.ts` — verifies ownership, deletes record (cascades to tags/collections via Prisma schema)
+<!-- Add goals here -->
 
 ## Notes
 
-- AlertDialog is already installed (`src/components/ui/alert-dialog.tsx`) — reuse it
-- No new Prisma models or migrations needed
-- Server action follows the existing `{ success, data, error }` pattern in `src/actions/items.ts`
-- Keep the Delete button in the action bar (view mode only, not visible in edit mode)
+<!-- Add notes here -->
 
 ## History
 
@@ -184,3 +176,11 @@ In Progress
 - Created `src/actions/items.ts` with `updateItem(itemId, data)` — Zod v4 schema validates all fields, `auth()` session check, `{ success, data, error }` return pattern
 - Added `updateItemById(userId, id, data)` to `src/lib/db/items.ts` — ownership check, tag disconnect-all + connect-or-create, returns updated `ItemDetail`
 - Installed `zod` as an explicit dependency (was previously transitive only)
+
+### 2026-06-03 — Item Delete ✅ Completed
+- Delete button in the drawer action bar (view mode only) opens a ShadCN AlertDialog showing the item title
+- Cancel dismisses; Delete calls `deleteItem` server action → closes drawer → success toast → `router.refresh()`
+- Error case shows toast and leaves dialog closed
+- Added `deleteItemById(userId, id)` to `src/lib/db/items.ts` — ownership check then `prisma.item.delete`; returns `boolean`
+- Added `deleteItem(itemId)` to `src/actions/items.ts` — `auth()` session check, ownership validation, `{ success }` or `{ success: false, error }` return
+- Created `src/actions/items.test.ts` with 5 tests for `deleteItem`; extended `src/lib/db/items.test.ts` with 5 tests for `deleteItemById` (20 total passing)
