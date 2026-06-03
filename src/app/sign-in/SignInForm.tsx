@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ export function SignInForm({ callbackUrl, urlError, registered, verified, reset 
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<"github" | "credentials" | null>(null);
   const [credError, setCredError] = useState<string | null>(null);
+  const router = useRouter();
 
   const errorMessage = urlError
     ? (ERROR_MESSAGES[urlError] ?? "Something went wrong. Please try again.")
@@ -48,10 +50,9 @@ export function SignInForm({ callbackUrl, urlError, registered, verified, reset 
     if (result?.error) {
       setCredError(ERROR_MESSAGES[result.error] ?? "Something went wrong. Please try again.");
       setLoading(null);
-    } else if (result?.url) {
-      window.location.href = result.url;
     } else {
-      setLoading(null);
+      router.refresh();
+      router.push(callbackUrl);
     }
   }
 

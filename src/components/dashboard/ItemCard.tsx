@@ -21,7 +21,10 @@ export function ItemCard({ item }: { item: ItemForCard }) {
   const color = item.itemType.color;
 
   return (
-    <div className="flex items-start gap-4 rounded-lg border bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer">
+    <div
+      className="flex items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer"
+      style={{ borderLeftColor: color }}
+    >
       <div
         className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: `${color}20`, color }}
