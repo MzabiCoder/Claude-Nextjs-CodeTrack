@@ -1,6 +1,9 @@
+'use client';
+
 import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Pin } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
 import { type ItemForCard } from '@/lib/db/items';
+import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -17,6 +20,7 @@ function formatDate(date: Date): string {
 }
 
 export function ItemCard({ item }: { item: ItemForCard }) {
+  const { openDrawer } = useItemDrawer();
   const Icon = ICON_MAP[item.itemType.icon] ?? Code;
   const color = item.itemType.color;
 
@@ -24,6 +28,7 @@ export function ItemCard({ item }: { item: ItemForCard }) {
     <div
       className="flex items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer"
       style={{ borderLeftColor: color }}
+      onClick={() => openDrawer(item.id)}
     >
       <div
         className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
