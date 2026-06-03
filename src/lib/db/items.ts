@@ -1,5 +1,15 @@
 import { prisma } from '@/lib/prisma';
 
+const SLUG_TO_TYPE: Record<string, string> = {
+  snippets: 'snippet',
+  prompts: 'prompt',
+  commands: 'command',
+  notes: 'note',
+  files: 'file',
+  images: 'image',
+  links: 'link',
+};
+
 export type ItemForCard = {
   id: string;
   title: string;
@@ -56,6 +66,18 @@ export async function getRecentItems(limit = 10): Promise<ItemForCard[]> {
   const items = await prisma.item.findMany({
     orderBy: { createdAt: 'desc' },
     take: limit,
+    select: itemSelect,
+  });
+  return items.map(mapItem);
+}
+
+export async function getItemsByType(typeSlug: string): Promise<ItemForCard[]> {
+  const typeName = SLUG_TO_TYPE[typeSlug];
+  if (!typeName) return [];
+
+  const items = await prisma.item.findMany({
+    where: { itemType: { name: typeName } },
+    orderBy: { createdAt: 'desc' },
     select: itemSelect,
   });
   return items.map(mapItem);
