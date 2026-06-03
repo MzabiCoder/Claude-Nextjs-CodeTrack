@@ -1,17 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getItemById } from './items';
+import { getItemById, deleteItemById } from './items';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     item: {
       findFirst: vi.fn(),
       findMany: vi.fn(),
+      delete: vi.fn(),
     },
   },
 }));
 
 const { prisma } = await import('@/lib/prisma');
 const mockFindFirst = vi.mocked(prisma.item.findFirst);
+const mockDelete = vi.mocked(prisma.item.delete);
 
 const baseItem = {
   id: 'item-1',
@@ -67,5 +69,41 @@ describe('getItemById', () => {
       isFavorite: false,
       isPinned: false,
     });
+  });
+});
+
+describe('deleteItemById', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns false when item is not found or belongs to another user', async () => {
+    mockFindFirst.mockResolvedValue(null);
+    expect(await deleteItemById('user-1', 'missing')).toBe(false);
+  });
+
+  it('does not call delete when ownership check fails', async () => {
+    mockFindFirst.mockResolvedValue(null);
+    await deleteItemById('user-1', 'missing');
+    expect(mockDelete).not.toHaveBeenCalled();
+  });
+
+  it('scopes ownership check to userId and id', async () => {
+    mockFindFirst.mockResolvedValue(null);
+    await deleteItemById('user-42', 'item-99');
+    expect(mockFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'item-99', userId: 'user-42' } })
+    );
+  });
+
+  it('calls prisma.item.delete with the correct id', async () => {
+    mockFindFirst.mockResolvedValue({ id: 'item-1' });
+    mockDelete.mockResolvedValue({} as never);
+    await deleteItemById('user-1', 'item-1');
+    expect(mockDelete).toHaveBeenCalledWith({ where: { id: 'item-1' } });
+  });
+
+  it('returns true on successful deletion', async () => {
+    mockFindFirst.mockResolvedValue({ id: 'item-1' });
+    mockDelete.mockResolvedValue({} as never);
+    expect(await deleteItemById('user-1', 'item-1')).toBe(true);
   });
 });
