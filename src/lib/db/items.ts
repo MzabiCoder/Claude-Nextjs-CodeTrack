@@ -114,6 +114,63 @@ export async function getItemById(userId: string, id: string): Promise<ItemDetai
   };
 }
 
+export type UpdateItemData = {
+  title: string;
+  description: string | null;
+  content: string | null;
+  url: string | null;
+  language: string | null;
+  tags: string[];
+};
+
+export async function updateItemById(
+  userId: string,
+  id: string,
+  data: UpdateItemData
+): Promise<ItemDetail | null> {
+  const existing = await prisma.item.findFirst({ where: { id, userId }, select: { id: true } });
+  if (!existing) return null;
+
+  const updated = await prisma.item.update({
+    where: { id },
+    data: {
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      url: data.url,
+      language: data.language,
+      tags: {
+        set: [],
+        connectOrCreate: data.tags.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      content: true,
+      url: true,
+      isFavorite: true,
+      isPinned: true,
+      language: true,
+      createdAt: true,
+      updatedAt: true,
+      tags: { select: { name: true } },
+      itemType: { select: { name: true, icon: true, color: true } },
+      collections: { select: { collection: { select: { id: true, name: true } } } },
+    },
+  });
+
+  return {
+    ...updated,
+    tags: updated.tags.map((t) => t.name),
+    collections: updated.collections.map((ic) => ic.collection),
+  };
+}
+
 export async function getItemsByType(typeSlug: string): Promise<ItemForCard[]> {
   const typeName = SLUG_TO_TYPE[typeSlug];
   if (!typeName) return [];
