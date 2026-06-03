@@ -1,30 +1,16 @@
-# Current Feature — Item Drawer Edit Mode
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Edit button in item drawer action bar switches drawer to inline edit mode
-- Action bar replaced with Save / Cancel buttons in edit mode
-- Cancel discards changes and returns to view mode
-- Save persists changes via server action, returns to view mode, refreshes drawer data, and triggers `router.refresh()`
-- Toast notification on save success or error
-- Editable fields: title (required), description, tags (comma-separated input)
-- Type-specific fields: content (snippet/prompt/command/note), language (snippet/command), url (link)
-- Non-editable in edit mode: item type, collections, created/updated dates
-- `updateItem(itemId, data)` server action in `src/actions/items.ts` with Zod validation and `{ success, data, error }` return
-- `updateItem` query in `src/lib/db/items.ts` — disconnects all tags, connect-or-creates new ones, returns updated `ItemDetail`
-- Save button disabled client-side when title is empty
+<!-- Add goals here -->
 
 ## Notes
 
-- No form library — controlled inputs with local state
-- Zod is the source of truth for validation (server-side); client only guards empty title
-- Content textarea is plain text, no code editor yet
-- Tag handling: disconnect all existing, connect-or-create new on save
-- Collections management is out of scope for this feature
+<!-- Add notes here -->
 
 ## History
 
@@ -179,3 +165,14 @@ In Progress
 - Added login rate limiting inside NextAuth `authorize()` (5 attempts / 15 min / IP + email) via `RateLimited extends CredentialsSignin` error class
 - `SignInForm.tsx` maps `rate_limited` error code to user-friendly message
 - All routes return 429 with `{ error: "Too many attempts..." }` and `Retry-After` header; fail open if Upstash is unavailable
+
+### 2026-06-03 — Item Drawer Edit Mode ✅ Completed
+- Edit button in the drawer action bar switches to inline edit mode
+- Action bar replaced with Save (green) and Cancel buttons in edit mode; Save disabled when title is empty
+- Editable fields: title (input), description (textarea), tags (comma-separated input)
+- Type-specific fields: content textarea for snippet/prompt/command/note; language input for snippet/command; URL input for link
+- Non-editable in edit mode: item type chip, collections, created/updated dates
+- Cancel discards changes and returns to view mode; Save calls `updateItem` server action, re-fetches drawer data, shows toast, and triggers `router.refresh()`
+- Created `src/actions/items.ts` with `updateItem(itemId, data)` — Zod v4 schema validates all fields, `auth()` session check, `{ success, data, error }` return pattern
+- Added `updateItemById(userId, id, data)` to `src/lib/db/items.ts` — ownership check, tag disconnect-all + connect-or-create, returns updated `ItemDetail`
+- Installed `zod` as an explicit dependency (was previously transitive only)
