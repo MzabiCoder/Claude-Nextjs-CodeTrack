@@ -5,6 +5,7 @@ import { TopBar } from '@/components/dashboard/TopBar';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { ItemDrawer } from '@/components/dashboard/ItemDrawer';
 import { ItemDrawerContext } from '@/components/dashboard/ItemDrawerContext';
+import { NewItemDialog } from '@/components/dashboard/NewItemDialog';
 import type { SidebarData } from '@/lib/db/sidebar';
 
 export interface SessionUser {
@@ -22,11 +23,12 @@ interface DashboardShellProps {
 export function DashboardShell({ children, sidebarData, user }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [newItemOpen, setNewItemOpen] = useState(false);
 
   return (
     <ItemDrawerContext.Provider value={{ openDrawer: setSelectedItemId }}>
       <div className="flex h-screen flex-col bg-background text-foreground">
-        <TopBar onMobileMenuClick={() => setMobileOpen(true)} user={user} />
+        <TopBar onMobileMenuClick={() => setMobileOpen(true)} user={user} onNewItemClick={() => setNewItemOpen(true)} />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
             mobileOpen={mobileOpen}
@@ -42,6 +44,7 @@ export function DashboardShell({ children, sidebarData, user }: DashboardShellPr
         onClose={() => setSelectedItemId(null)}
         itemId={selectedItemId}
       />
+      <NewItemDialog open={newItemOpen} onClose={() => setNewItemOpen(false)} />
     </ItemDrawerContext.Provider>
   );
 }

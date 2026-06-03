@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getItemById, deleteItemById } from './items';
+import { getItemById, deleteItemById, createItemInDb } from './items';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
@@ -7,6 +7,10 @@ vi.mock('@/lib/prisma', () => ({
       findFirst: vi.fn(),
       findMany: vi.fn(),
       delete: vi.fn(),
+      create: vi.fn(),
+    },
+    itemType: {
+      findFirst: vi.fn(),
     },
   },
 }));
@@ -14,6 +18,8 @@ vi.mock('@/lib/prisma', () => ({
 const { prisma } = await import('@/lib/prisma');
 const mockFindFirst = vi.mocked(prisma.item.findFirst);
 const mockDelete = vi.mocked(prisma.item.delete);
+const mockCreate = vi.mocked(prisma.item.create);
+const mockItemTypeFindFirst = vi.mocked(prisma.itemType.findFirst);
 
 const baseItem = {
   id: 'item-1',
@@ -105,5 +111,96 @@ describe('deleteItemById', () => {
     mockFindFirst.mockResolvedValue({ id: 'item-1' });
     mockDelete.mockResolvedValue({} as never);
     expect(await deleteItemById('user-1', 'item-1')).toBe(true);
+  });
+});
+
+const createdItem = {
+  id: 'item-new',
+  title: 'My Snippet',
+  description: null,
+  isFavorite: false,
+  isPinned: false,
+  language: 'typescript',
+  createdAt: new Date('2026-01-01'),
+  tags: [{ name: 'react' }],
+  itemType: { id: 'type-1', name: 'snippet', icon: 'Code', color: '#3b82f6' },
+};
+
+describe('createItemInDb', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns null for an unknown type name', async () => {
+    expect(await createItemInDb('user-1', {
+      typeName: 'unknown',
+      title: 'Test',
+      description: null,
+      content: null,
+      url: null,
+      language: null,
+      tags: [],
+    })).toBeNull();
+  });
+
+  it('returns null when itemType is not found in the database', async () => {
+    mockItemTypeFindFirst.mockResolvedValue(null);
+    expect(await createItemInDb('user-1', {
+      typeName: 'snippet',
+      title: 'Test',
+      description: null,
+      content: null,
+      url: null,
+      language: null,
+      tags: [],
+    })).toBeNull();
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('creates item with TEXT contentType for snippet', async () => {
+    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-1' });
+    mockCreate.mockResolvedValue(createdItem as never);
+    await createItemInDb('user-1', {
+      typeName: 'snippet',
+      title: 'Test',
+      description: null,
+      content: 'code here',
+      url: null,
+      language: 'typescript',
+      tags: [],
+    });
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ contentType: 'TEXT' }) })
+    );
+  });
+
+  it('creates item with URL contentType for link', async () => {
+    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-2' });
+    mockCreate.mockResolvedValue({ ...createdItem, itemType: { ...createdItem.itemType, name: 'link' } } as never);
+    await createItemInDb('user-1', {
+      typeName: 'link',
+      title: 'My Link',
+      description: null,
+      content: null,
+      url: 'https://example.com',
+      language: null,
+      tags: [],
+    });
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ contentType: 'URL' }) })
+    );
+  });
+
+  it('flattens tags from relation to string array', async () => {
+    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-1' });
+    mockCreate.mockResolvedValue(createdItem as never);
+    const result = await createItemInDb('user-1', {
+      typeName: 'snippet',
+      title: 'Test',
+      description: null,
+      content: null,
+      url: null,
+      language: null,
+      tags: ['react'],
+    });
+    expect(result?.tags).toEqual(['react']);
   });
 });
