@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Item Drawer
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Right-side slide-in Sheet drawer opens when clicking an `ItemCard`
+- Works on both dashboard and items list pages (server components — client wrapper manages state)
+- Full item data fetched on click via `GET /api/items/[id]` — no page navigation
+- Skeleton loading state shown while fetch is in flight
+- Action bar: Favorite (star, yellow when active), Pin, Copy, Edit (pencil), Delete (trash, right-aligned)
+- Display sections: description, content, url, tags, collections, details (language, dates, etc.)
 
 ## Notes
 
-<!-- Add notes here -->
+- Use shadcn `Sheet` component, opens from right
+- Card data already fetched by server component; only full detail (content, collections, language) fetched on click
+- Query function lives in `lib/db/items.ts`; API route calls it with auth check
+- Code editor and other item-specific extras are deferred — focus is drawer detail display only
+- Visual reference: `context/screenshots/dashboard-ui-drawer.png`
 
 ## History
 
@@ -136,6 +145,15 @@ Not Started
 - Added `ChangePasswordForm.tsx` (shown only for Credentials users with `user.password` set); POSTs to `POST /api/user/change-password`
 - Added `DeleteAccountDialog.tsx` using ShadCN AlertDialog for confirmation; POSTs to `DELETE /api/user` — cascades delete via Prisma then signs out and redirects to `/`
 - Installed ShadCN AlertDialog component (`src/components/ui/alert-dialog.tsx`)
+
+### 2026-06-03 — Item Drawer ✅ Completed
+- Added right-side Sheet drawer that opens on `ItemCard` click via `ItemDrawerContext`
+- `ItemDrawerContext` provides `openDrawer(id)` to all cards through `DashboardShell` — no page file changes needed
+- Created `GET /api/items/[id]`: auth-checked via `auth()`, returns 401/404 or full item JSON scoped to authenticated user
+- Added `getItemById(userId, id)` to `src/lib/db/items.ts` — fetches content, url, collections, language, dates
+- Drawer: header with icon + title + type/language chips, action bar (Favorite/Pin/Copy/Edit/Delete), body sections (description, content, url, tags, collections, details)
+- Skeleton loading state while fetch is in flight
+- 10 unit tests covering `getItemById` mapping logic and API route auth/authorization paths
 
 ### 2026-06-03 — Item List View 3-Column Layout ✅ Completed
 - Updated `/items/[type]` grid from `md:grid-cols-2` to `md:grid-cols-2 lg:grid-cols-3`
