@@ -15,6 +15,7 @@ export type ItemForCard = {
   id: string;
   title: string;
   description: string | null;
+  fileUrl: string | null;
   isFavorite: boolean;
   isPinned: boolean;
   language: string | null;
@@ -32,6 +33,7 @@ const itemSelect = {
   id: true,
   title: true,
   description: true,
+  fileUrl: true,
   isFavorite: true,
   isPinned: true,
   language: true,
@@ -44,6 +46,7 @@ function mapItem(item: {
   id: string;
   title: string;
   description: string | null;
+  fileUrl: string | null;
   isFavorite: boolean;
   isPinned: boolean;
   language: string | null;

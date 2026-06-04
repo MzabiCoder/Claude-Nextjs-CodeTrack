@@ -1,16 +1,20 @@
-# Current Feature
+# Current Feature: Image Gallery View
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add feature goals here -->
+- Create an `ImageCard` thumbnail component to replace the regular `ItemCard` for image items
+- Show an image grid/gallery at `/items/images` with 3 columns
+- Display image thumbnail with 16:9 aspect ratio (`aspect-video`) and `object-cover`
+- Subtle hover zoom effect (5% scale, 300ms transition)
 
 ## Notes
 
-<!-- Add feature notes here -->
+- The gallery replaces the standard card grid only on the `/items/images` route
+- Regular `ItemCard` continues to be used on the dashboard and all other type pages
 
 ## History
 
