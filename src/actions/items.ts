@@ -2,16 +2,20 @@
 
 import { z } from 'zod';
 import { auth } from '@/auth';
-import { updateItemById, deleteItemById, createItemInDb, type ItemDetail } from '@/lib/db/items';
+import { updateItemById, deleteItemById, createItemInDb, getItemFileUrl, type ItemDetail } from '@/lib/db/items';
+import { deleteObject, keyFromPublicUrl } from '@/lib/r2';
 
 const createItemSchema = z.object({
-  typeName: z.enum(['snippet', 'prompt', 'command', 'note', 'link']),
+  typeName: z.enum(['snippet', 'prompt', 'command', 'note', 'link', 'file', 'image']),
   title: z.string().trim().min(1, 'Title is required'),
   description: z.string().trim().nullable().optional(),
   content: z.string().nullable().optional(),
   url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')).transform((v) => v || null),
   language: z.string().trim().nullable().optional(),
   tags: z.array(z.string().trim().min(1)).default([]),
+  fileUrl: z.string().nullable().optional(),
+  fileName: z.string().nullable().optional(),
+  fileSize: z.number().nullable().optional(),
 });
 
 export type CreateItemInput = z.infer<typeof createItemSchema>;
@@ -31,6 +35,9 @@ export async function createItem(data: CreateItemInput): Promise<CreateItemResul
   if (parsed.data.typeName === 'link' && !parsed.data.url) {
     return { success: false, error: 'URL is required for link items' };
   }
+  if (['file', 'image'].includes(parsed.data.typeName) && !parsed.data.fileUrl) {
+    return { success: false, error: 'File upload required' };
+  }
 
   const created = await createItemInDb(session.user.id, {
     typeName: parsed.data.typeName,
@@ -40,6 +47,9 @@ export async function createItem(data: CreateItemInput): Promise<CreateItemResul
     url: parsed.data.url ?? null,
     language: parsed.data.language ?? null,
     tags: parsed.data.tags,
+    fileUrl: parsed.data.fileUrl ?? null,
+    fileName: parsed.data.fileName ?? null,
+    fileSize: parsed.data.fileSize ?? null,
   });
 
   if (!created) {
@@ -99,9 +109,17 @@ export async function deleteItem(itemId: string): Promise<DeleteItemResult> {
     return { success: false, error: 'Unauthorized' };
   }
 
+  // Fetch fileUrl before deletion for R2 cleanup
+  const fileUrl = await getItemFileUrl(session.user.id, itemId);
+
   const deleted = await deleteItemById(session.user.id, itemId);
   if (!deleted) {
     return { success: false, error: 'Item not found' };
+  }
+
+  if (fileUrl) {
+    const key = keyFromPublicUrl(fileUrl);
+    await deleteObject(key);
   }
 
   return { success: true };

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, Link } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -17,8 +17,9 @@ import { Input } from '@/components/ui/input';
 import { createItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
+import { FileUpload, type UploadResult } from '@/components/shared/FileUpload';
 
-type TypeName = 'snippet' | 'prompt' | 'command' | 'note' | 'link';
+type TypeName = 'snippet' | 'prompt' | 'command' | 'note' | 'link' | 'file' | 'image';
 
 const TYPES: { name: TypeName; label: string; icon: LucideIcon; color: string }[] = [
   { name: 'snippet', label: 'Snippet', icon: Code, color: '#3b82f6' },
@@ -26,12 +27,15 @@ const TYPES: { name: TypeName; label: string; icon: LucideIcon; color: string }[
   { name: 'command', label: 'Command', icon: Terminal, color: '#f97316' },
   { name: 'note', label: 'Note', icon: StickyNote, color: '#fde047' },
   { name: 'link', label: 'Link', icon: Link, color: '#10b981' },
+  { name: 'file', label: 'File', icon: FileIcon, color: '#6b7280' },
+  { name: 'image', label: 'Image', icon: ImageIcon, color: '#ec4899' },
 ];
 
 const CONTENT_TYPES = new Set<TypeName>(['snippet', 'prompt', 'command', 'note']);
 const LANGUAGE_TYPES = new Set<TypeName>(['snippet', 'command']);
 const CODE_EDITOR_TYPES = new Set<TypeName>(['snippet', 'command']);
 const MARKDOWN_EDITOR_TYPES = new Set<TypeName>(['note', 'prompt']);
+const FILE_UPLOAD_TYPES = new Set<TypeName>(['file', 'image']);
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -56,6 +60,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
   const [url, setUrl] = useState('');
   const [language, setLanguage] = useState('');
   const [tags, setTags] = useState('');
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [saving, setSaving] = useState(false);
 
   function handleClose() {
@@ -66,7 +71,13 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
     setUrl('');
     setLanguage('');
     setTags('');
+    setUploadResult(null);
     onClose();
+  }
+
+  function handleTypeChange(type: TypeName) {
+    setSelectedType(type);
+    setUploadResult(null);
   }
 
   async function handleSubmit() {
@@ -85,6 +96,9 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
         url: url || null,
         language: language || null,
         tags: tagList,
+        fileUrl: uploadResult?.fileUrl ?? null,
+        fileName: uploadResult?.fileName ?? null,
+        fileSize: uploadResult?.fileSize ?? null,
       });
 
       if (!result.success) {
@@ -103,9 +117,13 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
   const showContent = CONTENT_TYPES.has(selectedType);
   const showLanguage = LANGUAGE_TYPES.has(selectedType);
   const showUrl = selectedType === 'link';
+  const showFileUpload = FILE_UPLOAD_TYPES.has(selectedType);
   const useCodeEditor = CODE_EDITOR_TYPES.has(selectedType);
   const useMarkdownEditor = MARKDOWN_EDITOR_TYPES.has(selectedType);
-  const canSubmit = title.trim() !== '' && (!showUrl || url.trim() !== '');
+  const canSubmit =
+    title.trim() !== '' &&
+    (!showUrl || url.trim() !== '') &&
+    (!showFileUpload || uploadResult !== null);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
@@ -122,7 +140,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
                 <button
                   key={name}
                   type="button"
-                  onClick={() => setSelectedType(name)}
+                  onClick={() => handleTypeChange(name)}
                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
                     selectedType === name
                       ? 'border-transparent'
@@ -184,6 +202,20 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
                 />
               )}
+            </div>
+          )}
+
+          {showFileUpload && (
+            <div>
+              <FieldLabel required>
+                {selectedType === 'image' ? 'Image' : 'File'}
+              </FieldLabel>
+              <FileUpload
+                key={selectedType}
+                itemType={selectedType as 'file' | 'image'}
+                onUploadComplete={setUploadResult}
+                onClear={() => setUploadResult(null)}
+              />
             </div>
           )}
 
