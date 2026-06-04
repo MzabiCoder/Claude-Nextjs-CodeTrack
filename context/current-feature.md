@@ -1,20 +1,16 @@
-# Current Feature: Image Gallery View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create an `ImageCard` thumbnail component to replace the regular `ItemCard` for image items
-- Show an image grid/gallery at `/items/images` with 3 columns
-- Display image thumbnail with 16:9 aspect ratio (`aspect-video`) and `object-cover`
-- Subtle hover zoom effect (5% scale, 300ms transition)
+<!-- Add feature goals here -->
 
 ## Notes
 
-- The gallery replaces the standard card grid only on the `/items/images` route
-- Regular `ItemCard` continues to be used on the dashboard and all other type pages
+<!-- Add feature notes here -->
 
 ## History
 
@@ -213,6 +209,11 @@ In Progress
 - Replaced plain `textarea` with `MarkdownEditor` for note and prompt content in `ItemDrawer` (view + edit modes) and `NewItemDialog`
 - Added `key="markdown-edit"` / `key="markdown-view"` to prevent React from reusing component state across view/edit mode transitions
 - `CodeEditor` for snippet/command types and link handling unchanged
+
+### 2026-06-04 — Image Gallery View ✅ Completed
+- Created `src/components/dashboard/ImageCard.tsx`: 16:9 `aspect-video` thumbnail with `object-cover`, 5% hover zoom (300ms transition), info section below image separated by `border-t border-border`
+- `/items/images` now renders a 3-column `ImageCard` gallery grid; all other type pages continue using `ItemCard`
+- Added `fileUrl` to `ItemForCard` type, `itemSelect`, and `mapItem` so card thumbnails have access to the R2 URL
 
 ### 2026-06-04 — File & Image Upload with Cloudflare R2 ✅ Completed
 - Installed `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner`; created `src/lib/r2.ts` with S3Client singleton, `putObject`, `deleteObject`, `getPublicUrl`, `keyFromPublicUrl` helpers
