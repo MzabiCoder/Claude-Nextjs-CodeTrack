@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createItem } from '@/actions/items';
+import { CodeEditor } from '@/components/shared/CodeEditor';
 
 type TypeName = 'snippet' | 'prompt' | 'command' | 'note' | 'link';
 
@@ -28,6 +29,7 @@ const TYPES: { name: TypeName; label: string; icon: LucideIcon; color: string }[
 
 const CONTENT_TYPES = new Set<TypeName>(['snippet', 'prompt', 'command', 'note']);
 const LANGUAGE_TYPES = new Set<TypeName>(['snippet', 'command']);
+const CODE_EDITOR_TYPES = new Set<TypeName>(['snippet', 'command']);
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -99,6 +101,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
   const showContent = CONTENT_TYPES.has(selectedType);
   const showLanguage = LANGUAGE_TYPES.has(selectedType);
   const showUrl = selectedType === 'link';
+  const useCodeEditor = CODE_EDITOR_TYPES.has(selectedType);
   const canSubmit = title.trim() !== '' && (!showUrl || url.trim() !== '');
 
   return (
@@ -157,13 +160,21 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
           {showContent && (
             <div>
               <FieldLabel>Content</FieldLabel>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Content…"
-                rows={5}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-              />
+              {useCodeEditor ? (
+                <CodeEditor
+                  value={content}
+                  onChange={setContent}
+                  language={language}
+                />
+              ) : (
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Content…"
+                  rows={5}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+                />
+              )}
             </div>
           )}
 

@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { updateItem, deleteItem } from '@/actions/items';
+import { CodeEditor } from '@/components/shared/CodeEditor';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link,
@@ -26,6 +27,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 const CONTENT_TYPES = new Set(['snippet', 'prompt', 'command', 'note']);
 const LANGUAGE_TYPES = new Set(['snippet', 'command']);
+const CODE_EDITOR_TYPES = new Set(['snippet', 'command']);
 
 type ItemDetailResponse = {
   id: string;
@@ -216,6 +218,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const showContent = CONTENT_TYPES.has(typeName);
   const showLanguage = LANGUAGE_TYPES.has(typeName);
   const showUrl = typeName === 'link';
+  const useCodeEditor = CODE_EDITOR_TYPES.has(typeName);
 
   return (
     <>
@@ -340,13 +343,21 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                   {showContent && (
                     <section>
                       <FieldLabel>Content</FieldLabel>
-                      <textarea
-                        value={formData.content}
-                        onChange={updateField('content')}
-                        placeholder="Content…"
-                        rows={8}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-                      />
+                      {useCodeEditor ? (
+                        <CodeEditor
+                          value={formData.content}
+                          onChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
+                          language={formData.language}
+                        />
+                      ) : (
+                        <textarea
+                          value={formData.content}
+                          onChange={updateField('content')}
+                          placeholder="Content…"
+                          rows={8}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+                        />
+                      )}
                     </section>
                   )}
 
@@ -425,9 +436,17 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                   {item.content && (
                     <section>
                       <FieldLabel>Content</FieldLabel>
-                      <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
-                        {item.content}
-                      </pre>
+                      {useCodeEditor ? (
+                        <CodeEditor
+                          value={item.content}
+                          language={item.language}
+                          readOnly
+                        />
+                      ) : (
+                        <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
+                          {item.content}
+                        </pre>
+                      )}
                     </section>
                   )}
 
