@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getItemsByType } from '@/lib/db/items';
 import { ItemCard } from '@/components/dashboard/ItemCard';
 import { ImageCard } from '@/components/dashboard/ImageCard';
+import { FileRow } from '@/components/dashboard/FileRow';
 
 const VALID_TYPES = new Set([
   'snippets', 'prompts', 'commands', 'notes', 'files', 'images', 'links',
@@ -22,6 +23,7 @@ export default async function ItemsTypePage({
 
   const items = await getItemsByType(type);
   const isImageGallery = type === 'images';
+  const isFileList = type === 'files';
 
   return (
     <div className="space-y-6">
@@ -34,6 +36,12 @@ export default async function ItemsTypePage({
 
       {items.length === 0 ? (
         <p className="text-muted-foreground">No {type} yet.</p>
+      ) : isFileList ? (
+        <div className="rounded-lg border border-border overflow-hidden divide-y divide-border">
+          {items.map((item) => (
+            <FileRow key={item.id} item={item} />
+          ))}
+        </div>
       ) : isImageGallery ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((item) => (
