@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 
 type TypeName = 'snippet' | 'prompt' | 'command' | 'note' | 'link';
 
@@ -30,6 +31,7 @@ const TYPES: { name: TypeName; label: string; icon: LucideIcon; color: string }[
 const CONTENT_TYPES = new Set<TypeName>(['snippet', 'prompt', 'command', 'note']);
 const LANGUAGE_TYPES = new Set<TypeName>(['snippet', 'command']);
 const CODE_EDITOR_TYPES = new Set<TypeName>(['snippet', 'command']);
+const MARKDOWN_EDITOR_TYPES = new Set<TypeName>(['note', 'prompt']);
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -102,6 +104,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
   const showLanguage = LANGUAGE_TYPES.has(selectedType);
   const showUrl = selectedType === 'link';
   const useCodeEditor = CODE_EDITOR_TYPES.has(selectedType);
+  const useMarkdownEditor = MARKDOWN_EDITOR_TYPES.has(selectedType);
   const canSubmit = title.trim() !== '' && (!showUrl || url.trim() !== '');
 
   return (
@@ -165,6 +168,12 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
                   value={content}
                   onChange={setContent}
                   language={language}
+                />
+              ) : useMarkdownEditor ? (
+                <MarkdownEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Write markdown…"
                 />
               ) : (
                 <textarea

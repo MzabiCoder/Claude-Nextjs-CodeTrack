@@ -127,3 +127,68 @@
     @apply font-sans;
     }
 }
+
+.markdown-preview {
+  color: #e4e4e7;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.markdown-preview h1 { font-size: 1.5rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #f4f4f5; }
+.markdown-preview h2 { font-size: 1.25rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #f4f4f5; }
+.markdown-preview h3 { font-size: 1.125rem; font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.375rem; color: #f4f4f5; }
+.markdown-preview h4, .markdown-preview h5, .markdown-preview h6 { font-size: 1rem; font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; color: #f4f4f5; }
+
+.markdown-preview p { margin-bottom: 0.75rem; }
+.markdown-preview p:last-child { margin-bottom: 0; }
+
+.markdown-preview ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.markdown-preview ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.markdown-preview li { margin-bottom: 0.25rem; }
+
+.markdown-preview blockquote {
+  border-left: 3px solid #4b5563;
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.markdown-preview code {
+  background-color: #2d2d2d;
+  border: 1px solid #3f3f46;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  color: #e4e4e7;
+}
+
+.markdown-preview pre {
+  background-color: #2d2d2d;
+  border: 1px solid #3f3f46;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-preview pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+}
+
+.markdown-preview a { color: #60a5fa; text-decoration: underline; }
+.markdown-preview a:hover { color: #93c5fd; }
+
+.markdown-preview hr { border-color: #3f3f46; margin: 1rem 0; }
+
+.markdown-preview table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; }
+.markdown-preview th { background-color: #2d2d2d; padding: 0.375rem 0.75rem; text-align: left; font-weight: 600; border: 1px solid #3f3f46; }
+.markdown-preview td { padding: 0.375rem 0.75rem; border: 1px solid #3f3f46; }
+.markdown-preview tr:nth-child(even) td { background-color: #232323; }
+
+.markdown-preview strong { font-weight: 600; color: #f4f4f5; }
+.markdown-preview em { font-style: italic; }

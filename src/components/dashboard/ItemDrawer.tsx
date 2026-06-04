@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { updateItem, deleteItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link,
@@ -28,6 +29,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 const CONTENT_TYPES = new Set(['snippet', 'prompt', 'command', 'note']);
 const LANGUAGE_TYPES = new Set(['snippet', 'command']);
 const CODE_EDITOR_TYPES = new Set(['snippet', 'command']);
+const MARKDOWN_EDITOR_TYPES = new Set(['note', 'prompt']);
 
 type ItemDetailResponse = {
   id: string;
@@ -219,6 +221,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const showLanguage = LANGUAGE_TYPES.has(typeName);
   const showUrl = typeName === 'link';
   const useCodeEditor = CODE_EDITOR_TYPES.has(typeName);
+  const useMarkdownEditor = MARKDOWN_EDITOR_TYPES.has(typeName);
 
   return (
     <>
@@ -349,6 +352,13 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                           onChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
                           language={formData.language}
                         />
+                      ) : useMarkdownEditor ? (
+                        <MarkdownEditor
+                          key="markdown-edit"
+                          value={formData.content}
+                          onChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
+                          placeholder="Write markdown…"
+                        />
                       ) : (
                         <textarea
                           value={formData.content}
@@ -440,6 +450,12 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                         <CodeEditor
                           value={item.content}
                           language={item.language}
+                          readOnly
+                        />
+                      ) : useMarkdownEditor ? (
+                        <MarkdownEditor
+                          key="markdown-view"
+                          value={item.content}
                           readOnly
                         />
                       ) : (
