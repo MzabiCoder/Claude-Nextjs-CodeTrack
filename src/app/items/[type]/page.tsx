@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getItemsByType } from '@/lib/db/items';
 import { ItemCard } from '@/components/dashboard/ItemCard';
+import { ImageCard } from '@/components/dashboard/ImageCard';
 
 const VALID_TYPES = new Set([
   'snippets', 'prompts', 'commands', 'notes', 'files', 'images', 'links',
@@ -20,6 +21,7 @@ export default async function ItemsTypePage({
   if (!VALID_TYPES.has(type)) notFound();
 
   const items = await getItemsByType(type);
+  const isImageGallery = type === 'images';
 
   return (
     <div className="space-y-6">
@@ -32,6 +34,12 @@ export default async function ItemsTypePage({
 
       {items.length === 0 ? (
         <p className="text-muted-foreground">No {type} yet.</p>
+      ) : isImageGallery ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {items.map((item) => (
+            <ImageCard key={item.id} item={item} />
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((item) => (
