@@ -1,34 +1,16 @@
-# Current Feature: File Upload with Cloudflare R2
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create upload API route for R2
-- Create `FileUpload` component with drag-and-drop and upload progress indicator
-- Update `NewItemDialog` to use `FileUpload` for file/image types
-- Delete files from R2 when items are deleted
-- Create download proxy API route (avoids CORS issues)
-- Add download button in `ItemDrawer` for file types
-- Display image preview for images, file info for files
-- Stick to `lib/db/items.ts` for all Prisma/DB functions
+<!-- Add feature goals here -->
 
 ## Notes
 
-### File Constraints
-
-| Type   | Max Size | Extensions |
-| ------ | -------- | ---------- |
-| Images | 5 MB     | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg` |
-| Files  | 10 MB    | `.pdf`, `.txt`, `.md`, `.json`, `.yaml`, `.yml`, `.xml`, `.csv`, `.toml`, `.ini` |
-
-### MIME Types
-
-**Images:** `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/svg+xml`
-
-**Files:** `application/pdf`, `text/plain`, `text/markdown`, `application/json`, `application/x-yaml`, `text/yaml`, `application/xml`, `text/xml`, `text/csv`, `application/toml`
+<!-- Add feature notes here -->
 
 ## History
 
@@ -227,3 +209,15 @@ In Progress
 - Replaced plain `textarea` with `MarkdownEditor` for note and prompt content in `ItemDrawer` (view + edit modes) and `NewItemDialog`
 - Added `key="markdown-edit"` / `key="markdown-view"` to prevent React from reusing component state across view/edit mode transitions
 - `CodeEditor` for snippet/command types and link handling unchanged
+
+### 2026-06-04 — File & Image Upload with Cloudflare R2 ✅ Completed
+- Installed `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner`; created `src/lib/r2.ts` with S3Client singleton, `putObject`, `deleteObject`, `getPublicUrl`, `keyFromPublicUrl` helpers
+- Created `POST /api/upload`: receives multipart/form-data, validates MIME type and file size (images ≤5 MB, files ≤10 MB), uploads buffer to R2 via `PutObjectCommand`, returns `{ fileUrl, fileName, fileSize, key }`
+- Created `GET /api/download/[id]`: ownership-checked proxy — fetches from R2 public URL and streams back with `Content-Disposition: attachment` for forced downloads
+- Created `src/components/shared/FileUpload.tsx`: drag-and-drop zone, XHR upload with real percentage progress bar, image preview thumbnail on success, file info card with clear button
+- Updated `NewItemDialog`: added `file` and `image` to the type selector; those types render `FileUpload` instead of text fields; Create button disabled until upload completes
+- Updated `ItemDrawer`: `image` type renders inline image preview; `file` type shows name/size info card with Download button; Download action link added to action bar for both types
+- `deleteItem` server action now fetches `fileUrl` before DB deletion and calls `deleteObject` to clean up R2 on item delete
+- `ItemDetail`, `CreateItemData` types extended with `fileUrl`, `fileName`, `fileSize`; `TYPE_TO_CONTENT_TYPE` map includes `file` and `image` → `ContentType.FILE`
+- Updated `next.config.ts` to add R2 public URL hostname to `images.remotePatterns`
+- Tests updated: mocked `getItemFileUrl` and `@/lib/r2` in `items.test.ts`; all 32 tests passing
