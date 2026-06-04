@@ -6,11 +6,11 @@ Not Started
 
 ## Goals
 
-<!-- Add goals here -->
+<!-- Add feature goals here -->
 
 ## Notes
 
-<!-- Add notes here -->
+<!-- Add feature notes here -->
 
 ## History
 
@@ -192,3 +192,11 @@ Not Started
 - Added `deleteItemById(userId, id)` to `src/lib/db/items.ts` — ownership check then `prisma.item.delete`; returns `boolean`
 - Added `deleteItem(itemId)` to `src/actions/items.ts` — `auth()` session check, ownership validation, `{ success }` or `{ success: false, error }` return
 - Created `src/actions/items.test.ts` with 5 tests for `deleteItem`; extended `src/lib/db/items.test.ts` with 5 tests for `deleteItemById` (20 total passing)
+
+### 2026-06-04 — Code Editor ✅ Completed
+- Created `src/components/shared/CodeEditor.tsx` using `@monaco-editor/react` with `vs-dark` theme
+- macOS-style window dots (red/yellow/green) and copy button with `Copied` feedback in editor header
+- Language label displayed in header when set; fluid height auto-resizes from 120px up to 400px max
+- Custom Monaco scrollbar (6px) styled to match dark theme; line numbers, word wrap, no minimap
+- Replaced content `Textarea` with `CodeEditor` in `ItemDrawer` (view + edit modes) and `NewItemDialog` for snippet/command types
+- All other types (prompt, note, link) continue to use plain `Textarea`
