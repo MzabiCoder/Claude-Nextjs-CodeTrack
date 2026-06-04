@@ -6,13 +6,19 @@ vi.mock('@/lib/db/items', () => ({
   deleteItemById: vi.fn(),
   updateItemById: vi.fn(),
   createItemInDb: vi.fn(),
+  getItemFileUrl: vi.fn(),
+}));
+vi.mock('@/lib/r2', () => ({
+  deleteObject: vi.fn(),
+  keyFromPublicUrl: vi.fn((url: string) => url),
 }));
 
 const { auth } = await import('@/auth');
-const { deleteItemById, createItemInDb } = await import('@/lib/db/items');
+const { deleteItemById, createItemInDb, getItemFileUrl } = await import('@/lib/db/items');
 const mockAuth = vi.mocked(auth);
 const mockDeleteItemById = vi.mocked(deleteItemById);
 const mockCreateItemInDb = vi.mocked(createItemInDb);
+const mockGetItemFileUrl = vi.mocked(getItemFileUrl);
 
 const baseCardItem = {
   id: 'item-1',
@@ -92,6 +98,7 @@ describe('deleteItem', () => {
 
   it('returns not found when item does not exist or belongs to another user', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    mockGetItemFileUrl.mockResolvedValue(null);
     mockDeleteItemById.mockResolvedValue(false);
     const result = await deleteItem('item-1');
     expect(result).toEqual({ success: false, error: 'Item not found' });
@@ -99,6 +106,7 @@ describe('deleteItem', () => {
 
   it('scopes deleteItemById to the authenticated user id', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-42' } } as never);
+    mockGetItemFileUrl.mockResolvedValue(null);
     mockDeleteItemById.mockResolvedValue(true);
     await deleteItem('item-99');
     expect(mockDeleteItemById).toHaveBeenCalledWith('user-42', 'item-99');
@@ -106,6 +114,7 @@ describe('deleteItem', () => {
 
   it('returns success when item is deleted', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    mockGetItemFileUrl.mockResolvedValue(null);
     mockDeleteItemById.mockResolvedValue(true);
     const result = await deleteItem('item-1');
     expect(result).toEqual({ success: true });

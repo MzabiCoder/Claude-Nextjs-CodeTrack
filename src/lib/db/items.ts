@@ -78,6 +78,9 @@ export type ItemDetail = {
   description: string | null;
   content: string | null;
   url: string | null;
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
   isFavorite: boolean;
   isPinned: boolean;
   language: string | null;
@@ -97,6 +100,9 @@ export async function getItemById(userId: string, id: string): Promise<ItemDetai
       description: true,
       content: true,
       url: true,
+      fileUrl: true,
+      fileName: true,
+      fileSize: true,
       isFavorite: true,
       isPinned: true,
       language: true,
@@ -113,6 +119,14 @@ export async function getItemById(userId: string, id: string): Promise<ItemDetai
     tags: item.tags.map((t) => t.name),
     collections: item.collections.map((ic) => ic.collection),
   };
+}
+
+export async function getItemFileUrl(userId: string, id: string): Promise<string | null> {
+  const item = await prisma.item.findFirst({
+    where: { id, userId },
+    select: { fileUrl: true },
+  });
+  return item?.fileUrl ?? null;
 }
 
 export type UpdateItemData = {
@@ -154,6 +168,9 @@ export async function updateItemById(
       description: true,
       content: true,
       url: true,
+      fileUrl: true,
+      fileName: true,
+      fileSize: true,
       isFavorite: true,
       isPinned: true,
       language: true,
@@ -178,6 +195,8 @@ const TYPE_TO_CONTENT_TYPE: Record<string, ContentType> = {
   command: ContentType.TEXT,
   note: ContentType.TEXT,
   link: ContentType.URL,
+  file: ContentType.FILE,
+  image: ContentType.FILE,
 };
 
 export type CreateItemData = {
@@ -188,6 +207,9 @@ export type CreateItemData = {
   url: string | null;
   language: string | null;
   tags: string[];
+  fileUrl?: string | null;
+  fileName?: string | null;
+  fileSize?: number | null;
 };
 
 export async function createItemInDb(userId: string, data: CreateItemData): Promise<ItemForCard | null> {
@@ -210,6 +232,9 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
       content: data.content,
       url: data.url,
       language: data.language,
+      fileUrl: data.fileUrl ?? null,
+      fileName: data.fileName ?? null,
+      fileSize: data.fileSize ?? null,
       tags: {
         connectOrCreate: data.tags.map((name) => ({
           where: { name },

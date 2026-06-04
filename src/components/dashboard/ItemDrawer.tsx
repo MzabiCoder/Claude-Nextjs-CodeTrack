@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Star, Pin, Copy, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Star, Pin, Copy, Pencil, Trash2, Check, X, Download } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
@@ -30,6 +30,13 @@ const CONTENT_TYPES = new Set(['snippet', 'prompt', 'command', 'note']);
 const LANGUAGE_TYPES = new Set(['snippet', 'command']);
 const CODE_EDITOR_TYPES = new Set(['snippet', 'command']);
 const MARKDOWN_EDITOR_TYPES = new Set(['note', 'prompt']);
+const FILE_TYPES = new Set(['file', 'image']);
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 
 type ItemDetailResponse = {
   id: string;
@@ -37,6 +44,9 @@ type ItemDetailResponse = {
   description: string | null;
   content: string | null;
   url: string | null;
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
   isFavorite: boolean;
   isPinned: boolean;
   language: string | null;
@@ -220,6 +230,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const showContent = CONTENT_TYPES.has(typeName);
   const showLanguage = LANGUAGE_TYPES.has(typeName);
   const showUrl = typeName === 'link';
+  const isFileType = FILE_TYPES.has(typeName);
   const useCodeEditor = CODE_EDITOR_TYPES.has(typeName);
   const useMarkdownEditor = MARKDOWN_EDITOR_TYPES.has(typeName);
 
@@ -311,6 +322,16 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                     <Copy className="h-4 w-4" />
                     Copy
                   </Button>
+                  {isFileType && item.fileUrl && (
+                    <a
+                      href={`/api/download/${item.id}`}
+                      download
+                      className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                    >
+                      <Download className="h-4 w-4" />
+                      Download
+                    </a>
+                  )}
                   <Button variant="ghost" size="sm" onClick={enterEditMode}>
                     <Pencil className="h-4 w-4" />
                     Edit
@@ -463,6 +484,43 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                           {item.content}
                         </pre>
                       )}
+                    </section>
+                  )}
+
+                  {typeName === 'image' && item.fileUrl && (
+                    <section>
+                      <FieldLabel>Image</FieldLabel>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.fileUrl}
+                        alt={item.title}
+                        className="rounded-md border border-border max-w-full object-contain max-h-80"
+                      />
+                    </section>
+                  )}
+
+                  {typeName === 'file' && item.fileUrl && (
+                    <section>
+                      <FieldLabel>File</FieldLabel>
+                      <div className="flex items-center gap-3 rounded-md border border-border bg-muted/20 p-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
+                          <File className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{item.fileName ?? 'File'}</p>
+                          {item.fileSize != null && (
+                            <p className="text-xs text-muted-foreground">{formatBytes(item.fileSize)}</p>
+                          )}
+                        </div>
+                        <a
+                          href={`/api/download/${item.id}`}
+                          download
+                          className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          Download
+                        </a>
+                      </div>
                     </section>
                   )}
 
