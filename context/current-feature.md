@@ -1,23 +1,16 @@
-# Current Feature: File List View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Single-column list layout for `/items/files` (like Google Drive/Dropbox)
-- Each row: file icon (by extension), file name, file size, upload date, download button
-- Row hover highlight
-- Clicking a row opens the `ItemDrawer`
-- Download button triggers direct download without opening the drawer (stop propagation)
-- Responsive: stack info vertically on mobile
+<!-- Add goals here -->
 
 ## Notes
 
-- Replaces the standard `ItemCard` grid only on the `/items/files` route
-- `ItemForCard` already has `fileUrl` — needs `fileName` and `fileSize` added the same way
-- File icon should vary by extension (pdf, txt, json, etc.) or fall back to a generic file icon
+<!-- Add notes here -->
 
 ## History
 
@@ -233,3 +226,11 @@ In Progress
 - `ItemDetail`, `CreateItemData` types extended with `fileUrl`, `fileName`, `fileSize`; `TYPE_TO_CONTENT_TYPE` map includes `file` and `image` → `ContentType.FILE`
 - Updated `next.config.ts` to add R2 public URL hostname to `images.remotePatterns`
 - Tests updated: mocked `getItemFileUrl` and `@/lib/r2` in `items.test.ts`; all 32 tests passing
+
+### 2026-06-04 — File List View ✅ Completed
+- Created `src/components/dashboard/FileRow.tsx`: single-column list row with file icon (varies by extension: pdf/txt/md/csv → FileText, json/yaml/toml/xml → FileCode, fallback → File), file name, size, upload date, and a download button
+- Download button uses `<a href="/api/download/[id]" download>` with `e.stopPropagation()` — triggers direct download without opening the drawer
+- Row click calls `openDrawer(item.id)` via `useItemDrawer`; hover highlight via `hover:bg-accent/50`
+- Responsive: size and date shown as right-aligned columns on desktop (`sm:`); stacked below name as a single line on mobile
+- `/items/files` renders a bordered list with `divide-y` separators using `FileRow`; all other type pages unaffected
+- Added `fileName` and `fileSize` to `ItemForCard`, `itemSelect`, and `mapItem` in `src/lib/db/items.ts`
