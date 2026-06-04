@@ -200,3 +200,12 @@ Not Started
 - Custom Monaco scrollbar (6px) styled to match dark theme; line numbers, word wrap, no minimap
 - Replaced content `Textarea` with `CodeEditor` in `ItemDrawer` (view + edit modes) and `NewItemDialog` for snippet/command types
 - All other types (prompt, note, link) continue to use plain `Textarea`
+
+### 2026-06-04 — Markdown Editor ✅ Completed
+- Installed `react-markdown` and `remark-gfm` for GitHub Flavored Markdown rendering
+- Created `src/components/shared/MarkdownEditor.tsx` with Write/Preview tab interface, macOS-style header dots, and copy button — matching `CodeEditor` styling
+- Readonly mode shows Preview tab only; edit mode defaults to Write tab with Preview available
+- Added `.markdown-preview` CSS class to `globals.css` for h1–h6 sizing, code blocks, inline code, lists, blockquotes, links, and tables
+- Replaced plain `textarea` with `MarkdownEditor` for note and prompt content in `ItemDrawer` (view + edit modes) and `NewItemDialog`
+- Added `key="markdown-edit"` / `key="markdown-view"` to prevent React from reusing component state across view/edit mode transitions
+- `CodeEditor` for snippet/command types and link handling unchanged
