@@ -253,3 +253,13 @@ Not Started
 - Wired `onNewCollectionClick` prop through `TopBar` → `DashboardShell` state → `NewCollectionDialog`
 - Installed ShadCN Textarea component
 - 9 unit tests for the API route (auth, validation, user scoping, trimming, response shape); 41 total passing
+
+### 2026-06-08 — Item Collection Assignment ✅ Completed
+- Added `GET /api/collections`: returns authenticated user's collections as `[{ id, name }]`
+- Created `CollectionPicker` shared component: Popover with scrollable checkbox list, fetches on mount
+- `NewItemDialog`: CollectionPicker added below Tags; `collectionIds` passed to `createItem` action
+- `ItemDrawer` edit mode: CollectionPicker replaces static badge list; pre-populated from `item.collections`; `collectionIds` passed to `updateItem` action
+- `createItem` action + `createItemInDb`: accept `collectionIds`, connect via nested create on `ItemCollection`
+- `updateItem` action + `updateItemById`: accept `collectionIds`, sync via `$transaction` (deleteMany + createMany)
+- Installed ShadCN Popover component
+- 11 new unit tests (GET /api/collections ×4, updateItem action ×7); 52 total passing
