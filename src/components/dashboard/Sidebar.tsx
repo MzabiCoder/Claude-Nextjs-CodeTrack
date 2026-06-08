@@ -41,6 +41,83 @@ const TYPE_SLUGS: Record<string, string> = {
   link: 'links',
 };
 
+function SidebarCollections({ collections }: { collections: SidebarData['collections'] }) {
+  const [open, setOpen] = useState(true);
+  const favorites = collections.filter((c) => c.isFavorite);
+  const recent = collections.filter((c) => !c.isFavorite);
+
+  return (
+    <div className="px-3 border-t border-border pt-3 flex-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1 px-2 mb-1.5 w-full group"
+      >
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+          Collections
+        </span>
+        <ChevronDown
+          className={cn(
+            'h-3 w-3 text-muted-foreground group-hover:text-foreground transition-all duration-200',
+            !open && '-rotate-90'
+          )}
+        />
+      </button>
+
+      {open && (
+        <>
+          {favorites.length > 0 && (
+            <div className="mb-3">
+              <p className="px-2 mb-1 text-xs text-muted-foreground">Favorites</p>
+              <nav className="space-y-0.5">
+                {favorites.map((col) => (
+                  <Link
+                    key={col.id}
+                    href={`/collections/${col.id}`}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  >
+                    <Star className="h-3.5 w-3.5 shrink-0 text-yellow-400 fill-yellow-400" />
+                    <span className="truncate flex-1">{col.name}</span>
+                    <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          )}
+
+          {recent.length > 0 && (
+            <div>
+              <p className="px-2 mb-1 text-xs text-muted-foreground">Recent</p>
+              <nav className="space-y-0.5">
+                {recent.map((col) => (
+                  <Link
+                    key={col.id}
+                    href={`/collections/${col.id}`}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  >
+                    <span
+                      className="h-3.5 w-3.5 rounded-full shrink-0"
+                      style={{ backgroundColor: col.dominantColor }}
+                    />
+                    <span className="truncate flex-1">{col.name}</span>
+                    <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          )}
+
+          <Link
+            href="/collections"
+            className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            View all collections →
+          </Link>
+        </>
+      )}
+    </div>
+  );
+}
+
 function SidebarContent({
   collapsed = false,
   sidebarData,
@@ -50,9 +127,6 @@ function SidebarContent({
   sidebarData: SidebarData;
   user: SessionUser | null;
 }) {
-  const [collectionsOpen, setCollectionsOpen] = useState(true);
-  const favoriteCollections = sidebarData.collections.filter((c) => c.isFavorite);
-  const recentCollections = sidebarData.collections.filter((c) => !c.isFavorite);
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -100,79 +174,7 @@ function SidebarContent({
       </div>
 
       {/* Collections */}
-      {!collapsed && (
-        <div className="px-3 border-t border-border pt-3 flex-1">
-          <button
-            onClick={() => setCollectionsOpen(!collectionsOpen)}
-            className="flex items-center gap-1 px-2 mb-1.5 w-full group"
-          >
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
-              Collections
-            </span>
-            <ChevronDown
-              className={cn(
-                'h-3 w-3 text-muted-foreground group-hover:text-foreground transition-all duration-200',
-                !collectionsOpen && '-rotate-90'
-              )}
-            />
-          </button>
-
-          {collectionsOpen && (
-            <>
-              {/* Favorites */}
-              {favoriteCollections.length > 0 && (
-                <div className="mb-3">
-                  <p className="px-2 mb-1 text-xs text-muted-foreground">Favorites</p>
-                  <nav className="space-y-0.5">
-                    {favoriteCollections.map((col) => (
-                      <Link
-                        key={col.id}
-                        href={`/collections/${col.id}`}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                      >
-                        <Star className="h-3.5 w-3.5 shrink-0 text-yellow-400 fill-yellow-400" />
-                        <span className="truncate flex-1">{col.name}</span>
-                        <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
-                      </Link>
-                    ))}
-                  </nav>
-                </div>
-              )}
-
-              {/* Recent */}
-              {recentCollections.length > 0 && (
-                <div>
-                  <p className="px-2 mb-1 text-xs text-muted-foreground">Recent</p>
-                  <nav className="space-y-0.5">
-                    {recentCollections.map((col) => (
-                      <Link
-                        key={col.id}
-                        href={`/collections/${col.id}`}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                      >
-                        <span
-                          className="h-3.5 w-3.5 rounded-full shrink-0"
-                          style={{ backgroundColor: col.dominantColor }}
-                        />
-                        <span className="truncate flex-1">{col.name}</span>
-                        <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
-                      </Link>
-                    ))}
-                  </nav>
-                </div>
-              )}
-
-              {/* View all link */}
-              <Link
-                href="/collections"
-                className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                View all collections →
-              </Link>
-            </>
-          )}
-        </div>
-      )}
+      {!collapsed && <SidebarCollections collections={sidebarData.collections} />}
 
       {/* User */}
       <div className="mt-auto px-3 py-3 border-t border-border">
