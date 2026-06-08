@@ -15,11 +15,12 @@ import type { SessionUser } from '@/components/dashboard/DashboardShell';
 
 interface TopBarProps {
   onMobileMenuClick?: () => void;
+  onNewCollectionClick?: () => void;
   onNewItemClick?: () => void;
   user: SessionUser | null;
 }
 
-export function TopBar({ onMobileMenuClick, onNewItemClick, user }: TopBarProps) {
+export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick, user }: TopBarProps) {
   return (
     <header className="relative flex items-center border-b border-border px-4 py-3">
       <div className="flex items-center gap-2 shrink-0">
@@ -43,7 +44,7 @@ export function TopBar({ onMobileMenuClick, onNewItemClick, user }: TopBarProps)
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
-        <Button variant="outline" className="hidden sm:flex">
+        <Button variant="outline" className="hidden sm:flex" onClick={onNewCollectionClick}>
           <FolderPlus className="h-4 w-4" />
           New Collection
         </Button>
