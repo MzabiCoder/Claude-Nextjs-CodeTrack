@@ -7,7 +7,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarData, session] = await Promise.all([getSidebarData(), auth()]);
+  const session = await auth();
+  const userId = session?.user?.id ?? '';
+  const sidebarData = await getSidebarData(userId);
   const user = session?.user ?? null;
   return <DashboardShell sidebarData={sidebarData} user={user}>{children}</DashboardShell>;
 }

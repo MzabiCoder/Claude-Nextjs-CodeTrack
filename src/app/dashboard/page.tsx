@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { getDashboardCollections, getDashboardStats } from '@/lib/db/collections';
 import { getPinnedItems, getRecentItems } from '@/lib/db/items';
 import { StatsCards } from '@/components/dashboard/StatsCards';
@@ -5,9 +6,12 @@ import { CollectionCard } from '@/components/dashboard/CollectionCard';
 import { ItemCard } from '@/components/dashboard/ItemCard';
 
 export default async function DashboardPage() {
+  const session = await auth();
+  const userId = session?.user?.id ?? '';
+
   const [collections, stats, pinnedItems, recentItems] = await Promise.all([
-    getDashboardCollections(),
-    getDashboardStats(),
+    getDashboardCollections(userId),
+    getDashboardStats(userId),
     getPinnedItems(),
     getRecentItems(),
   ]);
@@ -38,7 +42,11 @@ export default async function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {collections.map((collection) => (
-            <CollectionCard key={collection.id} collection={collection} />
+            <CollectionCard
+              key={collection.id}
+              collection={collection}
+              href={`/collections/${collection.id}`}
+            />
           ))}
         </div>
       </section>

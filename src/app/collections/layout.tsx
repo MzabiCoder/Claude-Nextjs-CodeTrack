@@ -2,7 +2,7 @@ import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { getSidebarData } from '@/lib/db/sidebar';
 import { auth } from '@/auth';
 
-export default async function ItemsLayout({
+export default async function CollectionsLayout({
   children,
 }: {
   children: React.ReactNode;

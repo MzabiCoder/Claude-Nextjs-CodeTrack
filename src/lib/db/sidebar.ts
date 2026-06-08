@@ -22,13 +22,16 @@ export type SidebarData = {
   collections: SidebarCollection[];
 };
 
-export async function getSidebarData(): Promise<SidebarData> {
+export async function getSidebarData(userId: string): Promise<SidebarData> {
   const [itemTypes, collections] = await Promise.all([
     prisma.itemType.findMany({
       where: { isSystem: true },
-      include: { _count: { select: { items: true } } },
+      include: {
+        _count: { select: { items: { where: { userId } } } },
+      },
     }),
     prisma.collection.findMany({
+      where: { userId },
       orderBy: [{ isFavorite: 'desc' }, { updatedAt: 'desc' }],
       take: 20,
       select: {

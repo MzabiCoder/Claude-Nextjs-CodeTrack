@@ -2,6 +2,7 @@
 
 import { Search, Plus, FolderPlus, LayoutGrid, Menu, LogOut, User } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -32,8 +33,10 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <LayoutGrid className="h-5 w-5 text-primary" />
-        <span className="text-lg font-bold tracking-tight">DevStash</span>
+        <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <LayoutGrid className="h-5 w-5 text-primary" />
+          <span className="text-lg font-bold tracking-tight">DevStash</span>
+        </Link>
       </div>
 
       <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
