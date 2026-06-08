@@ -27,11 +27,6 @@ export const rateLimiters = {
     limiter: Ratelimit.slidingWindow(5, "15 m"),
     prefix: "rl:reset-password",
   }),
-  resendVerification: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(3, "15 m"),
-    prefix: "rl:resend-verification",
-  }),
 };
 
 export function getIP(req: Request): string {

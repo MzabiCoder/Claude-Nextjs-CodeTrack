@@ -137,6 +137,15 @@ Not Started
 - Added `DeleteAccountDialog.tsx` using ShadCN AlertDialog for confirmation; POSTs to `DELETE /api/user` — cascades delete via Prisma then signs out and redirects to `/`
 - Installed ShadCN AlertDialog component (`src/components/ui/alert-dialog.tsx`)
 
+### 2026-06-01 — Rate Limiting for Auth ✅ Completed
+- Created `src/lib/rate-limit.ts` with Upstash Redis sliding window limiters, IP extraction, fail-open error handling, and `rateLimitResponse()` helper
+- Rate limited `POST /api/auth/register` (3 attempts / 1 hour / by IP)
+- Rate limited `POST /api/auth/forgot-password` (3 attempts / 1 hour / by IP)
+- Rate limited `POST /api/auth/reset-password` (5 attempts / 15 min / by IP)
+- Added login rate limiting inside NextAuth `authorize()` (5 attempts / 15 min / IP + email) via `RateLimited extends CredentialsSignin` error class
+- `SignInForm.tsx` maps `rate_limited` error code to user-friendly message
+- All routes return 429 with `{ error: "Too many attempts..." }` and `Retry-After` header; fail open if Upstash is unavailable
+
 ### 2026-06-03 — Item Drawer ✅ Completed
 - Added right-side Sheet drawer that opens on `ItemCard` click via `ItemDrawerContext`
 - `ItemDrawerContext` provides `openDrawer(id)` to all cards through `DashboardShell` — no page file changes needed
@@ -156,15 +165,6 @@ Not Started
 - Added `getItemsByType(typeSlug)` to `src/lib/db/items.ts` with a `SLUG_TO_TYPE` reverse map
 - Two-column responsive grid (`grid-cols-1 md:grid-cols-2`) using existing `ItemCard` component
 - Protected `/items` routes in `src/proxy.ts` alongside `/dashboard` and `/profile`
-
-### 2026-06-01 — Rate Limiting for Auth ✅ Completed
-- Created `src/lib/rate-limit.ts` with Upstash Redis sliding window limiters, IP extraction, fail-open error handling, and `rateLimitResponse()` helper
-- Rate limited `POST /api/auth/register` (3 attempts / 1 hour / by IP)
-- Rate limited `POST /api/auth/forgot-password` (3 attempts / 1 hour / by IP)
-- Rate limited `POST /api/auth/reset-password` (5 attempts / 15 min / by IP)
-- Added login rate limiting inside NextAuth `authorize()` (5 attempts / 15 min / IP + email) via `RateLimited extends CredentialsSignin` error class
-- `SignInForm.tsx` maps `rate_limited` error code to user-friendly message
-- All routes return 429 with `{ error: "Too many attempts..." }` and `Retry-After` header; fail open if Upstash is unavailable
 
 ### 2026-06-03 — Item Drawer Edit Mode ✅ Completed
 - Edit button in the drawer action bar switches to inline edit mode
@@ -234,3 +234,9 @@ Not Started
 - Responsive: size and date shown as right-aligned columns on desktop (`sm:`); stacked below name as a single line on mobile
 - `/items/files` renders a bordered list with `divide-y` separators using `FileRow`; all other type pages unaffected
 - Added `fileName` and `fileSize` to `ItemForCard`, `itemSelect`, and `mapItem` in `src/lib/db/items.ts`
+
+### 2026-06-08 — Code Audit Quick Wins ✅ Completed
+- Added `take: 20` to `getPinnedItems` and `take: 100` to `getItemsByType` in `src/lib/db/items.ts` to cap unbounded queries
+- Fixed `Content-Disposition` header in `GET /api/download/[id]` — ASCII filenames use `filename="..."`, non-ASCII use RFC 6266 `filename*=UTF-8''...` format
+- Removed unused `resendVerification` rate limiter from `src/lib/rate-limit.ts`
+- Extracted `formatBytes`, `formatDate`, `formatDateLong`, `formatDateCompact` into `src/lib/format.ts`; removed 3 duplicate implementations from `ItemDrawer.tsx`, `FileRow.tsx`, and `ItemCard.tsx`

@@ -24,6 +24,11 @@ const baseCardItem = {
   id: 'item-1',
   title: 'My Snippet',
   description: null,
+  content: null,
+  url: null,
+  fileUrl: null,
+  fileName: null,
+  fileSize: null,
   isFavorite: false,
   isPinned: false,
   language: 'typescript',
@@ -36,47 +41,47 @@ describe('createItem', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns unauthorized when there is no session', async () => {
-    mockAuth.mockResolvedValue(null);
-    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    mockAuth.mockResolvedValue(null as never);
+    const result = await createItem({ typeName: 'snippet', title: 'Test', url: null, tags: [] });
     expect(result).toEqual({ success: false, error: 'Unauthorized' });
   });
 
   it('returns unauthorized when session has no user id', async () => {
     mockAuth.mockResolvedValue({ user: {} } as never);
-    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    const result = await createItem({ typeName: 'snippet', title: 'Test', url: null, tags: [] });
     expect(result).toEqual({ success: false, error: 'Unauthorized' });
   });
 
   it('returns validation error when title is empty', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
-    const result = await createItem({ typeName: 'snippet', title: '   ', tags: [] });
+    const result = await createItem({ typeName: 'snippet', title: '   ', url: null, tags: [] });
     expect(result).toEqual({ success: false, error: 'Title is required' });
   });
 
   it('returns error when link type has no url', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
-    const result = await createItem({ typeName: 'link', title: 'My Link', tags: [] });
+    const result = await createItem({ typeName: 'link', title: 'My Link', url: null, tags: [] });
     expect(result).toEqual({ success: false, error: 'URL is required for link items' });
   });
 
   it('returns error when createItemInDb returns null', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
     mockCreateItemInDb.mockResolvedValue(null);
-    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    const result = await createItem({ typeName: 'snippet', title: 'Test', url: null, tags: [] });
     expect(result).toEqual({ success: false, error: 'Failed to create item' });
   });
 
   it('scopes createItemInDb to the authenticated user id', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-42' } } as never);
     mockCreateItemInDb.mockResolvedValue(baseCardItem);
-    await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    await createItem({ typeName: 'snippet', title: 'Test', url: null, tags: [] });
     expect(mockCreateItemInDb).toHaveBeenCalledWith('user-42', expect.objectContaining({ typeName: 'snippet' }));
   });
 
   it('returns success when item is created', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
     mockCreateItemInDb.mockResolvedValue(baseCardItem);
-    const result = await createItem({ typeName: 'snippet', title: 'Test', tags: [] });
+    const result = await createItem({ typeName: 'snippet', title: 'Test', url: null, tags: [] });
     expect(result).toEqual({ success: true });
   });
 });
@@ -85,7 +90,7 @@ describe('deleteItem', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns unauthorized when there is no session', async () => {
-    mockAuth.mockResolvedValue(null);
+    mockAuth.mockResolvedValue(null as never);
     const result = await deleteItem('item-1');
     expect(result).toEqual({ success: false, error: 'Unauthorized' });
   });
