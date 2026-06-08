@@ -18,6 +18,7 @@ import { createItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { FileUpload, type UploadResult } from '@/components/shared/FileUpload';
+import { CollectionPicker } from '@/components/shared/CollectionPicker';
 
 type TypeName = 'snippet' | 'prompt' | 'command' | 'note' | 'link' | 'file' | 'image';
 
@@ -61,6 +62,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
   const [language, setLanguage] = useState('');
   const [tags, setTags] = useState('');
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const [collectionIds, setCollectionIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   function handleClose() {
@@ -72,6 +74,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
     setLanguage('');
     setTags('');
     setUploadResult(null);
+    setCollectionIds([]);
     onClose();
   }
 
@@ -96,6 +99,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
         url: url || null,
         language: language || null,
         tags: tagList,
+        collectionIds,
         fileUrl: uploadResult?.fileUrl ?? null,
         fileName: uploadResult?.fileName ?? null,
         fileSize: uploadResult?.fileSize ?? null,
@@ -250,6 +254,11 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
               placeholder="react, hooks, typescript"
             />
             <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
+          </div>
+
+          <div>
+            <FieldLabel>Collections</FieldLabel>
+            <CollectionPicker selected={collectionIds} onChange={setCollectionIds} />
           </div>
         </div>
 

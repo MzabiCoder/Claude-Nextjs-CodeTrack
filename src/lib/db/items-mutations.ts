@@ -19,6 +19,7 @@ export type UpdateItemData = {
   url: string | null;
   language: string | null;
   tags: string[];
+  collectionIds: string[];
 };
 
 export async function updateItemById(
@@ -29,40 +30,48 @@ export async function updateItemById(
   const existing = await prisma.item.findFirst({ where: { id, userId }, select: { id: true } });
   if (!existing) return null;
 
-  const updated = await prisma.item.update({
-    where: { id },
-    data: {
-      title: data.title,
-      description: data.description,
-      content: data.content,
-      url: data.url,
-      language: data.language,
-      tags: {
-        set: [],
-        connectOrCreate: data.tags.map((name) => ({
-          where: { name },
-          create: { name },
-        })),
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.itemCollection.deleteMany({ where: { itemId: id } });
+    if (data.collectionIds.length > 0) {
+      await tx.itemCollection.createMany({
+        data: data.collectionIds.map((collectionId) => ({ itemId: id, collectionId })),
+      });
+    }
+    return tx.item.update({
+      where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        url: data.url,
+        language: data.language,
+        tags: {
+          set: [],
+          connectOrCreate: data.tags.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
       },
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      content: true,
-      url: true,
-      fileUrl: true,
-      fileName: true,
-      fileSize: true,
-      isFavorite: true,
-      isPinned: true,
-      language: true,
-      createdAt: true,
-      updatedAt: true,
-      tags: { select: { name: true } },
-      itemType: { select: { name: true, icon: true, color: true } },
-      collections: { select: { collection: { select: { id: true, name: true } } } },
-    },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        content: true,
+        url: true,
+        fileUrl: true,
+        fileName: true,
+        fileSize: true,
+        isFavorite: true,
+        isPinned: true,
+        language: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: { select: { name: true } },
+        itemType: { select: { name: true, icon: true, color: true } },
+        collections: { select: { collection: { select: { id: true, name: true } } } },
+      },
+    });
   });
 
   return {
@@ -80,6 +89,7 @@ export type CreateItemData = {
   url: string | null;
   language: string | null;
   tags: string[];
+  collectionIds: string[];
   fileUrl?: string | null;
   fileName?: string | null;
   fileSize?: number | null;
@@ -113,6 +123,9 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
           where: { name },
           create: { name },
         })),
+      },
+      collections: {
+        create: data.collectionIds.map((collectionId) => ({ collectionId })),
       },
     },
     select: itemSelect,

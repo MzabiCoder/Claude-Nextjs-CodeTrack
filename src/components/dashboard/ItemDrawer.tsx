@@ -22,6 +22,7 @@ import { updateItem, deleteItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { formatBytes, formatDateLong } from '@/lib/format';
+import { CollectionPicker } from '@/components/shared/CollectionPicker';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link,
@@ -322,7 +323,8 @@ interface DrawerEditBodyProps {
   showUrl: boolean;
   useCodeEditor: boolean;
   useMarkdownEditor: boolean;
-  collections: { id: string; name: string }[];
+  selectedCollectionIds: string[];
+  onCollectionChange: (ids: string[]) => void;
   createdAt: string;
   updatedAt: string;
   updateField: (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -331,8 +333,8 @@ interface DrawerEditBodyProps {
 
 function DrawerEditBody({
   formData, typeName, showContent, showLanguage, showUrl,
-  useCodeEditor, useMarkdownEditor, collections, createdAt, updatedAt,
-  updateField, onContentChange,
+  useCodeEditor, useMarkdownEditor, selectedCollectionIds, onCollectionChange,
+  createdAt, updatedAt, updateField, onContentChange,
 }: DrawerEditBodyProps) {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-5">
@@ -395,18 +397,10 @@ function DrawerEditBody({
         <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
       </section>
 
-      {collections.length > 0 && (
-        <section>
-          <FieldLabel>Collections</FieldLabel>
-          <div className="flex flex-wrap gap-1.5">
-            {collections.map((col) => (
-              <span key={col.id} className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground">
-                {col.name}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
+      <section>
+        <FieldLabel>Collections</FieldLabel>
+        <CollectionPicker selected={selectedCollectionIds} onChange={onCollectionChange} />
+      </section>
 
       <section>
         <FieldLabel>Details</FieldLabel>
@@ -438,6 +432,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const [item, setItem] = useState<ItemDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -487,6 +482,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
       language: item.language ?? '',
       tags: item.tags.join(', '),
     });
+    setSelectedCollectionIds(item.collections.map((c) => c.id));
     setIsEditing(true);
   }
 
@@ -507,6 +503,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
         url: formData.url || null,
         language: formData.language || null,
         tags,
+        collectionIds: selectedCollectionIds,
       });
       if (!result.success) { toast.error(result.error); return; }
       const refreshed = await fetch(`/api/items/${item.id}`).then((r) => r.json());
@@ -603,7 +600,8 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                   showUrl={showUrl}
                   useCodeEditor={useCodeEditor}
                   useMarkdownEditor={useMarkdownEditor}
-                  collections={item.collections}
+                  selectedCollectionIds={selectedCollectionIds}
+                  onCollectionChange={setSelectedCollectionIds}
                   createdAt={item.createdAt}
                   updatedAt={item.updatedAt}
                   updateField={updateField}

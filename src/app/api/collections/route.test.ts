@@ -1,15 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from './route';
+import { GET, POST } from './route';
 
 vi.mock('@/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/lib/prisma', () => ({
-  prisma: { collection: { create: vi.fn() } },
+  prisma: { collection: { create: vi.fn(), findMany: vi.fn() } },
 }));
 
 const { auth } = await import('@/auth');
 const { prisma } = await import('@/lib/prisma');
 const mockAuth = vi.mocked(auth);
 const mockCreate = vi.mocked(prisma.collection.create);
+const mockFindMany = vi.mocked(prisma.collection.findMany);
 
 function makeRequest(body: unknown) {
   return new Request('http://localhost/api/collections', {
@@ -27,6 +28,42 @@ const stubCollection = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
+
+const getRequest = new Request('http://localhost/api/collections');
+
+describe('GET /api/collections', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns 401 when unauthenticated', async () => {
+    mockAuth.mockResolvedValue(null as never);
+    const res = await GET(getRequest);
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 when session has no user id', async () => {
+    mockAuth.mockResolvedValue({ user: {} } as never);
+    const res = await GET(getRequest);
+    expect(res.status).toBe(401);
+  });
+
+  it('scopes findMany to the authenticated user id', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-42' } } as never);
+    mockFindMany.mockResolvedValue([]);
+    await GET(getRequest);
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: 'user-42' } })
+    );
+  });
+
+  it('returns 200 with the collections array', async () => {
+    const cols = [{ id: 'col-1', name: 'React Patterns' }, { id: 'col-2', name: 'AI Workflows' }];
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as never);
+    mockFindMany.mockResolvedValue(cols as never);
+    const res = await GET(getRequest);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(cols);
+  });
+});
 
 describe('POST /api/collections', () => {
   beforeEach(() => vi.clearAllMocks());
