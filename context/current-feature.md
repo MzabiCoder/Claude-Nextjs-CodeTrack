@@ -240,3 +240,9 @@ Not Started
 - Fixed `Content-Disposition` header in `GET /api/download/[id]` — ASCII filenames use `filename="..."`, non-ASCII use RFC 6266 `filename*=UTF-8''...` format
 - Removed unused `resendVerification` rate limiter from `src/lib/rate-limit.ts`
 - Extracted `formatBytes`, `formatDate`, `formatDateLong`, `formatDateCompact` into `src/lib/format.ts`; removed 3 duplicate implementations from `ItemDrawer.tsx`, `FileRow.tsx`, and `ItemCard.tsx`
+
+### 2026-06-08 — Code Decomposition ✅ Completed
+- Fixed `formatBytes` duplicate in `FileUpload.tsx` — now imports from `@/lib/format`
+- Broke `ItemDrawer.tsx` into `DrawerActionBar`, `DrawerViewBody`, `DrawerEditBody` sub-components (same file, separate functions)
+- Split `src/lib/db/items.ts` into `items-queries.ts` + `items-mutations.ts`; `items.ts` is now a 5-line re-export barrel
+- Extracted `SidebarCollections` component from `Sidebar.tsx`
