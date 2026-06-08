@@ -138,6 +138,7 @@ describe('createItemInDb', () => {
       url: null,
       language: null,
       tags: [],
+      collectionIds: [],
     })).toBeNull();
   });
 
@@ -151,6 +152,7 @@ describe('createItemInDb', () => {
       url: null,
       language: null,
       tags: [],
+      collectionIds: [],
     })).toBeNull();
     expect(mockCreate).not.toHaveBeenCalled();
   });
@@ -166,6 +168,7 @@ describe('createItemInDb', () => {
       url: null,
       language: 'typescript',
       tags: [],
+      collectionIds: [],
     });
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ contentType: 'TEXT' }) })
@@ -183,6 +186,7 @@ describe('createItemInDb', () => {
       url: 'https://example.com',
       language: null,
       tags: [],
+      collectionIds: [],
     });
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ contentType: 'URL' }) })
@@ -200,6 +204,7 @@ describe('createItemInDb', () => {
       url: null,
       language: null,
       tags: ['react'],
+      collectionIds: [],
     });
     expect(result?.tags).toEqual(['react']);
   });

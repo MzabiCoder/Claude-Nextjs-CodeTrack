@@ -13,6 +13,7 @@ const createItemSchema = z.object({
   url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')).transform((v) => v || null),
   language: z.string().trim().nullable().optional(),
   tags: z.array(z.string().trim().min(1)).default([]),
+  collectionIds: z.array(z.string()).default([]),
   fileUrl: z.string().nullable().optional(),
   fileName: z.string().nullable().optional(),
   fileSize: z.number().nullable().optional(),
@@ -47,6 +48,7 @@ export async function createItem(data: CreateItemInput): Promise<CreateItemResul
     url: parsed.data.url ?? null,
     language: parsed.data.language ?? null,
     tags: parsed.data.tags,
+    collectionIds: parsed.data.collectionIds,
     fileUrl: parsed.data.fileUrl ?? null,
     fileName: parsed.data.fileName ?? null,
     fileSize: parsed.data.fileSize ?? null,
@@ -66,6 +68,7 @@ const updateItemSchema = z.object({
   url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')).transform((v) => v || null),
   language: z.string().trim().nullable().optional(),
   tags: z.array(z.string().trim().min(1)).default([]),
+  collectionIds: z.array(z.string()).default([]),
 });
 
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
@@ -92,6 +95,7 @@ export async function updateItem(itemId: string, data: UpdateItemInput): Promise
     url: parsed.data.url ?? null,
     language: parsed.data.language ?? null,
     tags: parsed.data.tags,
+    collectionIds: parsed.data.collectionIds,
   });
 
   if (!updated) {
