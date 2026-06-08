@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Upload, X, File as FileIcon, CheckCircle2, AlertCircle } from 'lucide-react';
+import { formatBytes } from '@/lib/format';
 
 const IMAGE_ACCEPT = '.png,.jpg,.jpeg,.gif,.webp,.svg';
 const FILE_ACCEPT = '.pdf,.txt,.md,.json,.yaml,.yml,.xml,.csv,.toml,.ini';
@@ -18,11 +19,6 @@ const FILE_TYPES = new Set([
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
 
 export type UploadResult = {
   fileUrl: string;

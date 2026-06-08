@@ -19,9 +19,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { updateItem, deleteItem } from '@/actions/items';
-import { formatBytes, formatDateLong } from '@/lib/format';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
+import { formatBytes, formatDateLong } from '@/lib/format';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link,
@@ -32,7 +32,6 @@ const LANGUAGE_TYPES = new Set(['snippet', 'command']);
 const CODE_EDITOR_TYPES = new Set(['snippet', 'command']);
 const MARKDOWN_EDITOR_TYPES = new Set(['note', 'prompt']);
 const FILE_TYPES = new Set(['file', 'image']);
-
 
 type ItemDetailResponse = {
   id: string;
@@ -61,7 +60,6 @@ type FormData = {
   language: string;
   tags: string;
 };
-
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded bg-muted ${className ?? ''}`} />;
@@ -99,6 +97,336 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ─── Action Bar ───────────────────────────────────────────────────────────────
+
+interface DrawerActionBarProps {
+  isEditing: boolean;
+  saving: boolean;
+  isTitleEmpty: boolean;
+  isFavorite: boolean;
+  isFileType: boolean;
+  fileUrl: string | null;
+  itemId: string;
+  onSave: () => void;
+  onCancel: () => void;
+  onEdit: () => void;
+  onDeleteClick: () => void;
+}
+
+function DrawerActionBar({
+  isEditing, saving, isTitleEmpty, isFavorite,
+  isFileType, fileUrl, itemId,
+  onSave, onCancel, onEdit, onDeleteClick,
+}: DrawerActionBarProps) {
+  return (
+    <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-border">
+      {isEditing ? (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onSave}
+            disabled={saving || isTitleEmpty}
+            className="text-green-400 hover:text-green-400"
+          >
+            <Check className="h-4 w-4" />
+            {saving ? 'Saving…' : 'Save'}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onCancel} disabled={saving}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={isFavorite ? 'text-yellow-400 hover:text-yellow-400' : ''}
+          >
+            <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400' : ''}`} />
+            Favorite
+          </Button>
+          <Button variant="ghost" size="sm">
+            <Pin className="h-4 w-4" />
+            Pin
+          </Button>
+          <Button variant="ghost" size="sm">
+            <Copy className="h-4 w-4" />
+            Copy
+          </Button>
+          {isFileType && fileUrl && (
+            <a
+              href={`/api/download/${itemId}`}
+              download
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </a>
+          )}
+          <Button variant="ghost" size="sm" onClick={onEdit}>
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto text-destructive hover:text-destructive"
+            onClick={onDeleteClick}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── View Body ────────────────────────────────────────────────────────────────
+
+interface DrawerViewBodyProps {
+  item: ItemDetailResponse;
+  typeName: string;
+  useCodeEditor: boolean;
+  useMarkdownEditor: boolean;
+}
+
+function DrawerViewBody({ item, typeName, useCodeEditor, useMarkdownEditor }: DrawerViewBodyProps) {
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-5">
+      {item.description && (
+        <section>
+          <FieldLabel>Description</FieldLabel>
+          <p className="text-sm">{item.description}</p>
+        </section>
+      )}
+
+      {item.content && (
+        <section>
+          <FieldLabel>Content</FieldLabel>
+          {useCodeEditor ? (
+            <CodeEditor value={item.content} language={item.language} readOnly />
+          ) : useMarkdownEditor ? (
+            <MarkdownEditor key="markdown-view" value={item.content} readOnly />
+          ) : (
+            <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
+              {item.content}
+            </pre>
+          )}
+        </section>
+      )}
+
+      {typeName === 'image' && item.fileUrl && (
+        <section>
+          <FieldLabel>Image</FieldLabel>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.fileUrl}
+            alt={item.title}
+            className="rounded-md border border-border max-w-full object-contain max-h-80"
+          />
+        </section>
+      )}
+
+      {typeName === 'file' && item.fileUrl && (
+        <section>
+          <FieldLabel>File</FieldLabel>
+          <div className="flex items-center gap-3 rounded-md border border-border bg-muted/20 p-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
+              <File className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{item.fileName ?? 'File'}</p>
+              {item.fileSize != null && (
+                <p className="text-xs text-muted-foreground">{formatBytes(item.fileSize)}</p>
+              )}
+            </div>
+            <a
+              href={`/api/download/${item.id}`}
+              download
+              className={buttonVariants({ variant: 'outline', size: 'sm' })}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download
+            </a>
+          </div>
+        </section>
+      )}
+
+      {item.url && (
+        <section>
+          <FieldLabel>URL</FieldLabel>
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-blue-400 hover:underline break-all"
+          >
+            {item.url}
+          </a>
+        </section>
+      )}
+
+      {item.tags.length > 0 && (
+        <section>
+          <FieldLabel>Tags</FieldLabel>
+          <div className="flex flex-wrap gap-1.5">
+            {item.tags.map((tag) => (
+              <span key={tag} className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {item.collections.length > 0 && (
+        <section>
+          <FieldLabel>Collections</FieldLabel>
+          <div className="flex flex-wrap gap-1.5">
+            {item.collections.map((col) => (
+              <span key={col.id} className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground">
+                {col.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <FieldLabel>Details</FieldLabel>
+        <div className="space-y-1 text-xs text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Created</span>
+            <span>{formatDateLong(item.createdAt)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Updated</span>
+            <span>{formatDateLong(item.updatedAt)}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── Edit Body ────────────────────────────────────────────────────────────────
+
+interface DrawerEditBodyProps {
+  formData: FormData;
+  typeName: string;
+  showContent: boolean;
+  showLanguage: boolean;
+  showUrl: boolean;
+  useCodeEditor: boolean;
+  useMarkdownEditor: boolean;
+  collections: { id: string; name: string }[];
+  createdAt: string;
+  updatedAt: string;
+  updateField: (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onContentChange: (v: string) => void;
+}
+
+function DrawerEditBody({
+  formData, typeName, showContent, showLanguage, showUrl,
+  useCodeEditor, useMarkdownEditor, collections, createdAt, updatedAt,
+  updateField, onContentChange,
+}: DrawerEditBodyProps) {
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-5">
+      <section>
+        <FieldLabel>Description</FieldLabel>
+        <textarea
+          value={formData.description}
+          onChange={updateField('description')}
+          placeholder="Optional description…"
+          rows={3}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+        />
+      </section>
+
+      {showContent && (
+        <section>
+          <FieldLabel>Content</FieldLabel>
+          {useCodeEditor ? (
+            <CodeEditor
+              value={formData.content}
+              onChange={onContentChange}
+              language={formData.language}
+            />
+          ) : useMarkdownEditor ? (
+            <MarkdownEditor
+              key="markdown-edit"
+              value={formData.content}
+              onChange={onContentChange}
+              placeholder="Write markdown…"
+            />
+          ) : (
+            <textarea
+              value={formData.content}
+              onChange={updateField('content')}
+              placeholder="Content…"
+              rows={8}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+            />
+          )}
+        </section>
+      )}
+
+      {showLanguage && (
+        <section>
+          <FieldLabel>Language</FieldLabel>
+          <Input value={formData.language} onChange={updateField('language')} placeholder="e.g. TypeScript" />
+        </section>
+      )}
+
+      {showUrl && (
+        <section>
+          <FieldLabel>URL</FieldLabel>
+          <Input value={formData.url} onChange={updateField('url')} placeholder="https://…" type="url" />
+        </section>
+      )}
+
+      <section>
+        <FieldLabel>Tags</FieldLabel>
+        <Input value={formData.tags} onChange={updateField('tags')} placeholder="react, hooks, typescript" />
+        <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
+      </section>
+
+      {collections.length > 0 && (
+        <section>
+          <FieldLabel>Collections</FieldLabel>
+          <div className="flex flex-wrap gap-1.5">
+            {collections.map((col) => (
+              <span key={col.id} className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground">
+                {col.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <FieldLabel>Details</FieldLabel>
+        <div className="space-y-1 text-xs text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Created</span>
+            <span>{formatDateLong(createdAt)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Updated</span>
+            <span>{formatDateLong(updatedAt)}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 interface ItemDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -114,12 +442,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
-    content: '',
-    url: '',
-    language: '',
-    tags: '',
+    title: '', description: '', content: '', url: '', language: '', tags: '',
   });
 
   useEffect(() => {
@@ -144,10 +467,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     setDeleting(true);
     try {
       const result = await deleteItem(item.id);
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
+      if (!result.success) { toast.error(result.error); return; }
       setDeleteOpen(false);
       onClose();
       toast.success('Item deleted');
@@ -170,10 +490,6 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     setIsEditing(true);
   }
 
-  function cancelEdit() {
-    setIsEditing(false);
-  }
-
   function updateField(field: keyof FormData) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -183,11 +499,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     if (!item) return;
     setSaving(true);
     try {
-      const tags = formData.tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-
+      const tags = formData.tags.split(',').map((t) => t.trim()).filter(Boolean);
       const result = await updateItem(item.id, {
         title: formData.title,
         description: formData.description || null,
@@ -196,13 +508,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
         language: formData.language || null,
         tags,
       });
-
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
-
-      // Re-fetch to sync dates (server action serializes Date differently)
+      if (!result.success) { toast.error(result.error); return; }
       const refreshed = await fetch(`/api/items/${item.id}`).then((r) => r.json());
       setItem(refreshed);
       setIsEditing(false);
@@ -225,382 +531,118 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
 
   return (
     <>
-    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
-      <SheetContent side="right" className="overflow-y-auto gap-0 p-0">
-        {loading ? (
-          <>
-            <SheetTitle className="sr-only">Loading item</SheetTitle>
-            <DrawerSkeleton />
-          </>
-        ) : item ? (
-          <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="p-4 pb-3 border-b border-border pr-10">
-              <div className="flex items-center gap-2 mb-2">
-                {Icon && (
-                  <div
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+      <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
+        <SheetContent side="right" className="overflow-y-auto gap-0 p-0">
+          {loading ? (
+            <>
+              <SheetTitle className="sr-only">Loading item</SheetTitle>
+              <DrawerSkeleton />
+            </>
+          ) : item ? (
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="p-4 pb-3 border-b border-border pr-10">
+                <div className="flex items-center gap-2 mb-2">
+                  {Icon && (
+                    <div
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+                      style={{ backgroundColor: `${color}20`, color }}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                  )}
+                  {isEditing ? (
+                    <Input
+                      value={formData.title}
+                      onChange={updateField('title')}
+                      className="text-base font-semibold h-auto py-0.5 px-1.5"
+                      placeholder="Item title"
+                      autoFocus
+                    />
+                  ) : (
+                    <SheetTitle className="text-base font-semibold leading-snug">
+                      {item.title}
+                    </SheetTitle>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span
+                    className="rounded px-1.5 py-0.5 text-xs font-medium capitalize"
                     style={{ backgroundColor: `${color}20`, color }}
                   >
-                    <Icon className="h-4 w-4" />
-                  </div>
-                )}
-                {isEditing ? (
-                  <Input
-                    value={formData.title}
-                    onChange={updateField('title')}
-                    className="text-base font-semibold h-auto py-0.5 px-1.5"
-                    placeholder="Item title"
-                    autoFocus
-                  />
-                ) : (
-                  <SheetTitle className="text-base font-semibold leading-snug">
-                    {item.title}
-                  </SheetTitle>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span
-                  className="rounded px-1.5 py-0.5 text-xs font-medium capitalize"
-                  style={{ backgroundColor: `${color}20`, color }}
-                >
-                  {item.itemType.name}
-                </span>
-                {!isEditing && item.language && (
-                  <span className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground">
-                    {item.language}
+                    {item.itemType.name}
                   </span>
-                )}
+                  {!isEditing && item.language && (
+                    <span className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground">
+                      {item.language}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Action bar */}
-            <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-border">
+              <DrawerActionBar
+                isEditing={isEditing}
+                saving={saving}
+                isTitleEmpty={!formData.title.trim()}
+                isFavorite={item.isFavorite}
+                isFileType={isFileType}
+                fileUrl={item.fileUrl}
+                itemId={item.id}
+                onSave={handleSave}
+                onCancel={() => setIsEditing(false)}
+                onEdit={enterEditMode}
+                onDeleteClick={() => setDeleteOpen(true)}
+              />
+
               {isEditing ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={saving || !formData.title.trim()}
-                    className="text-green-400 hover:text-green-400"
-                  >
-                    <Check className="h-4 w-4" />
-                    {saving ? 'Saving…' : 'Save'}
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>
-                    <X className="h-4 w-4" />
-                    Cancel
-                  </Button>
-                </>
+                <DrawerEditBody
+                  formData={formData}
+                  typeName={typeName}
+                  showContent={showContent}
+                  showLanguage={showLanguage}
+                  showUrl={showUrl}
+                  useCodeEditor={useCodeEditor}
+                  useMarkdownEditor={useMarkdownEditor}
+                  collections={item.collections}
+                  createdAt={item.createdAt}
+                  updatedAt={item.updatedAt}
+                  updateField={updateField}
+                  onContentChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
+                />
               ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={item.isFavorite ? 'text-yellow-400 hover:text-yellow-400' : ''}
-                  >
-                    <Star className={`h-4 w-4 ${item.isFavorite ? 'fill-yellow-400' : ''}`} />
-                    Favorite
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Pin className="h-4 w-4" />
-                    Pin
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Copy className="h-4 w-4" />
-                    Copy
-                  </Button>
-                  {isFileType && item.fileUrl && (
-                    <a
-                      href={`/api/download/${item.id}`}
-                      download
-                      className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-                    >
-                      <Download className="h-4 w-4" />
-                      Download
-                    </a>
-                  )}
-                  <Button variant="ghost" size="sm" onClick={enterEditMode}>
-                    <Pencil className="h-4 w-4" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-auto text-destructive hover:text-destructive"
-                    onClick={() => setDeleteOpen(true)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
-                </>
+                <DrawerViewBody
+                  item={item}
+                  typeName={typeName}
+                  useCodeEditor={useCodeEditor}
+                  useMarkdownEditor={useMarkdownEditor}
+                />
               )}
             </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
 
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-5">
-              {isEditing ? (
-                <>
-                  <section>
-                    <FieldLabel>Description</FieldLabel>
-                    <textarea
-                      value={formData.description}
-                      onChange={updateField('description')}
-                      placeholder="Optional description…"
-                      rows={3}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-                    />
-                  </section>
-
-                  {showContent && (
-                    <section>
-                      <FieldLabel>Content</FieldLabel>
-                      {useCodeEditor ? (
-                        <CodeEditor
-                          value={formData.content}
-                          onChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
-                          language={formData.language}
-                        />
-                      ) : useMarkdownEditor ? (
-                        <MarkdownEditor
-                          key="markdown-edit"
-                          value={formData.content}
-                          onChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
-                          placeholder="Write markdown…"
-                        />
-                      ) : (
-                        <textarea
-                          value={formData.content}
-                          onChange={updateField('content')}
-                          placeholder="Content…"
-                          rows={8}
-                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-                        />
-                      )}
-                    </section>
-                  )}
-
-                  {showLanguage && (
-                    <section>
-                      <FieldLabel>Language</FieldLabel>
-                      <Input
-                        value={formData.language}
-                        onChange={updateField('language')}
-                        placeholder="e.g. TypeScript"
-                      />
-                    </section>
-                  )}
-
-                  {showUrl && (
-                    <section>
-                      <FieldLabel>URL</FieldLabel>
-                      <Input
-                        value={formData.url}
-                        onChange={updateField('url')}
-                        placeholder="https://…"
-                        type="url"
-                      />
-                    </section>
-                  )}
-
-                  <section>
-                    <FieldLabel>Tags</FieldLabel>
-                    <Input
-                      value={formData.tags}
-                      onChange={updateField('tags')}
-                      placeholder="react, hooks, typescript"
-                    />
-                    <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
-                  </section>
-
-                  {item.collections.length > 0 && (
-                    <section>
-                      <FieldLabel>Collections</FieldLabel>
-                      <div className="flex flex-wrap gap-1.5">
-                        {item.collections.map((col) => (
-                          <span
-                            key={col.id}
-                            className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
-                          >
-                            {col.name}
-                          </span>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  <section>
-                    <FieldLabel>Details</FieldLabel>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <div className="flex justify-between">
-                        <span>Created</span>
-                        <span>{formatDateLong(item.createdAt)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Updated</span>
-                        <span>{formatDateLong(item.updatedAt)}</span>
-                      </div>
-                    </div>
-                  </section>
-                </>
-              ) : (
-                <>
-                  {item.description && (
-                    <section>
-                      <FieldLabel>Description</FieldLabel>
-                      <p className="text-sm">{item.description}</p>
-                    </section>
-                  )}
-
-                  {item.content && (
-                    <section>
-                      <FieldLabel>Content</FieldLabel>
-                      {useCodeEditor ? (
-                        <CodeEditor
-                          value={item.content}
-                          language={item.language}
-                          readOnly
-                        />
-                      ) : useMarkdownEditor ? (
-                        <MarkdownEditor
-                          key="markdown-view"
-                          value={item.content}
-                          readOnly
-                        />
-                      ) : (
-                        <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
-                          {item.content}
-                        </pre>
-                      )}
-                    </section>
-                  )}
-
-                  {typeName === 'image' && item.fileUrl && (
-                    <section>
-                      <FieldLabel>Image</FieldLabel>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.fileUrl}
-                        alt={item.title}
-                        className="rounded-md border border-border max-w-full object-contain max-h-80"
-                      />
-                    </section>
-                  )}
-
-                  {typeName === 'file' && item.fileUrl && (
-                    <section>
-                      <FieldLabel>File</FieldLabel>
-                      <div className="flex items-center gap-3 rounded-md border border-border bg-muted/20 p-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
-                          <File className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{item.fileName ?? 'File'}</p>
-                          {item.fileSize != null && (
-                            <p className="text-xs text-muted-foreground">{formatBytes(item.fileSize)}</p>
-                          )}
-                        </div>
-                        <a
-                          href={`/api/download/${item.id}`}
-                          download
-                          className={buttonVariants({ variant: 'outline', size: 'sm' })}
-                        >
-                          <Download className="h-3.5 w-3.5" />
-                          Download
-                        </a>
-                      </div>
-                    </section>
-                  )}
-
-                  {item.url && (
-                    <section>
-                      <FieldLabel>URL</FieldLabel>
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-400 hover:underline break-all"
-                      >
-                        {item.url}
-                      </a>
-                    </section>
-                  )}
-
-                  {item.tags.length > 0 && (
-                    <section>
-                      <FieldLabel>Tags</FieldLabel>
-                      <div className="flex flex-wrap gap-1.5">
-                        {item.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  {item.collections.length > 0 && (
-                    <section>
-                      <FieldLabel>Collections</FieldLabel>
-                      <div className="flex flex-wrap gap-1.5">
-                        {item.collections.map((col) => (
-                          <span
-                            key={col.id}
-                            className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
-                          >
-                            {col.name}
-                          </span>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  <section>
-                    <FieldLabel>Details</FieldLabel>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <div className="flex justify-between">
-                        <span>Created</span>
-                        <span>{formatDateLong(item.createdAt)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Updated</span>
-                        <span>{formatDateLong(item.updatedAt)}</span>
-                      </div>
-                    </div>
-                  </section>
-                </>
-              )}
-            </div>
-          </div>
-        ) : null}
-      </SheetContent>
-    </Sheet>
-
-    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete item?</AlertDialogTitle>
-          <AlertDialogDescription>
-            <span className="font-medium text-foreground">{item?.title}</span> will be permanently
-            deleted. This cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            disabled={deleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            {deleting ? 'Deleting…' : 'Delete'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-medium text-foreground">{item?.title}</span> will be permanently
+              deleted. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
