@@ -1,23 +1,16 @@
-# Current Feature: Collections Pages
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `/collections` page that lists all of the user's collections
-- Create `/collections/[id]` page that shows the items belonging to a specific collection
-- Reuse existing `CollectionCard` and `ItemCard` (and `ImageCard`, `FileRow`) components where applicable
-- Link the "View all collections →" text in the sidebar to `/collections`
-- Link every collection card on the dashboard to `/collections/[id]`
+<!-- Add goals here -->
 
 ## Notes
 
-- Protect `/collections` and `/collections/[id]` routes in `src/proxy.ts`
-- Server components fetch data directly via Prisma (same pattern as dashboard and items pages)
-- `/collections/[id]` should show a 404 for unknown IDs or collections that don't belong to the user
-- Items inside a collection should be displayed using the same card grid as the items list view (ItemCard for most types, ImageCard for images, FileRow for files)
+<!-- Add notes here -->
 
 ## History
 
@@ -80,7 +73,7 @@ In Progress
 - Pinned section conditionally hidden when no pinned items exist
 
 ### 2026-05-12 — Stats & Sidebar ✅ Completed
-- Created `src/lib/db/sidebar.ts` with `getSidebarData()` fetchinDevStashg real item types (with per-type counts) and collections (with dominant color and item count)
+- Created `src/lib/db/sidebar.ts` with `getSidebarData()` fetching real item types (with per-type counts) and collections (with dominant color and item count)
 - Replaced all mock data in `Sidebar.tsx` with real DB data
 - Item types in sidebar now link to `/items/[typename]` with live counts
 - Favorite collections show star icon with item count; recent (non-favorite) collections show a colored circle based on dominant item type, also with item count
@@ -270,3 +263,13 @@ In Progress
 - `updateItem` action + `updateItemById`: accept `collectionIds`, sync via `$transaction` (deleteMany + createMany)
 - Installed ShadCN Popover component
 - 11 new unit tests (GET /api/collections ×4, updateItem action ×7); 52 total passing
+
+### 2026-06-08 — Collections Pages ✅ Completed
+- Created `/collections` page listing all user collections as a `CollectionCard` grid
+- Created `/collections/[id]` page showing collection items grouped by type with labeled section headers
+- Items rendered with the correct component per type: `ItemCard` for text types, `ImageCard` for images, `FileRow` for files
+- Collection cards on dashboard and sidebar "View all collections →" link to the new pages
+- DevStash logo in `TopBar` made clickable, links to `/dashboard`
+- Back arrow added to `/items/[type]` (→ dashboard) and `/collections/[id]` (→ collections)
+- Protected `/collections` and `/collections/[id]` routes in `src/proxy.ts`
+- 11 unit tests for `getAllCollections` and `getCollectionById` (63 total passing)
