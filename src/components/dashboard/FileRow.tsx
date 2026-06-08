@@ -1,8 +1,10 @@
 'use client';
 
-import { File, FileText, FileCode, Download } from 'lucide-react';
+import { useState } from 'react';
+import { File, FileText, FileCode, Download, Copy, Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { type ItemForCard } from '@/lib/db/items';
+import { formatBytes, formatDate } from '@/lib/format';
 import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
 import { buttonVariants } from '@/components/ui/button';
 
@@ -15,25 +17,21 @@ function iconForFile(fileName: string | null): LucideIcon {
   return File;
 }
 
-function formatBytes(bytes: number | null): string {
-  if (bytes == null) return '—';
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
-function formatDate(date: Date): string {
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
 
 export function FileRow({ item }: { item: ItemForCard }) {
   const { openDrawer } = useItemDrawer();
   const Icon = iconForFile(item.fileName);
   const showSecondaryName = item.fileName && item.fileName !== item.title;
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!item.fileUrl) return;
+    navigator.clipboard.writeText(item.fileUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   return (
     <div
@@ -69,6 +67,17 @@ export function FileRow({ item }: { item: ItemForCard }) {
           {formatDate(item.createdAt)}
         </span>
       </div>
+
+      {/* Copy URL button */}
+      {item.fileUrl && (
+        <button
+          className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+          onClick={handleCopy}
+          aria-label="Copy file URL"
+        >
+          {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+        </button>
+      )}
 
       {/* Download button */}
       <a

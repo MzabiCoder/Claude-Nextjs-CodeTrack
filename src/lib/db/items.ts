@@ -15,6 +15,8 @@ export type ItemForCard = {
   id: string;
   title: string;
   description: string | null;
+  content: string | null;
+  url: string | null;
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
@@ -35,6 +37,8 @@ const itemSelect = {
   id: true,
   title: true,
   description: true,
+  content: true,
+  url: true,
   fileUrl: true,
   fileName: true,
   fileSize: true,
@@ -50,6 +54,8 @@ function mapItem(item: {
   id: string;
   title: string;
   description: string | null;
+  content: string | null;
+  url: string | null;
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
@@ -67,6 +73,7 @@ export async function getPinnedItems(): Promise<ItemForCard[]> {
   const items = await prisma.item.findMany({
     where: { isPinned: true },
     orderBy: { updatedAt: 'desc' },
+    take: 20,
     select: itemSelect,
   });
   return items.map(mapItem);
@@ -271,6 +278,7 @@ export async function getItemsByType(typeSlug: string): Promise<ItemForCard[]> {
   const items = await prisma.item.findMany({
     where: { itemType: { name: typeName } },
     orderBy: { createdAt: 'desc' },
+    take: 100,
     select: itemSelect,
   });
   return items.map(mapItem);

@@ -28,12 +28,16 @@ export async function GET(
   }
 
   const contentType = upstream.headers.get('Content-Type') ?? 'application/octet-stream';
-  const fileName = encodeURIComponent(item.fileName ?? 'download');
+  const name = item.fileName ?? 'download';
+  const isAscii = /^[\x20-\x7E]+$/.test(name);
+  const disposition = isAscii
+    ? `attachment; filename="${name}"`
+    : `attachment; filename*=UTF-8''${encodeURIComponent(name)}`;
 
   return new NextResponse(upstream.body, {
     headers: {
       'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Disposition': disposition,
     },
   });
 }

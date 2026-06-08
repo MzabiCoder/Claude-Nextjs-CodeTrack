@@ -54,19 +54,19 @@ describe('getItemById', () => {
   });
 
   it('flattens tags from relation to string array', async () => {
-    mockFindFirst.mockResolvedValue(baseItem);
+    mockFindFirst.mockResolvedValue(baseItem as never);
     const result = await getItemById('user-1', 'item-1');
     expect(result?.tags).toEqual(['react', 'hooks']);
   });
 
   it('flattens collections from join table to id/name objects', async () => {
-    mockFindFirst.mockResolvedValue(baseItem);
+    mockFindFirst.mockResolvedValue(baseItem as never);
     const result = await getItemById('user-1', 'item-1');
     expect(result?.collections).toEqual([{ id: 'col-1', name: 'React Patterns' }]);
   });
 
   it('returns all scalar fields unchanged', async () => {
-    mockFindFirst.mockResolvedValue(baseItem);
+    mockFindFirst.mockResolvedValue(baseItem as never);
     const result = await getItemById('user-1', 'item-1');
     expect(result).toMatchObject({
       id: 'item-1',
@@ -101,14 +101,14 @@ describe('deleteItemById', () => {
   });
 
   it('calls prisma.item.delete with the correct id', async () => {
-    mockFindFirst.mockResolvedValue({ id: 'item-1' });
+    mockFindFirst.mockResolvedValue({ id: 'item-1' } as never);
     mockDelete.mockResolvedValue({} as never);
     await deleteItemById('user-1', 'item-1');
     expect(mockDelete).toHaveBeenCalledWith({ where: { id: 'item-1' } });
   });
 
   it('returns true on successful deletion', async () => {
-    mockFindFirst.mockResolvedValue({ id: 'item-1' });
+    mockFindFirst.mockResolvedValue({ id: 'item-1' } as never);
     mockDelete.mockResolvedValue({} as never);
     expect(await deleteItemById('user-1', 'item-1')).toBe(true);
   });
@@ -156,7 +156,7 @@ describe('createItemInDb', () => {
   });
 
   it('creates item with TEXT contentType for snippet', async () => {
-    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-1' });
+    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-1' } as never);
     mockCreate.mockResolvedValue(createdItem as never);
     await createItemInDb('user-1', {
       typeName: 'snippet',
@@ -173,7 +173,7 @@ describe('createItemInDb', () => {
   });
 
   it('creates item with URL contentType for link', async () => {
-    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-2' });
+    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-2' } as never);
     mockCreate.mockResolvedValue({ ...createdItem, itemType: { ...createdItem.itemType, name: 'link' } } as never);
     await createItemInDb('user-1', {
       typeName: 'link',
@@ -190,7 +190,7 @@ describe('createItemInDb', () => {
   });
 
   it('flattens tags from relation to string array', async () => {
-    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-1' });
+    mockItemTypeFindFirst.mockResolvedValue({ id: 'type-1' } as never);
     mockCreate.mockResolvedValue(createdItem as never);
     const result = await createItemInDb('user-1', {
       typeName: 'snippet',

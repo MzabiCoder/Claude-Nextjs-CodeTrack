@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { updateItem, deleteItem } from '@/actions/items';
+import { formatBytes, formatDateLong } from '@/lib/format';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 
@@ -32,11 +33,6 @@ const CODE_EDITOR_TYPES = new Set(['snippet', 'command']);
 const MARKDOWN_EDITOR_TYPES = new Set(['note', 'prompt']);
 const FILE_TYPES = new Set(['file', 'image']);
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
 
 type ItemDetailResponse = {
   id: string;
@@ -66,13 +62,6 @@ type FormData = {
   tags: string;
 };
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded bg-muted ${className ?? ''}`} />;
@@ -446,11 +435,11 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <div className="flex justify-between">
                         <span>Created</span>
-                        <span>{formatDate(item.createdAt)}</span>
+                        <span>{formatDateLong(item.createdAt)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Updated</span>
-                        <span>{formatDate(item.updatedAt)}</span>
+                        <span>{formatDateLong(item.updatedAt)}</span>
                       </div>
                     </div>
                   </section>
@@ -575,11 +564,11 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <div className="flex justify-between">
                         <span>Created</span>
-                        <span>{formatDate(item.createdAt)}</span>
+                        <span>{formatDateLong(item.createdAt)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Updated</span>
-                        <span>{formatDate(item.updatedAt)}</span>
+                        <span>{formatDateLong(item.updatedAt)}</span>
                       </div>
                     </div>
                   </section>

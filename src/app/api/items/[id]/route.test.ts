@@ -20,7 +20,7 @@ describe('GET /api/items/[id]', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns 401 when unauthenticated', async () => {
-    mockAuth.mockResolvedValue(null);
+    mockAuth.mockResolvedValue(null as never);
     const { req, ctx } = makeRequest();
     const res = await GET(req, ctx);
     expect(res.status).toBe(401);
