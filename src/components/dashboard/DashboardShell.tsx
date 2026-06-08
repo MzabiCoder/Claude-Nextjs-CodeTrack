@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/dashboard/Sidebar';
 import { ItemDrawer } from '@/components/dashboard/ItemDrawer';
 import { ItemDrawerContext } from '@/components/dashboard/ItemDrawerContext';
 import { NewItemDialog } from '@/components/dashboard/NewItemDialog';
+import { NewCollectionDialog } from '@/components/dashboard/NewCollectionDialog';
 import type { SidebarData } from '@/lib/db/sidebar';
 
 export interface SessionUser {
@@ -24,11 +25,17 @@ export function DashboardShell({ children, sidebarData, user }: DashboardShellPr
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [newItemOpen, setNewItemOpen] = useState(false);
+  const [newCollectionOpen, setNewCollectionOpen] = useState(false);
 
   return (
     <ItemDrawerContext.Provider value={{ openDrawer: setSelectedItemId }}>
       <div className="flex h-screen flex-col bg-background text-foreground">
-        <TopBar onMobileMenuClick={() => setMobileOpen(true)} user={user} onNewItemClick={() => setNewItemOpen(true)} />
+        <TopBar
+          onMobileMenuClick={() => setMobileOpen(true)}
+          onNewCollectionClick={() => setNewCollectionOpen(true)}
+          onNewItemClick={() => setNewItemOpen(true)}
+          user={user}
+        />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
             mobileOpen={mobileOpen}
@@ -45,6 +52,7 @@ export function DashboardShell({ children, sidebarData, user }: DashboardShellPr
         itemId={selectedItemId}
       />
       <NewItemDialog open={newItemOpen} onClose={() => setNewItemOpen(false)} />
+      <NewCollectionDialog open={newCollectionOpen} onClose={() => setNewCollectionOpen(false)} />
     </ItemDrawerContext.Provider>
   );
 }
