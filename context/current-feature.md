@@ -246,3 +246,10 @@ Not Started
 - Broke `ItemDrawer.tsx` into `DrawerActionBar`, `DrawerViewBody`, `DrawerEditBody` sub-components (same file, separate functions)
 - Split `src/lib/db/items.ts` into `items-queries.ts` + `items-mutations.ts`; `items.ts` is now a 5-line re-export barrel
 - Extracted `SidebarCollections` component from `Sidebar.tsx`
+
+### 2026-06-08 — Collection Create ✅ Completed
+- Created `POST /api/collections`: auth-checked, user-scoped, validates name, returns 201 with created collection JSON
+- Created `NewCollectionDialog.tsx`: name (required) + description (optional) fields, toast on success/failure, closes and refreshes on create
+- Wired `onNewCollectionClick` prop through `TopBar` → `DashboardShell` state → `NewCollectionDialog`
+- Installed ShadCN Textarea component
+- 9 unit tests for the API route (auth, validation, user scoping, trimming, response shape); 41 total passing
