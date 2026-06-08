@@ -1,5 +1,6 @@
-import { Star, Code, Sparkles, Terminal, StickyNote, File, Image, Link } from 'lucide-react';
+import { Star, Code, Sparkles, Terminal, StickyNote, File, Image, Link as LinkIcon } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
+import NextLink from 'next/link';
 import { type CollectionForCard } from '@/lib/db/collections';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -9,15 +10,23 @@ const ICON_MAP: Record<string, LucideIcon> = {
   StickyNote,
   File,
   Image,
-  Link,
+  Link: LinkIcon,
 };
 
-export function CollectionCard({ collection }: { collection: CollectionForCard }) {
-  return (
-    <div
-      className="rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer"
-      style={{ borderLeftColor: collection.dominantColor }}
-    >
+const cardClassName =
+  'rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer block';
+
+export function CollectionCard({
+  collection,
+  href,
+}: {
+  collection: CollectionForCard;
+  href?: string;
+}) {
+  const style = { borderLeftColor: collection.dominantColor };
+
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-medium truncate">{collection.name}</h3>
         <div className="flex items-center gap-2 shrink-0">
@@ -46,6 +55,20 @@ export function CollectionCard({ collection }: { collection: CollectionForCard }
           })}
         </div>
       )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <NextLink href={href} className={cardClassName} style={style}>
+        {content}
+      </NextLink>
+    );
+  }
+
+  return (
+    <div className={cardClassName} style={style}>
+      {content}
     </div>
   );
 }

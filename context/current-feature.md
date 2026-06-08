@@ -1,16 +1,23 @@
-# Current Feature
+# Current Feature: Collections Pages
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Create `/collections` page that lists all of the user's collections
+- Create `/collections/[id]` page that shows the items belonging to a specific collection
+- Reuse existing `CollectionCard` and `ItemCard` (and `ImageCard`, `FileRow`) components where applicable
+- Link the "View all collections →" text in the sidebar to `/collections`
+- Link every collection card on the dashboard to `/collections/[id]`
 
 ## Notes
 
-<!-- Add notes here -->
+- Protect `/collections` and `/collections/[id]` routes in `src/proxy.ts`
+- Server components fetch data directly via Prisma (same pattern as dashboard and items pages)
+- `/collections/[id]` should show a 404 for unknown IDs or collections that don't belong to the user
+- Items inside a collection should be displayed using the same card grid as the items list view (ItemCard for most types, ImageCard for images, FileRow for files)
 
 ## History
 
