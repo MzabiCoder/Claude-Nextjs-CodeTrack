@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { TopBar } from '@/components/dashboard/TopBar';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { ItemDrawer } from '@/components/dashboard/ItemDrawer';
 import { ItemDrawerContext } from '@/components/dashboard/ItemDrawerContext';
 import { NewItemDialog } from '@/components/dashboard/NewItemDialog';
 import { NewCollectionDialog } from '@/components/dashboard/NewCollectionDialog';
+import { CommandPalette, type CommandPaletteRef } from '@/components/dashboard/CommandPalette';
 import type { SidebarData } from '@/lib/db/sidebar';
+import type { SearchData } from '@/lib/db/search';
 
 export interface SessionUser {
   name?: string | null;
@@ -19,13 +21,15 @@ interface DashboardShellProps {
   children: React.ReactNode;
   sidebarData: SidebarData;
   user: SessionUser | null;
+  searchData: SearchData;
 }
 
-export function DashboardShell({ children, sidebarData, user }: DashboardShellProps) {
+export function DashboardShell({ children, sidebarData, user, searchData }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [newItemOpen, setNewItemOpen] = useState(false);
   const [newCollectionOpen, setNewCollectionOpen] = useState(false);
+  const paletteRef = useRef<CommandPaletteRef>(null);
 
   return (
     <ItemDrawerContext.Provider value={{ openDrawer: setSelectedItemId }}>
@@ -34,6 +38,7 @@ export function DashboardShell({ children, sidebarData, user }: DashboardShellPr
           onMobileMenuClick={() => setMobileOpen(true)}
           onNewCollectionClick={() => setNewCollectionOpen(true)}
           onNewItemClick={() => setNewItemOpen(true)}
+          onSearchClick={() => paletteRef.current?.open()}
           user={user}
         />
         <div className="flex flex-1 overflow-hidden">
@@ -53,6 +58,11 @@ export function DashboardShell({ children, sidebarData, user }: DashboardShellPr
       />
       <NewItemDialog open={newItemOpen} onClose={() => setNewItemOpen(false)} />
       <NewCollectionDialog open={newCollectionOpen} onClose={() => setNewCollectionOpen(false)} />
+      <CommandPalette
+        ref={paletteRef}
+        searchData={searchData}
+        openDrawer={setSelectedItemId}
+      />
     </ItemDrawerContext.Provider>
   );
 }

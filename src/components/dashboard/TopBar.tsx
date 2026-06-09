@@ -4,7 +4,6 @@ import { Search, Plus, FolderPlus, LayoutGrid, Menu, LogOut, User } from 'lucide
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +17,11 @@ interface TopBarProps {
   onMobileMenuClick?: () => void;
   onNewCollectionClick?: () => void;
   onNewItemClick?: () => void;
+  onSearchClick?: () => void;
   user: SessionUser | null;
 }
 
-export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick, user }: TopBarProps) {
+export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick, onSearchClick, user }: TopBarProps) {
   return (
     <header className="relative flex items-center border-b border-border px-4 py-3">
       <div className="flex items-center gap-2 shrink-0">
@@ -40,10 +40,16 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
       </div>
 
       <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search items..." suppressHydrationWarning />
-        </div>
+        <button
+          onClick={onSearchClick}
+          className="relative flex w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground shadow-xs hover:bg-accent/50 transition-colors"
+        >
+          <Search className="mr-2 h-4 w-4 shrink-0" />
+          <span className="flex-1 text-left">Search items and collections...</span>
+          <kbd className="hidden sm:inline-flex h-5 items-center rounded border border-border bg-muted px-1.5 text-[10px] font-medium text-muted-foreground">
+            ⌘K
+          </kbd>
+        </button>
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
