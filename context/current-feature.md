@@ -1,30 +1,16 @@
-# Current Feature: Global Search / Command Palette
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Open command palette with Cmd+K (Mac) / Ctrl+K (Windows)
-- Fuzzy search across all user items and collections
-- Grouped results: Items section and Collections section
-- Keyboard navigation (↑↓ arrows, Enter to select, Esc to close)
-- Show item type icon (colored) per item result; show item count per collection result
-- Selecting an item opens the item drawer; selecting a collection navigates to `/collections/[id]`
-- TopBar search input opens the palette on click
-- Search input placeholder shows `⌘K` hint
+<!-- Add feature goals here -->
 
 ## Notes
 
-- Use ShadCN `cmdk` Command component (install if not present)
-- Client-side fuzzy search — no API call on each keystroke
-- Searchable data pre-fetched on app load (passed into the client shell via server component)
-- Search data shape: items `{ id, title, typeName, typeIcon, typeColor, contentPreview }`, collections `{ id, name, itemCount }`
-- Reuse existing `getAllCollections` and `getItemsByType` / `getRecentItems` functions (or a new lightweight query) for the data fetch
-- Item content preview: first ~80 chars of `content` (or `url` for links, `fileName` for files/images)
-- After selecting an item, call `openDrawer(id)` from `ItemDrawerContext`
-- After selecting a collection, call `router.push('/collections/[id]')`
+<!-- Add implementation notes here -->
 
 ## History
 
@@ -297,3 +283,14 @@ In Progress
 - `CollectionItemCard`: collection-scoped item card (no drawer); 3-dots dropdown with Favorite toggle (live), Edit → `EditItemDialog`, Remove from Collection → AlertDialog confirm
 - `EditItemDialog`: lightweight edit dialog for title, description, and tags in collection context
 - `updateItemBasic` + `toggleFavoriteItem` server actions; `updateItemBasicById` db helper added to `items-mutations.ts`
+
+### 2026-06-09 — Global Search / Command Palette ✅ Completed
+- Added `CommandPalette.tsx` using ShadCN `cmdk` with grouped results (Items and Collections sections)
+- Opens with Cmd+K (Mac) / Ctrl+K (Windows); TopBar search input also opens palette on click
+- Client-side fuzzy search over pre-fetched data — no API call per keystroke
+- Item results show colored type icon and 80-char content preview; collection results show item count
+- Selecting an item calls `openDrawer(id)` from `ItemDrawerContext`; selecting a collection navigates to `/collections/[id]`
+- Added `getSearchData(userId)` in `src/lib/db/search.ts` for lightweight search data prefetch
+- Added `src/lib/db/users.ts` with `getUserById` helper
+- `DashboardShell` and all layout wrappers (dashboard, items, collections) pass search data down to `CommandPalette`
+- 8 unit tests for `getSearchData`; 71 total passing
