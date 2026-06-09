@@ -1,29 +1,16 @@
-# Current Feature: Collection Management Actions
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add Edit, Delete, and Favorite action buttons to the `/collections/[id]` page header
-  - Favorite button: icon only (no backend wiring yet)
-  - Edit button: opens a modal to edit collection name and description; saves via API
-  - Delete button: opens a confirmation dialog; removes the collection (items are NOT deleted, only the collection and its memberships are removed)
-- On `CollectionCard` (used on `/collections` and dashboard): add a 3-dots menu icon that opens a dropdown with Edit, Delete, and Favorite actions
-  - Clicking anywhere on the card (outside the 3-dots menu) navigates to `/collections/[id]`
-  - Edit and Delete behave the same as above
+<!-- Add goals here -->
 
 ## Notes
 
-- Delete removes the `Collection` record (and cascades to `ItemCollection` join rows via Prisma), but never touches `Item` records
-- Favorite is UI-only for now — just render the star/heart icon button with no API call
-- Edit modal fields: name (required) and description (optional) — same fields as `NewCollectionDialog`
-- The `CollectionCard` currently renders as a full `<NextLink>` or `<div>`; it needs to be restructured so the card body is the link and the 3-dots button is a separate interactive element on top
-- Reuse `NewCollectionDialog` styling/pattern for the edit modal (or extract a shared `CollectionFormDialog`)
-- Use ShadCN `DropdownMenu` for the 3-dots menu (already installed)
-- Use ShadCN `AlertDialog` for delete confirmation (already installed)
-- After edit or delete, call `router.refresh()` to re-sync server data
+<!-- Add notes here -->
 
 ## History
 
@@ -286,3 +273,13 @@ In Progress
 - Back arrow added to `/items/[type]` (→ dashboard) and `/collections/[id]` (→ collections)
 - Protected `/collections` and `/collections/[id]` routes in `src/proxy.ts`
 - 11 unit tests for `getAllCollections` and `getCollectionById` (63 total passing)
+
+### 2026-06-09 — Collection Management Actions ✅ Completed
+- Added `PATCH /api/collections/[id]` (edit name/description) and `DELETE /api/collections/[id]` (delete collection; cascades to ItemCollection, never touches Item records)
+- Added `DELETE /api/collections/[id]/items/[itemId]` to remove an item from a collection without deleting the item globally
+- `CollectionActions` component: Favorite icon button (UI-only), Edit button → `EditCollectionDialog`, Delete button → AlertDialog confirm; used in `/collections/[id]` page header
+- `EditCollectionDialog`: name + description modal, same pattern as `NewCollectionDialog`
+- `CollectionCard` restructured: card body is a `<NextLink>`, 3-dots `DropdownMenu` absolutely positioned at bottom-right with Edit / Favorite / Delete; fixed `onSelect` → `onClick` for base-ui compatibility
+- `CollectionItemCard`: collection-scoped item card (no drawer); 3-dots dropdown with Favorite toggle (live), Edit → `EditItemDialog`, Remove from Collection → AlertDialog confirm
+- `EditItemDialog`: lightweight edit dialog for title, description, and tags in collection context
+- `updateItemBasic` + `toggleFavoriteItem` server actions; `updateItemBasicById` db helper added to `items-mutations.ts`
