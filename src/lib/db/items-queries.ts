@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { ITEMS_PER_PAGE, DASHBOARD_RECENT_ITEMS_LIMIT } from '@/lib/constants';
 
 const SLUG_TO_TYPE: Record<string, string> = {
   snippets: 'snippet',
@@ -97,7 +98,7 @@ export async function getPinnedItems(): Promise<ItemForCard[]> {
   return items.map(mapItem);
 }
 
-export async function getRecentItems(limit = 10): Promise<ItemForCard[]> {
+export async function getRecentItems(limit = DASHBOARD_RECENT_ITEMS_LIMIT): Promise<ItemForCard[]> {
   const items = await prisma.item.findMany({
     orderBy: { createdAt: 'desc' },
     take: limit,
@@ -144,15 +145,23 @@ export async function getItemFileUrl(userId: string, id: string): Promise<string
   return item?.fileUrl ?? null;
 }
 
-export async function getItemsByType(typeSlug: string): Promise<ItemForCard[]> {
+export async function getItemsByType(
+  typeSlug: string,
+  page = 1
+): Promise<{ items: ItemForCard[]; totalCount: number }> {
   const typeName = SLUG_TO_TYPE[typeSlug];
-  if (!typeName) return [];
+  if (!typeName) return { items: [], totalCount: 0 };
 
-  const items = await prisma.item.findMany({
-    where: { itemType: { name: typeName } },
-    orderBy: { createdAt: 'desc' },
-    take: 100,
-    select: itemSelect,
-  });
-  return items.map(mapItem);
+  const where = { itemType: { name: typeName } };
+  const [items, totalCount] = await Promise.all([
+    prisma.item.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * ITEMS_PER_PAGE,
+      take: ITEMS_PER_PAGE,
+      select: itemSelect,
+    }),
+    prisma.item.count({ where }),
+  ]);
+  return { items: items.map(mapItem), totalCount };
 }

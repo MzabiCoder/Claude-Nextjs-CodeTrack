@@ -2,9 +2,11 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getItemsByType } from '@/lib/db/items';
+import { ITEMS_PER_PAGE } from '@/lib/constants';
 import { ItemCard } from '@/components/dashboard/ItemCard';
 import { ImageCard } from '@/components/dashboard/ImageCard';
 import { FileRow } from '@/components/dashboard/FileRow';
+import { Pagination } from '@/components/shared/Pagination';
 
 const VALID_TYPES = new Set([
   'snippets', 'prompts', 'commands', 'notes', 'files', 'images', 'links',
@@ -16,14 +18,18 @@ function capitalize(s: string) {
 
 export default async function ItemsTypePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ type: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const { type } = await params;
+  const [{ type }, { page: pageParam }] = await Promise.all([params, searchParams]);
 
   if (!VALID_TYPES.has(type)) notFound();
 
-  const items = await getItemsByType(type);
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+  const { items, totalCount } = await getItemsByType(type, page);
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const isImageGallery = type === 'images';
   const isFileList = type === 'files';
 
@@ -39,11 +45,11 @@ export default async function ItemsTypePage({
         </Link>
         <h1 className="text-2xl font-bold">{capitalize(type)}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {items.length} {items.length === 1 ? 'item' : 'items'}
+          {totalCount} {totalCount === 1 ? 'item' : 'items'}
         </p>
       </div>
 
-      {items.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="text-muted-foreground">No {type} yet.</p>
       ) : isFileList ? (
         <div className="rounded-lg border border-border overflow-hidden divide-y divide-border">
@@ -64,6 +70,8 @@ export default async function ItemsTypePage({
           ))}
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} basePath={`/items/${type}`} />
     </div>
   );
 }
