@@ -1,26 +1,16 @@
-# Current Feature: Pagination
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add pagination to `/items/[type]` pages (items list)
-- Add pagination to `/collections/[id]` pages (collection items list)
-- Pagination controls at bottom: numbered page links + prev/next buttons
-- Prev/next disabled (greyed out) when at the first/last page
-- Use constants: `ITEMS_PER_PAGE = 21`, `COLLECTIONS_PER_PAGE = 21`
-- Dashboard limits remain: `DASHBOARD_COLLECTIONS_LIMIT = 6`, `DASHBOARD_RECENT_ITEMS_LIMIT = 10`
-- Only fetch the records needed for the current page (no over-fetching)
+<!-- Add feature goals here -->
 
 ## Notes
 
-- Page number passed as a URL search param (`?page=1`)
-- Server components read `searchParams.page`, pass to DB queries via `skip`/`take`
-- Total count query runs alongside page query to compute `totalPages`
-- `ITEMS_PER_PAGE` and `COLLECTIONS_PER_PAGE` constants live in a shared constants file
-- Dashboard fetch limits (`DASHBOARD_COLLECTIONS_LIMIT`, `DASHBOARD_RECENT_ITEMS_LIMIT`) are named constants, not magic numbers — audit existing code and consolidate
+<!-- Add implementation notes here -->
 
 ## History
 
@@ -304,3 +294,13 @@ In Progress
 - Added `src/lib/db/users.ts` with `getUserById` helper
 - `DashboardShell` and all layout wrappers (dashboard, items, collections) pass search data down to `CommandPalette`
 - 8 unit tests for `getSearchData`; 71 total passing
+
+### 2026-06-09 — Pagination ✅ Completed
+- Created `src/lib/constants.ts` with `ITEMS_PER_PAGE = 21`, `COLLECTIONS_PER_PAGE = 21`, `DASHBOARD_COLLECTIONS_LIMIT = 6`, `DASHBOARD_RECENT_ITEMS_LIMIT = 10`
+- Paginated `getItemsByType` (skip/take + parallel count query) using `ITEMS_PER_PAGE`
+- Paginated `getAllCollections` (skip/take + parallel count query) using `COLLECTIONS_PER_PAGE`
+- Paginated `getCollectionById` items (skip/take); `itemCount` sourced from `_count.items` for accurate total regardless of page
+- `getDashboardCollections` and `getRecentItems` now use named constants instead of magic numbers
+- Created `src/components/shared/Pagination.tsx` — numbered pages with ellipsis, prev/next buttons greyed out at boundaries, uses Next.js `Link`
+- `/items/[type]`, `/collections`, and `/collections/[id]` pages read `?page` search param and render `Pagination` at the bottom
+- Updated collections tests for new `{ collections, totalCount }` / `_count` return shapes; 72 total passing
