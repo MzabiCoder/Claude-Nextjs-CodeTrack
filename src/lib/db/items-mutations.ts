@@ -134,6 +134,31 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
   return mapItem(created);
 }
 
+export async function updateItemBasicById(
+  userId: string,
+  id: string,
+  data: { title: string; description: string | null; tags: string[] }
+): Promise<boolean> {
+  const existing = await prisma.item.findFirst({ where: { id, userId }, select: { id: true } });
+  if (!existing) return false;
+
+  await prisma.item.update({
+    where: { id },
+    data: {
+      title: data.title,
+      description: data.description,
+      tags: {
+        set: [],
+        connectOrCreate: data.tags.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+    },
+  });
+  return true;
+}
+
 export async function deleteItemById(userId: string, id: string): Promise<boolean> {
   const existing = await prisma.item.findFirst({ where: { id, userId }, select: { id: true } });
   if (!existing) return false;
