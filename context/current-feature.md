@@ -1,16 +1,30 @@
-# Current Feature
+# Current Feature: Global Search / Command Palette
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Open command palette with Cmd+K (Mac) / Ctrl+K (Windows)
+- Fuzzy search across all user items and collections
+- Grouped results: Items section and Collections section
+- Keyboard navigation (↑↓ arrows, Enter to select, Esc to close)
+- Show item type icon (colored) per item result; show item count per collection result
+- Selecting an item opens the item drawer; selecting a collection navigates to `/collections/[id]`
+- TopBar search input opens the palette on click
+- Search input placeholder shows `⌘K` hint
 
 ## Notes
 
-<!-- Add notes here -->
+- Use ShadCN `cmdk` Command component (install if not present)
+- Client-side fuzzy search — no API call on each keystroke
+- Searchable data pre-fetched on app load (passed into the client shell via server component)
+- Search data shape: items `{ id, title, typeName, typeIcon, typeColor, contentPreview }`, collections `{ id, name, itemCount }`
+- Reuse existing `getAllCollections` and `getItemsByType` / `getRecentItems` functions (or a new lightweight query) for the data fetch
+- Item content preview: first ~80 chars of `content` (or `url` for links, `fileName` for files/images)
+- After selecting an item, call `openDrawer(id)` from `ItemDrawerContext`
+- After selecting a collection, call `router.push('/collections/[id]')`
 
 ## History
 
