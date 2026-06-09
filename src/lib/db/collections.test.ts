@@ -6,6 +6,7 @@ vi.mock('@/lib/prisma', () => ({
     collection: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -13,6 +14,7 @@ vi.mock('@/lib/prisma', () => ({
 const { prisma } = await import('@/lib/prisma');
 const mockFindMany = vi.mocked(prisma.collection.findMany);
 const mockFindFirst = vi.mocked(prisma.collection.findFirst);
+const mockCount = vi.mocked(prisma.collection.count);
 
 const snippetType = { id: 'type-snippet', name: 'snippet', icon: 'Code', color: '#3b82f6' };
 const promptType = { id: 'type-prompt', name: 'prompt', icon: 'Sparkles', color: '#8b5cf6' };
@@ -57,12 +59,17 @@ function makeItem(typeOverride = snippetType) {
 // ─── getAllCollections ────────────────────────────────────────────────────────
 
 describe('getAllCollections', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCount.mockResolvedValue(0);
+  });
 
-  it('returns empty array when user has no collections', async () => {
+  it('returns empty collections array when user has no collections', async () => {
     mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(0);
     const result = await getAllCollections('user-1');
-    expect(result).toEqual([]);
+    expect(result.collections).toEqual([]);
+    expect(result.totalCount).toBe(0);
   });
 
   it('scopes query to the given userId', async () => {
@@ -82,8 +89,9 @@ describe('getAllCollections', () => {
       ],
     });
     mockFindMany.mockResolvedValue([row] as never);
-    const [col] = await getAllCollections('user-1');
-    expect(col.itemCount).toBe(3);
+    mockCount.mockResolvedValue(1);
+    const { collections } = await getAllCollections('user-1');
+    expect(collections[0].itemCount).toBe(3);
   });
 
   it('sets dominantColor to the most-used type color', async () => {
@@ -95,14 +103,16 @@ describe('getAllCollections', () => {
       ],
     });
     mockFindMany.mockResolvedValue([row] as never);
-    const [col] = await getAllCollections('user-1');
-    expect(col.dominantColor).toBe(snippetType.color);
+    mockCount.mockResolvedValue(1);
+    const { collections } = await getAllCollections('user-1');
+    expect(collections[0].dominantColor).toBe(snippetType.color);
   });
 
   it('falls back dominantColor to gray when collection has no items', async () => {
     mockFindMany.mockResolvedValue([makeCollectionRow({ items: [] })] as never);
-    const [col] = await getAllCollections('user-1');
-    expect(col.dominantColor).toBe('#6b7280');
+    mockCount.mockResolvedValue(1);
+    const { collections } = await getAllCollections('user-1');
+    expect(collections[0].dominantColor).toBe('#6b7280');
   });
 
   it('returns typeIcons sorted by count descending', async () => {
@@ -114,20 +124,29 @@ describe('getAllCollections', () => {
       ],
     });
     mockFindMany.mockResolvedValue([row] as never);
-    const [col] = await getAllCollections('user-1');
-    expect(col.typeIcons[0].id).toBe(snippetType.id);
-    expect(col.typeIcons[1].id).toBe(promptType.id);
+    mockCount.mockResolvedValue(1);
+    const { collections } = await getAllCollections('user-1');
+    expect(collections[0].typeIcons[0].id).toBe(snippetType.id);
+    expect(collections[0].typeIcons[1].id).toBe(promptType.id);
   });
 
   it('maps name, description, isFavorite, updatedAt through correctly', async () => {
     const updatedAt = new Date('2026-03-10');
     const row = makeCollectionRow({ name: 'AI Workflows', description: 'Useful prompts', isFavorite: true, updatedAt });
     mockFindMany.mockResolvedValue([row] as never);
-    const [col] = await getAllCollections('user-1');
-    expect(col.name).toBe('AI Workflows');
-    expect(col.description).toBe('Useful prompts');
-    expect(col.isFavorite).toBe(true);
-    expect(col.updatedAt).toEqual(updatedAt);
+    mockCount.mockResolvedValue(1);
+    const { collections } = await getAllCollections('user-1');
+    expect(collections[0].name).toBe('AI Workflows');
+    expect(collections[0].description).toBe('Useful prompts');
+    expect(collections[0].isFavorite).toBe(true);
+    expect(collections[0].updatedAt).toEqual(updatedAt);
+  });
+
+  it('returns correct totalCount', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(42);
+    const { totalCount } = await getAllCollections('user-1');
+    expect(totalCount).toBe(42);
   });
 });
 
@@ -155,6 +174,7 @@ describe('getCollectionById', () => {
     const row = {
       ...makeCollectionRow({ id: 'col-1', name: 'React Patterns' }),
       items: [{ item }],
+      _count: { items: 1 },
     };
     mockFindFirst.mockResolvedValue(row as never);
     const result = await getCollectionById('user-1', 'col-1');
@@ -172,6 +192,7 @@ describe('getCollectionById', () => {
         { item: makeItem(snippetType) },
         { item: makeItem(promptType) },
       ],
+      _count: { items: 2 },
     };
     mockFindFirst.mockResolvedValue(row as never);
     const result = await getCollectionById('user-1', 'col-1');

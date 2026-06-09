@@ -1,16 +1,26 @@
-# Current Feature
+# Current Feature: Pagination
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add feature goals here -->
+- Add pagination to `/items/[type]` pages (items list)
+- Add pagination to `/collections/[id]` pages (collection items list)
+- Pagination controls at bottom: numbered page links + prev/next buttons
+- Prev/next disabled (greyed out) when at the first/last page
+- Use constants: `ITEMS_PER_PAGE = 21`, `COLLECTIONS_PER_PAGE = 21`
+- Dashboard limits remain: `DASHBOARD_COLLECTIONS_LIMIT = 6`, `DASHBOARD_RECENT_ITEMS_LIMIT = 10`
+- Only fetch the records needed for the current page (no over-fetching)
 
 ## Notes
 
-<!-- Add implementation notes here -->
+- Page number passed as a URL search param (`?page=1`)
+- Server components read `searchParams.page`, pass to DB queries via `skip`/`take`
+- Total count query runs alongside page query to compute `totalPages`
+- `ITEMS_PER_PAGE` and `COLLECTIONS_PER_PAGE` constants live in a shared constants file
+- Dashboard fetch limits (`DASHBOARD_COLLECTIONS_LIMIT`, `DASHBOARD_RECENT_ITEMS_LIMIT`) are named constants, not magic numbers — audit existing code and consolidate
 
 ## History
 

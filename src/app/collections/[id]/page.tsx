@@ -4,9 +4,11 @@ import { type LucideIcon } from 'lucide-react';
 import NextLink from 'next/link';
 import { auth } from '@/auth';
 import { getCollectionById } from '@/lib/db/collections';
+import { COLLECTIONS_PER_PAGE } from '@/lib/constants';
 import { type ItemForCard } from '@/lib/db/items-queries';
 import { CollectionItemCard } from '@/components/collections/CollectionItemCard';
 import { CollectionActions } from '@/components/collections/CollectionActions';
+import { Pagination } from '@/components/shared/Pagination';
 
 const TYPE_ORDER = ['snippet', 'prompt', 'command', 'note', 'link', 'image', 'file'];
 
@@ -46,15 +48,20 @@ function TypeSection({ typeName, icon, color, items, collectionId }: {
 
 export default async function CollectionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, { page: pageParam }] = await Promise.all([params, searchParams]);
   const session = await auth();
   if (!session?.user?.id) notFound();
 
-  const collection = await getCollectionById(session.user.id, id);
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+  const collection = await getCollectionById(session.user.id, id, page);
   if (!collection) notFound();
+
+  const totalPages = Math.ceil(collection.itemCount / COLLECTIONS_PER_PAGE);
 
   const grouped = collection.items.reduce<Record<string, ItemForCard[]>>((acc, item) => {
     const name = item.itemType.name;
@@ -115,11 +122,14 @@ export default async function CollectionPage({
       {collection.itemCount === 0 ? (
         <p className="text-muted-foreground">No items in this collection yet.</p>
       ) : (
-        <div className="space-y-8">
-          {allSections.map((section) => (
-            <TypeSection key={section.typeName} collectionId={id} {...section} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-8">
+            {allSections.map((section) => (
+              <TypeSection key={section.typeName} collectionId={id} {...section} />
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} basePath={`/collections/${id}`} />
+        </>
       )}
     </div>
   );

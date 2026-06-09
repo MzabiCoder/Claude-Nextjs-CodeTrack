@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { getDominantColor } from './utils';
 import { itemSelect, mapItem, type ItemForCard } from './items-queries';
+import { COLLECTIONS_PER_PAGE, DASHBOARD_COLLECTIONS_LIMIT } from '@/lib/constants';
 
 export type CollectionForCard = {
   id: string;
@@ -75,24 +76,34 @@ export async function getDashboardCollections(userId: string): Promise<Collectio
   const collections = await prisma.collection.findMany({
     where: { userId },
     orderBy: { updatedAt: 'desc' },
-    take: 6,
+    take: DASHBOARD_COLLECTIONS_LIMIT,
     select: collectionCardSelect,
   });
   return collections.map(mapToCollectionForCard);
 }
 
-export async function getAllCollections(userId: string): Promise<CollectionForCard[]> {
-  const collections = await prisma.collection.findMany({
-    where: { userId },
-    orderBy: { updatedAt: 'desc' },
-    select: collectionCardSelect,
-  });
-  return collections.map(mapToCollectionForCard);
+export async function getAllCollections(
+  userId: string,
+  page = 1
+): Promise<{ collections: CollectionForCard[]; totalCount: number }> {
+  const where = { userId };
+  const [rows, totalCount] = await Promise.all([
+    prisma.collection.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      skip: (page - 1) * COLLECTIONS_PER_PAGE,
+      take: COLLECTIONS_PER_PAGE,
+      select: collectionCardSelect,
+    }),
+    prisma.collection.count({ where }),
+  ]);
+  return { collections: rows.map(mapToCollectionForCard), totalCount };
 }
 
 export async function getCollectionById(
   userId: string,
-  id: string
+  id: string,
+  page = 1
 ): Promise<CollectionDetail | null> {
   const collection = await prisma.collection.findFirst({
     where: { id, userId },
@@ -102,8 +113,11 @@ export async function getCollectionById(
       description: true,
       isFavorite: true,
       updatedAt: true,
+      _count: { select: { items: true } },
       items: {
         orderBy: { addedAt: 'desc' },
+        skip: (page - 1) * COLLECTIONS_PER_PAGE,
+        take: COLLECTIONS_PER_PAGE,
         select: {
           item: {
             select: {
@@ -118,10 +132,15 @@ export async function getCollectionById(
 
   if (!collection) return null;
 
-  const card = mapToCollectionForCard(collection);
-
   return {
-    ...card,
+    id: collection.id,
+    name: collection.name,
+    description: collection.description,
+    isFavorite: collection.isFavorite,
+    updatedAt: collection.updatedAt,
+    itemCount: collection._count.items,
+    dominantColor: getDominantColor(collection.items),
+    typeIcons: [],
     items: collection.items.map((ic) => mapItem(ic.item)),
   };
 }
