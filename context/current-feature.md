@@ -1,16 +1,29 @@
-# Current Feature
+# Current Feature: Collection Management Actions
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Add Edit, Delete, and Favorite action buttons to the `/collections/[id]` page header
+  - Favorite button: icon only (no backend wiring yet)
+  - Edit button: opens a modal to edit collection name and description; saves via API
+  - Delete button: opens a confirmation dialog; removes the collection (items are NOT deleted, only the collection and its memberships are removed)
+- On `CollectionCard` (used on `/collections` and dashboard): add a 3-dots menu icon that opens a dropdown with Edit, Delete, and Favorite actions
+  - Clicking anywhere on the card (outside the 3-dots menu) navigates to `/collections/[id]`
+  - Edit and Delete behave the same as above
 
 ## Notes
 
-<!-- Add notes here -->
+- Delete removes the `Collection` record (and cascades to `ItemCollection` join rows via Prisma), but never touches `Item` records
+- Favorite is UI-only for now — just render the star/heart icon button with no API call
+- Edit modal fields: name (required) and description (optional) — same fields as `NewCollectionDialog`
+- The `CollectionCard` currently renders as a full `<NextLink>` or `<div>`; it needs to be restructured so the card body is the link and the 3-dots button is a separate interactive element on top
+- Reuse `NewCollectionDialog` styling/pattern for the edit modal (or extract a shared `CollectionFormDialog`)
+- Use ShadCN `DropdownMenu` for the 3-dots menu (already installed)
+- Use ShadCN `AlertDialog` for delete confirmation (already installed)
+- After edit or delete, call `router.refresh()` to re-sync server data
 
 ## History
 

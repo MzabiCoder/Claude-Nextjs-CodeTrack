@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { auth } from '@/auth';
-import { updateItemById, deleteItemById, createItemInDb, getItemFileUrl, type ItemDetail } from '@/lib/db/items';
+import { updateItemById, updateItemBasicById, deleteItemById, createItemInDb, getItemFileUrl, type ItemDetail } from '@/lib/db/items';
 import { deleteObject, keyFromPublicUrl } from '@/lib/r2';
 
 const createItemSchema = z.object({
@@ -103,6 +103,45 @@ export async function updateItem(itemId: string, data: UpdateItemInput): Promise
   }
 
   return { success: true, data: updated };
+}
+
+type BasicResult = { success: true } | { success: false; error: string };
+
+export async function updateItemBasic(
+  itemId: string,
+  data: { title: string; description: string | null; tags: string[] }
+): Promise<BasicResult> {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+  if (!data.title.trim()) return { success: false, error: 'Title is required' };
+
+  const updated = await updateItemBasicById(session.user.id, itemId, {
+    title: data.title.trim(),
+    description: data.description,
+    tags: data.tags,
+  });
+  return updated ? { success: true } : { success: false, error: 'Item not found' };
+}
+
+export async function toggleFavoriteItem(
+  itemId: string
+): Promise<{ success: true; isFavorite: boolean } | { success: false; error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+  const { prisma } = await import('@/lib/prisma');
+  const item = await prisma.item.findFirst({
+    where: { id: itemId, userId: session.user.id },
+    select: { isFavorite: true },
+  });
+  if (!item) return { success: false, error: 'Item not found' };
+
+  const updated = await prisma.item.update({
+    where: { id: itemId },
+    data: { isFavorite: !item.isFavorite },
+    select: { isFavorite: true },
+  });
+  return { success: true, isFavorite: updated.isFavorite };
 }
 
 type DeleteItemResult = { success: true } | { success: false; error: string };
