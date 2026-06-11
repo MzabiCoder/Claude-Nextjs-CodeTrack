@@ -2,8 +2,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getProfileData } from "@/lib/db/profile";
 import { Avatar } from "@/components/shared/Avatar";
-import { ChangePasswordForm } from "./ChangePasswordForm";
-import { DeleteAccountDialog } from "./DeleteAccountDialog";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -13,7 +11,6 @@ export default async function ProfilePage() {
   if (!data) redirect("/sign-in");
 
   const { user, stats } = data;
-  const isCredentialsUser = !!user.password;
 
   const joinedDate = new Date(user.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
@@ -70,11 +67,6 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      {/* Change password — Credentials users only */}
-      {isCredentialsUser && <ChangePasswordForm />}
-
-      {/* Delete account */}
-      <DeleteAccountDialog />
     </div>
   );
 }

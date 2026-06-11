@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Code, Sparkles, Terminal, StickyNote, File, Image as ImageIcon,
-  Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, ChevronDown, LogOut, User,
+  Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, ChevronDown, LogOut, User, Settings,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
@@ -201,6 +201,10 @@ function SidebarContent({
             <DropdownMenuItem onClick={() => { window.location.href = "/profile"; }}>
               <User className="h-4 w-4" />
               Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { window.location.href = "/settings"; }}>
+              <Settings className="h-4 w-4" />
+              Settings
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
