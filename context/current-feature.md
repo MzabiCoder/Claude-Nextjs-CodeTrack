@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Settings Page
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add feature goals here -->
+- Create a `/settings` page protected by middleware
+- Add a "Settings" link in the user icon dropdown at the bottom of the sidebar
+- Move account actions from the profile page to the settings page:
+  - Change Password form (`ChangePasswordForm`)
+  - Delete Account dialog (`DeleteAccountDialog`)
+- Profile page retains avatar, name, email, account creation date, and usage stats — account actions removed
 
 ## Notes
 
-<!-- Add implementation notes here -->
+- `/settings` route protected in `src/proxy.ts` alongside `/dashboard`, `/profile`, etc.
+- Sidebar user avatar area already has a dropdown — add "Settings" link pointing to `/settings`
+- `ChangePasswordForm` and `DeleteAccountDialog` components move to the settings page as-is (no logic changes)
+- Settings page is a server component; it fetches the session to determine if the user has a password set (to conditionally show `ChangePasswordForm`), same logic as profile page currently does
+- Use the same page layout style as the profile page (no new layout needed)
 
 ## History
 
