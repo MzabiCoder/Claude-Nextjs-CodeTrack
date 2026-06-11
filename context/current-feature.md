@@ -1,25 +1,16 @@
-# Current Feature: Settings Page
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create a `/settings` page protected by middleware
-- Add a "Settings" link in the user icon dropdown at the bottom of the sidebar
-- Move account actions from the profile page to the settings page:
-  - Change Password form (`ChangePasswordForm`)
-  - Delete Account dialog (`DeleteAccountDialog`)
-- Profile page retains avatar, name, email, account creation date, and usage stats — account actions removed
+<!-- Add feature goals here -->
 
 ## Notes
 
-- `/settings` route protected in `src/proxy.ts` alongside `/dashboard`, `/profile`, etc.
-- Sidebar user avatar area already has a dropdown — add "Settings" link pointing to `/settings`
-- `ChangePasswordForm` and `DeleteAccountDialog` components move to the settings page as-is (no logic changes)
-- Settings page is a server component; it fetches the session to determine if the user has a password set (to conditionally show `ChangePasswordForm`), same logic as profile page currently does
-- Use the same page layout style as the profile page (no new layout needed)
+<!-- Add implementation notes here -->
 
 ## History
 
@@ -313,3 +304,11 @@ In Progress
 - Created `src/components/shared/Pagination.tsx` — numbered pages with ellipsis, prev/next buttons greyed out at boundaries, uses Next.js `Link`
 - `/items/[type]`, `/collections`, and `/collections/[id]` pages read `?page` search param and render `Pagination` at the bottom
 - Updated collections tests for new `{ collections, totalCount }` / `_count` return shapes; 72 total passing
+
+### 2026-06-11 — Settings Page ✅ Completed
+- Created `/settings` page (server component) protected in `src/proxy.ts`
+- Added `getUserForSettings(id)` to `src/lib/db/users.ts` — returns `UserForSettings` with `hasPassword: boolean` (no raw hash exposed)
+- Settings page shows `ChangePasswordForm` conditionally (credentials users only) and `DeleteAccountDialog`
+- `ChangePasswordForm` and `DeleteAccountDialog` remain in `src/app/profile/` and are imported by settings page via `@/app/profile/...`
+- Profile page simplified: retains avatar, name, email, joined date, and usage stats; account action sections removed
+- Sidebar user dropdown gains "Settings" link (between Profile and Sign out) using `Settings` icon from lucide-react
