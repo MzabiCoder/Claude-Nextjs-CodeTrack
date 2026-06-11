@@ -1,9 +1,13 @@
 'use client';
 
 import { useRef, useState, useCallback } from 'react';
-import Editor, { OnMount } from '@monaco-editor/react';
+import Editor, { OnMount, BeforeMount } from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import { Copy, Check } from 'lucide-react';
+import { useEditorPreferences } from '@/context/EditorPreferencesContext';
+
+import monokaiTheme from '@/lib/editor-themes/monokai.json';
+import githubDarkTheme from '@/lib/editor-themes/github-dark.json';
 
 interface CodeEditorProps {
   value: string;
@@ -16,6 +20,12 @@ export function CodeEditor({ value, onChange, language, readOnly = false }: Code
   const [copied, setCopied] = useState(false);
   const [height, setHeight] = useState(120);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const { preferences } = useEditorPreferences();
+
+  const handleBeforeMount: BeforeMount = useCallback((monaco) => {
+    monaco.editor.defineTheme('monokai', monokaiTheme);
+    monaco.editor.defineTheme('github-dark', githubDarkTheme);
+  }, []);
 
   const handleMount: OnMount = useCallback((editor) => {
     editorRef.current = editor;
@@ -65,16 +75,17 @@ export function CodeEditor({ value, onChange, language, readOnly = false }: Code
         value={value}
         onChange={(v) => onChange?.(v ?? '')}
         language={monacoLang}
-        theme="vs-dark"
+        theme={preferences.theme}
         options={{
           readOnly,
-          fontSize: 12,
+          fontSize: preferences.fontSize,
+          tabSize: preferences.tabSize,
           fontFamily: '"ui-monospace", "SFMono-Regular", "Menlo", monospace',
           lineNumbers: 'on',
-          minimap: { enabled: false },
+          minimap: { enabled: preferences.minimap },
           scrollBeyondLastLine: false,
           automaticLayout: true,
-          wordWrap: 'on',
+          wordWrap: preferences.wordWrap ? 'on' : 'off',
           padding: { top: 8, bottom: 8 },
           scrollbar: {
             vertical: 'auto',
@@ -87,6 +98,7 @@ export function CodeEditor({ value, onChange, language, readOnly = false }: Code
           hideCursorInOverviewRuler: true,
           contextmenu: !readOnly,
         }}
+        beforeMount={handleBeforeMount}
         onMount={handleMount}
       />
     </div>

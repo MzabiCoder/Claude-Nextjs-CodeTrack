@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getUserForSettings } from "@/lib/db/users";
 import { ChangePasswordForm } from "@/app/profile/ChangePasswordForm";
 import { DeleteAccountDialog } from "@/app/profile/DeleteAccountDialog";
+import { EditorPreferencesSection } from "./EditorPreferencesSection";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -17,6 +18,8 @@ export default async function SettingsPage() {
         <h1 className="text-2xl font-bold">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage your account settings</p>
       </div>
+
+      <EditorPreferencesSection initial={user.editorPreferences} />
 
       {user.hasPassword && <ChangePasswordForm />}
 
