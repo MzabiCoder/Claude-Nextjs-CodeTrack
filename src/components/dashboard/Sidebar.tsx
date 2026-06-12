@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Code, Sparkles, Terminal, StickyNote, File, Image as ImageIcon,
   Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, ChevronDown, LogOut, User, Settings,
@@ -127,6 +128,9 @@ function SidebarContent({
   sidebarData: SidebarData;
   user: SessionUser | null;
 }) {
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -178,10 +182,48 @@ function SidebarContent({
 
       {/* User */}
       <div className="mt-auto px-3 py-3 border-t border-border">
-        <DropdownMenu>
-          <DropdownMenuTrigger
+        {mounted ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(
+                'flex items-center gap-2.5 w-full rounded-md px-1 py-1 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                collapsed && 'justify-center px-0'
+              )}
+            >
+              <Avatar name={user?.name} email={user?.email} image={user?.image} size={28} />
+              {!collapsed && (
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-medium leading-tight truncate">{user?.name ?? "User"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top" align="start" className="w-52">
+              <div className="px-1.5 py-1 border-b border-border mb-1">
+                <p className="text-sm font-medium truncate">{user?.name ?? "User"}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              </div>
+              <DropdownMenuItem onClick={() => router.push('/profile')}>
+                <User className="h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')}>
+                <Settings className="h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => signOut({ callbackUrl: '/sign-in' })}
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div
             className={cn(
-              'flex items-center gap-2.5 w-full rounded-md px-1 py-1 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'flex items-center gap-2.5 w-full rounded-md px-1 py-1',
               collapsed && 'justify-center px-0'
             )}
           >
@@ -192,29 +234,8 @@ function SidebarContent({
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
             )}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" className="w-52">
-            <div className="px-1.5 py-1 border-b border-border mb-1">
-              <p className="text-sm font-medium truncate">{user?.name ?? "User"}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-            </div>
-            <DropdownMenuItem onClick={() => { window.location.href = "/profile"; }}>
-              <User className="h-4 w-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { window.location.href = "/settings"; }}>
-              <Settings className="h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => signOut({ callbackUrl: "/sign-in" })}
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </div>
+        )}
       </div>
     </div>
   );
