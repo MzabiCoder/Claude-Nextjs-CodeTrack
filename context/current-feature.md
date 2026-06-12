@@ -1,25 +1,16 @@
-# Current Feature: Favorite Toggle
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Wire up the Favorite button in the item drawer action bar — calls `toggleFavoriteItem`, optimistic star fill, no page refresh needed
-- Wire up the Favorite button in `CollectionActions` (collection detail page header) — live toggle with optimistic UI
-- Wire up the Favorite option in the `CollectionCard` dropdown menu — live toggle with optimistic UI
-- Add `toggleFavoriteCollection` server action (mirrors `toggleFavoriteItem` but for collections)
+<!-- Add goals here -->
 
 ## Notes
 
-- `toggleFavoriteItem(itemId)` already exists in `src/actions/items.ts` — just needs wiring in `DrawerActionBar`
-- `toggleFavoriteCollection` needs to be created in a new `src/actions/collections.ts`
-- Optimistic pattern: flip local state immediately, call action in background, revert on error with toast
-- `DrawerActionBar` is a sub-function inside `src/components/dashboard/ItemDrawer.tsx` — add `onFavoriteClick` prop + optimistic `isFavorite` state at the `ItemDrawer` level
-- `CollectionActions` lives at `src/components/dashboard/CollectionActions.tsx`
-- `CollectionCard` dropdown is in `src/components/dashboard/CollectionCard.tsx`
-- No page refresh needed for any of these — all optimistic client-side updates
+<!-- Add notes here -->
 
 ## History
 
@@ -321,6 +312,13 @@ In Progress
 - `ChangePasswordForm` and `DeleteAccountDialog` remain in `src/app/profile/` and are imported by settings page via `@/app/profile/...`
 - Profile page simplified: retains avatar, name, email, joined date, and usage stats; account action sections removed
 - Sidebar user dropdown gains "Settings" link (between Profile and Sign out) using `Settings` icon from lucide-react
+
+### 2026-06-12 — Favorite Toggle ✅ Completed
+- Created `src/actions/collections.ts` with `toggleFavoriteCollection` server action (auth-checked, ownership-scoped, mirrors `toggleFavoriteItem`)
+- Wired `DrawerActionBar` Favorite button in `ItemDrawer.tsx` — `handleFavorite` applies optimistic `setItem` update, reverts with toast on error
+- Wired `CollectionActions.tsx` Favorite star button — local `isFavorite` state, optimistic flip, revert on failure
+- Wired `CollectionCard.tsx` dropdown "Favorite" item — same optimistic pattern; label toggles between "Favorite" and "Unfavorite"; filled star shown in card header when active
+- No page refresh on any surface — all updates are purely client-side optimistic
 
 ### 2026-06-12 — Favorites Page ✅ Completed
 - Created `src/lib/db/favorites.ts` with `getFavorites(userId)` — parallel queries for favorited items and collections, sorted by `updatedAt` desc
