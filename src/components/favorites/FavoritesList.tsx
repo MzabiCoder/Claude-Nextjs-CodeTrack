@@ -1,9 +1,17 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Folder, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { FavoritesData } from '@/lib/db/favorites';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { FavoritesData, FavoriteItem, FavoriteCollection } from '@/lib/db/favorites';
 import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
 import { formatDateCompact } from '@/lib/format';
 
@@ -17,9 +25,41 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Link,
 };
 
+type ItemSortKey = 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc' | 'type-asc';
+type CollectionSortKey = 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc';
+
+function sortItems(items: FavoriteItem[], sort: ItemSortKey): FavoriteItem[] {
+  return [...items].sort((a, b) => {
+    switch (sort) {
+      case 'date-desc': return b.updatedAt.getTime() - a.updatedAt.getTime();
+      case 'date-asc':  return a.updatedAt.getTime() - b.updatedAt.getTime();
+      case 'name-asc':  return a.title.localeCompare(b.title);
+      case 'name-desc': return b.title.localeCompare(a.title);
+      case 'type-asc':  return a.itemType.name.localeCompare(b.itemType.name);
+    }
+  });
+}
+
+function sortCollections(cols: FavoriteCollection[], sort: CollectionSortKey): FavoriteCollection[] {
+  return [...cols].sort((a, b) => {
+    switch (sort) {
+      case 'date-desc': return b.updatedAt.getTime() - a.updatedAt.getTime();
+      case 'date-asc':  return a.updatedAt.getTime() - b.updatedAt.getTime();
+      case 'name-asc':  return a.name.localeCompare(b.name);
+      case 'name-desc': return b.name.localeCompare(a.name);
+    }
+  });
+}
+
 export function FavoritesList({ data }: { data: FavoritesData }) {
   const { openDrawer } = useItemDrawer();
   const router = useRouter();
+  const [itemSort, setItemSort] = useState<ItemSortKey>('date-desc');
+  const [colSort, setColSort] = useState<CollectionSortKey>('date-desc');
+
+  const sortedItems = useMemo(() => sortItems(data.items, itemSort), [data.items, itemSort]);
+  const sortedCollections = useMemo(() => sortCollections(data.collections, colSort), [data.collections, colSort]);
+
   const hasItems = data.items.length > 0;
   const hasCollections = data.collections.length > 0;
 
@@ -39,11 +79,25 @@ export function FavoritesList({ data }: { data: FavoritesData }) {
     <div className="space-y-8">
       {hasItems && (
         <section>
-          <p className="mb-2 text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Items — {data.items.length}
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+              Items — {data.items.length}
+            </p>
+            <Select value={itemSort} onValueChange={(v) => setItemSort(v as ItemSortKey)}>
+              <SelectTrigger className="h-7 w-40 text-xs font-mono">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date-desc" className="text-xs font-mono">Date: newest</SelectItem>
+                <SelectItem value="date-asc" className="text-xs font-mono">Date: oldest</SelectItem>
+                <SelectItem value="name-asc" className="text-xs font-mono">Name: A → Z</SelectItem>
+                <SelectItem value="name-desc" className="text-xs font-mono">Name: Z → A</SelectItem>
+                <SelectItem value="type-asc" className="text-xs font-mono">Type</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="divide-y divide-border border border-border rounded-md overflow-hidden">
-            {data.items.map((item) => {
+            {sortedItems.map((item) => {
               const Icon = ICON_MAP[item.itemType.icon] ?? Code;
               const color = item.itemType.color;
               return (
@@ -72,11 +126,24 @@ export function FavoritesList({ data }: { data: FavoritesData }) {
 
       {hasCollections && (
         <section>
-          <p className="mb-2 text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Collections — {data.collections.length}
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+              Collections — {data.collections.length}
+            </p>
+            <Select value={colSort} onValueChange={(v) => setColSort(v as CollectionSortKey)}>
+              <SelectTrigger className="h-7 w-40 text-xs font-mono">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date-desc" className="text-xs font-mono">Date: newest</SelectItem>
+                <SelectItem value="date-asc" className="text-xs font-mono">Date: oldest</SelectItem>
+                <SelectItem value="name-asc" className="text-xs font-mono">Name: A → Z</SelectItem>
+                <SelectItem value="name-desc" className="text-xs font-mono">Name: Z → A</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="divide-y divide-border border border-border rounded-md overflow-hidden">
-            {data.collections.map((col) => (
+            {sortedCollections.map((col) => (
               <button
                 key={col.id}
                 onClick={() => router.push(`/collections/${col.id}`)}

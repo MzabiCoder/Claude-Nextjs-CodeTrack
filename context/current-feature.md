@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Add Client-Side Sorting to Favorites Page
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Add a sort control to the Favorites page (Items and Collections sections)
+- Support sorting by: Name (A→Z / Z→A), Date (newest first / oldest first), Item Type (for items only)
+- Sorting is client-side — no additional API calls or server round-trips
+- Sort state is local to the page (not persisted in URL or localStorage)
+- Both the Items section and the Collections section get their own independent sort controls
 
 ## Notes
 
-<!-- Add notes here -->
+- The Favorites page lives at `/favorites` and uses `FavoritesList.tsx`
+- Data comes from `getFavorites(userId)` which returns `{ items, collections }` already sorted by `updatedAt` desc from the server
+- Client-side sort replaces the server-side ordering for the duration of the session
+- Item type sorting should use the `typeName` field already present on each item
+- Collections don't have a type field — sort options for collections are Name and Date only
+- Use a simple `<select>` or ShadCN `Select` component for the sort control, styled inline with each section header
 
 ## History
 
