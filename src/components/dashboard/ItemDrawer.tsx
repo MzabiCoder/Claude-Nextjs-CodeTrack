@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { updateItem, deleteItem, toggleFavoriteItem } from '@/actions/items';
+import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { formatBytes, formatDateLong } from '@/lib/format';
@@ -105,6 +105,7 @@ interface DrawerActionBarProps {
   saving: boolean;
   isTitleEmpty: boolean;
   isFavorite: boolean;
+  isPinned: boolean;
   isFileType: boolean;
   fileUrl: string | null;
   itemId: string;
@@ -113,12 +114,13 @@ interface DrawerActionBarProps {
   onEdit: () => void;
   onDeleteClick: () => void;
   onFavoriteClick: () => void;
+  onPinClick: () => void;
 }
 
 function DrawerActionBar({
-  isEditing, saving, isTitleEmpty, isFavorite,
+  isEditing, saving, isTitleEmpty, isFavorite, isPinned,
   isFileType, fileUrl, itemId,
-  onSave, onCancel, onEdit, onDeleteClick, onFavoriteClick,
+  onSave, onCancel, onEdit, onDeleteClick, onFavoriteClick, onPinClick,
 }: DrawerActionBarProps) {
   return (
     <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-border">
@@ -150,8 +152,13 @@ function DrawerActionBar({
             <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400' : ''}`} />
             Favorite
           </Button>
-          <Button variant="ghost" size="sm">
-            <Pin className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className={isPinned ? 'text-blue-400 hover:text-blue-400' : ''}
+            onClick={onPinClick}
+          >
+            <Pin className={`h-4 w-4 ${isPinned ? 'fill-blue-400' : ''}`} />
             Pin
           </Button>
           <Button variant="ghost" size="sm">
@@ -472,6 +479,19 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     }
   }
 
+  async function handlePin() {
+    if (!item) return;
+    const prev = item.isPinned;
+    setItem((i) => i ? { ...i, isPinned: !i.isPinned } : i);
+    const result = await toggleItemPin(item.id);
+    if (!result.success) {
+      setItem((i) => i ? { ...i, isPinned: prev } : i);
+      toast.error('Failed to update pin');
+    } else {
+      router.refresh();
+    }
+  }
+
   async function handleDelete() {
     if (!item) return;
     setDeleting(true);
@@ -597,6 +617,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                 saving={saving}
                 isTitleEmpty={!formData.title.trim()}
                 isFavorite={item.isFavorite}
+                isPinned={item.isPinned}
                 isFileType={isFileType}
                 fileUrl={item.fileUrl}
                 itemId={item.id}
@@ -605,6 +626,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                 onEdit={enterEditMode}
                 onDeleteClick={() => setDeleteOpen(true)}
                 onFavoriteClick={handleFavorite}
+                onPinClick={handlePin}
               />
 
               {isEditing ? (
