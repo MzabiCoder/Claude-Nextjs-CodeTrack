@@ -1,25 +1,16 @@
-# Current Feature: Pinned Items
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `toggleItemPin` server action (auth-checked, ownership-scoped)
-- Wire up the Pin button in `ItemDrawer` action bar — currently has no `onClick`
-- Optimistic UI update on pin toggle (instant feedback, revert on error)
-- Toast notification on success and error
-- Follow the same pattern as the Favorite button (optimistic flip, revert, toast)
-- Pin icon on `ItemCard` remains a static read-only indicator (no change needed)
+<!-- Add goals here -->
 
 ## Notes
 
-- Pinned items already appear on the dashboard in the "Pinned Items" section (server-rendered); a `router.refresh()` after toggling is enough to sync the dashboard
-- Items only — collections do not have a pin concept
-- Server action lives in `src/actions/items.ts` alongside `toggleFavoriteItem`
-- `isPinned` field already exists on the `Item` model
-- The Pin button in `DrawerActionBar` (inside `ItemDrawer.tsx`) is the only surface to wire up
+<!-- Add notes here -->
 
 ## History
 
@@ -328,6 +319,13 @@ In Progress
 - Wired `CollectionActions.tsx` Favorite star button — local `isFavorite` state, optimistic flip, revert on failure
 - Wired `CollectionCard.tsx` dropdown "Favorite" item — same optimistic pattern; label toggles between "Favorite" and "Unfavorite"; filled star shown in card header when active
 - No page refresh on any surface — all updates are purely client-side optimistic
+
+### 2026-06-12 — Pinned Items ✅ Completed
+- Added `toggleItemPin` server action to `src/actions/items.ts` — auth-checked, ownership-scoped, mirrors `toggleFavoriteItem`
+- Wired the Pin button in `DrawerActionBar` (`ItemDrawer.tsx`) — previously rendered but had no `onClick`
+- Optimistic `setItem` flip on click, reverts on error with `toast.error`; `router.refresh()` on success to sync the dashboard Pinned Items section
+- Pin button turns blue (`text-blue-400 / fill-blue-400`) when active, matches the filled-star pattern used by Favorite
+- Items only — no collection pin concept; `ItemCard` pin icon remains a static display indicator
 
 ### 2026-06-12 — Favorites Page Sorting ✅ Completed
 - Added independent sort dropdowns to both the Items and Collections sections of `FavoritesList.tsx`
