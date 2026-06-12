@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { updateItem, deleteItem } from '@/actions/items';
+import { updateItem, deleteItem, toggleFavoriteItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { formatBytes, formatDateLong } from '@/lib/format';
@@ -112,12 +112,13 @@ interface DrawerActionBarProps {
   onCancel: () => void;
   onEdit: () => void;
   onDeleteClick: () => void;
+  onFavoriteClick: () => void;
 }
 
 function DrawerActionBar({
   isEditing, saving, isTitleEmpty, isFavorite,
   isFileType, fileUrl, itemId,
-  onSave, onCancel, onEdit, onDeleteClick,
+  onSave, onCancel, onEdit, onDeleteClick, onFavoriteClick,
 }: DrawerActionBarProps) {
   return (
     <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-border">
@@ -144,6 +145,7 @@ function DrawerActionBar({
             variant="ghost"
             size="sm"
             className={isFavorite ? 'text-yellow-400 hover:text-yellow-400' : ''}
+            onClick={onFavoriteClick}
           >
             <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400' : ''}`} />
             Favorite
@@ -457,6 +459,17 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     onClose();
   }
 
+  async function handleFavorite() {
+    if (!item) return;
+    const prev = item.isFavorite;
+    setItem((i) => i ? { ...i, isFavorite: !i.isFavorite } : i);
+    const result = await toggleFavoriteItem(item.id);
+    if (!result.success) {
+      setItem((i) => i ? { ...i, isFavorite: prev } : i);
+      toast.error('Failed to update favorite');
+    }
+  }
+
   async function handleDelete() {
     if (!item) return;
     setDeleting(true);
@@ -589,6 +602,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                 onCancel={() => setIsEditing(false)}
                 onEdit={enterEditMode}
                 onDeleteClick={() => setDeleteOpen(true)}
+                onFavoriteClick={handleFavorite}
               />
 
               {isEditing ? (

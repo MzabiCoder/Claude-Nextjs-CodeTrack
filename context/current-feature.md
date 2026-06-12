@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Favorite Toggle
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Wire up the Favorite button in the item drawer action bar — calls `toggleFavoriteItem`, optimistic star fill, no page refresh needed
+- Wire up the Favorite button in `CollectionActions` (collection detail page header) — live toggle with optimistic UI
+- Wire up the Favorite option in the `CollectionCard` dropdown menu — live toggle with optimistic UI
+- Add `toggleFavoriteCollection` server action (mirrors `toggleFavoriteItem` but for collections)
 
 ## Notes
 
-<!-- Add notes here -->
+- `toggleFavoriteItem(itemId)` already exists in `src/actions/items.ts` — just needs wiring in `DrawerActionBar`
+- `toggleFavoriteCollection` needs to be created in a new `src/actions/collections.ts`
+- Optimistic pattern: flip local state immediately, call action in background, revert on error with toast
+- `DrawerActionBar` is a sub-function inside `src/components/dashboard/ItemDrawer.tsx` — add `onFavoriteClick` prop + optimistic `isFavorite` state at the `ItemDrawer` level
+- `CollectionActions` lives at `src/components/dashboard/CollectionActions.tsx`
+- `CollectionCard` dropdown is in `src/components/dashboard/CollectionCard.tsx`
+- No page refresh needed for any of these — all optimistic client-side updates
 
 ## History
 
