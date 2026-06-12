@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { EditCollectionDialog } from '@/components/collections/EditCollectionDialog';
 import { type CollectionForCard } from '@/lib/db/collections';
+import { toggleFavoriteCollection } from '@/actions/collections';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -46,8 +47,19 @@ export function CollectionCard({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(collection.isFavorite);
 
   const style = { borderLeftColor: collection.dominantColor };
+
+  async function handleFavorite() {
+    const prev = isFavorite;
+    setIsFavorite(!prev);
+    const result = await toggleFavoriteCollection(collection.id);
+    if (!result.success) {
+      setIsFavorite(prev);
+      toast.error('Failed to update favorite');
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -70,7 +82,7 @@ export function CollectionCard({
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-medium truncate">{collection.name}</h3>
         <div className="flex items-center gap-2 shrink-0">
-          {collection.isFavorite && (
+          {isFavorite && (
             <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
           )}
           <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -127,9 +139,10 @@ export function CollectionCard({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-yellow-500 focus:text-yellow-500"
+                onClick={handleFavorite}
               >
-                <Star className="h-4 w-4 mr-2" />
-                Favorite
+                <Star className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                {isFavorite ? 'Unfavorite' : 'Favorite'}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setDeleteOpen(true)}

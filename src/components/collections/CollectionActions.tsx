@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { EditCollectionDialog } from './EditCollectionDialog';
+import { toggleFavoriteCollection } from '@/actions/collections';
 
 interface CollectionActionsProps {
   collection: { id: string; name: string; description: string | null; isFavorite: boolean };
@@ -26,6 +27,17 @@ export function CollectionActions({ collection }: CollectionActionsProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(collection.isFavorite);
+
+  async function handleFavorite() {
+    const prev = isFavorite;
+    setIsFavorite(!prev);
+    const result = await toggleFavoriteCollection(collection.id);
+    if (!result.success) {
+      setIsFavorite(prev);
+      toast.error('Failed to update favorite');
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -50,12 +62,13 @@ export function CollectionActions({ collection }: CollectionActionsProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-yellow-400"
-          aria-label="Favorite"
+          className={`h-8 w-8 ${isFavorite ? 'text-yellow-400 hover:text-yellow-400' : 'text-muted-foreground hover:text-yellow-400'}`}
+          aria-label={isFavorite ? 'Unfavorite' : 'Favorite'}
+          onClick={handleFavorite}
         >
           <Star
             className="h-4 w-4"
-            fill={collection.isFavorite ? 'currentColor' : 'none'}
+            fill={isFavorite ? 'currentColor' : 'none'}
           />
         </Button>
 
