@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Plus, FolderPlus, LayoutGrid, Menu, LogOut, User } from 'lucide-react';
+import { Search, Plus, FolderPlus, LayoutGrid, Menu, LogOut, User, Star } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,11 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
+        <Link href="/favorites">
+          <Button variant="ghost" size="icon" className="h-8 w-8" title="Favorites">
+            <Star className="h-4 w-4" />
+          </Button>
+        </Link>
         <Button variant="outline" className="hidden sm:flex" onClick={onNewCollectionClick}>
           <FolderPlus className="h-4 w-4" />
           New Collection
