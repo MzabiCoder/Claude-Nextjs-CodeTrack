@@ -467,6 +467,8 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     if (!result.success) {
       setItem((i) => i ? { ...i, isFavorite: prev } : i);
       toast.error('Failed to update favorite');
+    } else {
+      router.refresh();
     }
   }
 

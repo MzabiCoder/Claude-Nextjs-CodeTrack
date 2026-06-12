@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Pin, Copy, Check } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Pin, Star, Copy, Check } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
 import { type ItemForCard } from '@/lib/db/items';
 import { formatDateCompact } from '@/lib/format';
@@ -55,6 +55,7 @@ export function ItemCard({ item }: { item: ItemForCard }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-1">
           <span className="font-medium truncate">{item.title}</span>
+          {item.isFavorite && <Star className="h-3 w-3 shrink-0 fill-yellow-400 text-yellow-400" />}
           {item.isPinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" />}
         </div>
 

@@ -36,6 +36,8 @@ export function CollectionActions({ collection }: CollectionActionsProps) {
     if (!result.success) {
       setIsFavorite(prev);
       toast.error('Failed to update favorite');
+    } else {
+      router.refresh();
     }
   }
 
