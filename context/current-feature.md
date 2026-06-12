@@ -1,4 +1,4 @@
-# Current Feature: Editor Preferences Settings
+# Current Feature: Favorites Page
 
 ## Status
 
@@ -6,23 +6,21 @@ In Progress
 
 ## Goals
 
-- Font size dropdown saved to DB and applied to Monaco editor
-- Tab size dropdown saved to DB and applied to Monaco editor
-- Word wrap toggle (default: on)
-- Minimap toggle (default: off)
-- Theme dropdown: vs-dark, monokai, github-dark (default: vs-dark)
-- `editorPreferences` JSON column on User model via Prisma migration
-- Server action to update preferences (auto-save on change, no save button)
-- `EditorPreferencesContext` so Monaco editor picks up live preferences
-- Success toast on save
+- Add star icon button to TopBar linking to `/favorites`
+- Create `/favorites` route with protection
+- Fetch all user favorited items and collections
+- Compact list view (VS Code/terminal style, not cards)
+- Each row: type icon, title, type badge, date added
+- Separate sections for items and collections with counts
+- Click item opens ItemDrawer, click collection navigates to `/collections/[id]`
+- Empty state when no favorites
+- Sort by most recently favorited (updatedAt)
 
 ## Notes
 
-- Store preferences as a JSON column (`editorPreferences`) on the User model
-- Never use `db push` — always create a proper Prisma migration
-- Apply settings to `src/components/shared/CodeEditor.tsx` (Monaco wrapper)
-- Auto-save: each control fires the server action on change
-- Context provider wraps the relevant layout so CodeEditor can read preferences without prop drilling
+- UI style: monospace or semi-monospace font, minimal padding, high density, subtle hover states, no cards or heavy borders, clean lines only
+- Protect `/favorites` in `src/proxy.ts`
+- Reuse `ItemDrawerContext` for item clicks (same pattern as item list pages)
 
 ## History
 
