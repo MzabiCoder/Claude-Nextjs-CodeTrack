@@ -1,26 +1,16 @@
-# Current Feature: Favorites Page
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add star icon button to TopBar linking to `/favorites`
-- Create `/favorites` route with protection
-- Fetch all user favorited items and collections
-- Compact list view (VS Code/terminal style, not cards)
-- Each row: type icon, title, type badge, date added
-- Separate sections for items and collections with counts
-- Click item opens ItemDrawer, click collection navigates to `/collections/[id]`
-- Empty state when no favorites
-- Sort by most recently favorited (updatedAt)
+<!-- Add goals here -->
 
 ## Notes
 
-- UI style: monospace or semi-monospace font, minimal padding, high density, subtle hover states, no cards or heavy borders, clean lines only
-- Protect `/favorites` in `src/proxy.ts`
-- Reuse `ItemDrawerContext` for item clicks (same pattern as item list pages)
+<!-- Add notes here -->
 
 ## History
 
@@ -322,3 +312,12 @@ In Progress
 - `ChangePasswordForm` and `DeleteAccountDialog` remain in `src/app/profile/` and are imported by settings page via `@/app/profile/...`
 - Profile page simplified: retains avatar, name, email, joined date, and usage stats; account action sections removed
 - Sidebar user dropdown gains "Settings" link (between Profile and Sign out) using `Settings` icon from lucide-react
+
+### 2026-06-12 — Favorites Page ✅ Completed
+- Created `src/lib/db/favorites.ts` with `getFavorites(userId)` — parallel queries for favorited items and collections, sorted by `updatedAt` desc
+- Created `/favorites` route (layout + page) following the same `DashboardShell` pattern as items and collections
+- Protected `/favorites` in `src/proxy.ts`
+- Built `src/components/favorites/FavoritesList.tsx`: compact terminal-style list with `font-mono`, two sections (Items, Collections) each with count headers, type icon + title + type badge + date per row
+- Item rows call `openDrawer(id)` via `ItemDrawerContext`; collection rows navigate to `/collections/[id]`
+- Empty state shown when neither section has data
+- Added Star icon button to TopBar linking to `/favorites`
