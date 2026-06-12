@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Pinned Items
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Create `toggleItemPin` server action (auth-checked, ownership-scoped)
+- Wire up the Pin button in `ItemDrawer` action bar — currently has no `onClick`
+- Optimistic UI update on pin toggle (instant feedback, revert on error)
+- Toast notification on success and error
+- Follow the same pattern as the Favorite button (optimistic flip, revert, toast)
+- Pin icon on `ItemCard` remains a static read-only indicator (no change needed)
 
 ## Notes
 
-<!-- Add notes here -->
+- Pinned items already appear on the dashboard in the "Pinned Items" section (server-rendered); a `router.refresh()` after toggling is enough to sync the dashboard
+- Items only — collections do not have a pin concept
+- Server action lives in `src/actions/items.ts` alongside `toggleFavoriteItem`
+- `isPinned` field already exists on the `Item` model
+- The Pin button in `DrawerActionBar` (inside `ItemDrawer.tsx`) is the only surface to wire up
 
 ## History
 
