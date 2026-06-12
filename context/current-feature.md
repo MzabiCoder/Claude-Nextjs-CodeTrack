@@ -1,25 +1,16 @@
-# Current Feature: Add Client-Side Sorting to Favorites Page
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add a sort control to the Favorites page (Items and Collections sections)
-- Support sorting by: Name (A→Z / Z→A), Date (newest first / oldest first), Item Type (for items only)
-- Sorting is client-side — no additional API calls or server round-trips
-- Sort state is local to the page (not persisted in URL or localStorage)
-- Both the Items section and the Collections section get their own independent sort controls
+<!-- Add goals here -->
 
 ## Notes
 
-- The Favorites page lives at `/favorites` and uses `FavoritesList.tsx`
-- Data comes from `getFavorites(userId)` which returns `{ items, collections }` already sorted by `updatedAt` desc from the server
-- Client-side sort replaces the server-side ordering for the duration of the session
-- Item type sorting should use the `typeName` field already present on each item
-- Collections don't have a type field — sort options for collections are Name and Date only
-- Use a simple `<select>` or ShadCN `Select` component for the sort control, styled inline with each section header
+<!-- Add notes here -->
 
 ## History
 
@@ -328,6 +319,14 @@ In Progress
 - Wired `CollectionActions.tsx` Favorite star button — local `isFavorite` state, optimistic flip, revert on failure
 - Wired `CollectionCard.tsx` dropdown "Favorite" item — same optimistic pattern; label toggles between "Favorite" and "Unfavorite"; filled star shown in card header when active
 - No page refresh on any surface — all updates are purely client-side optimistic
+
+### 2026-06-12 — Favorites Page Sorting ✅ Completed
+- Added independent sort dropdowns to both the Items and Collections sections of `FavoritesList.tsx`
+- Items sort options: Date newest, Date oldest, Name A→Z, Name Z→A, Type (alphabetical by type name)
+- Collections sort options: Date newest, Date oldest, Name A→Z, Name Z→A
+- Sorting is fully client-side using `useState` + `useMemo` — no extra API calls or URL changes
+- Used ShadCN `Select` component styled with `h-7 w-40 text-xs font-mono` to match the terminal aesthetic
+- Default sort for both sections is "Date: newest" (matching original server-side order)
 
 ### 2026-06-12 — Favorites Page ✅ Completed
 - Created `src/lib/db/favorites.ts` with `getFavorites(userId)` — parallel queries for favorited items and collections, sorted by `updatedAt` desc
