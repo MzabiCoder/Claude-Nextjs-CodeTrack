@@ -1,16 +1,35 @@
-# Current Feature
+# Current Feature: Homepage Mockup
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Create `prototypes/homepage/` with `index.html`, `styles.css`, `script.js`
+- Fixed top navigation with logo, Features/Pricing links, Sign In/Get Started buttons (opacity increases on scroll)
+- Hero section with "chaos to order" visual: floating chaotic icons (left) → pulsing arrow (center) → dashboard preview (right)
+- Chaos icons animate with requestAnimationFrame: drift, bounce off walls, repel from mouse cursor
+- Features section: 6 cards (Code Snippets, AI Prompts, Instant Search, Commands, Files & Docs, Collections) using item type accent colors
+- AI Pro section: two-column layout with feature checklist and code editor mockup with "AI Generated Tags" demo
+- Pricing section: Free vs Pro cards with monthly/yearly toggle ($0 / $8 mo or $72 yr), Pro highlighted as "Most Popular"
+- CTA section and footer with logo, link columns, and current year copyright
+- Scroll-triggered fade-in animations for sections
+- Responsive: stacks vertically on mobile, arrow rotates 90° on mobile
 
 ## Notes
 
-<!-- Add notes here -->
+- Output is a static prototype — plain HTML/CSS/JS, no Next.js or build step
+- Color palette (dark theme):
+  - Snippet: `#3b82f6` (Blue)
+  - Prompt: `#f59e0b` (Amber)
+  - Command: `#06b6d4` (Cyan)
+  - Note: `#22c55e` (Green)
+  - File: `#64748b` (Slate)
+  - Image: `#ec4899` (Pink)
+  - URL: `#6366f1` (Indigo)
+- Dashboard preview in hero is a simplified mockup (sidebar + colored item cards), not a real screenshot
+- Chaos icons represent: Notion, GitHub, Slack, VS Code logos, Browser tabs, Terminal, Text file, Bookmark
 
 ## History
 
