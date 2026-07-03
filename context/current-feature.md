@@ -1,35 +1,16 @@
-# Current Feature: Homepage Mockup
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `prototypes/homepage/` with `index.html`, `styles.css`, `script.js`
-- Fixed top navigation with logo, Features/Pricing links, Sign In/Get Started buttons (opacity increases on scroll)
-- Hero section with "chaos to order" visual: floating chaotic icons (left) → pulsing arrow (center) → dashboard preview (right)
-- Chaos icons animate with requestAnimationFrame: drift, bounce off walls, repel from mouse cursor
-- Features section: 6 cards (Code Snippets, AI Prompts, Instant Search, Commands, Files & Docs, Collections) using item type accent colors
-- AI Pro section: two-column layout with feature checklist and code editor mockup with "AI Generated Tags" demo
-- Pricing section: Free vs Pro cards with monthly/yearly toggle ($0 / $8 mo or $72 yr), Pro highlighted as "Most Popular"
-- CTA section and footer with logo, link columns, and current year copyright
-- Scroll-triggered fade-in animations for sections
-- Responsive: stacks vertically on mobile, arrow rotates 90° on mobile
+<!-- Add goals here -->
 
 ## Notes
 
-- Output is a static prototype — plain HTML/CSS/JS, no Next.js or build step
-- Color palette (dark theme):
-  - Snippet: `#3b82f6` (Blue)
-  - Prompt: `#f59e0b` (Amber)
-  - Command: `#06b6d4` (Cyan)
-  - Note: `#22c55e` (Green)
-  - File: `#64748b` (Slate)
-  - Image: `#ec4899` (Pink)
-  - URL: `#6366f1` (Indigo)
-- Dashboard preview in hero is a simplified mockup (sidebar + colored item cards), not a real screenshot
-- Chaos icons represent: Notion, GitHub, Slack, VS Code logos, Browser tabs, Terminal, Text file, Bookmark
+<!-- Add notes here -->
 
 ## History
 
@@ -362,3 +343,13 @@ In Progress
 - Item rows call `openDrawer(id)` via `ItemDrawerContext`; collection rows navigate to `/collections/[id]`
 - Empty state shown when neither section has data
 - Added Star icon button to TopBar linking to `/favorites`
+
+### 2026-07-03 — Homepage Mockup ✅ Completed
+- Created static marketing prototype at `prototypes/homepage/` (`index.html`, `styles.css`, `script.js`)
+- Fixed top nav with logo, Features/Pricing links, Sign In/Get Started buttons; goes opaque with blur on scroll
+- Hero: "chaos to order" visual — 8 floating emoji icons bounce off walls and repel from mouse cursor (requestAnimationFrame) → pulsing arrow → dashboard preview mockup with top bar (search + avatar), sidebar nav items, and 4 rows of 2 colored item cards with fake title/description lines
+- Features section: 6 cards with per-type accent colors and PRO badge on Files & Docs
+- AI Pro section: two-column layout with feature checklist and syntax-highlighted TypeScript code editor mockup with amber "AI Generated Tags" demo
+- Pricing section: Monthly/Yearly toggle ($8/mo ↔ $72/yr, "save 25%"), Free vs Pro cards, Pro highlighted as "Most Popular"
+- CTA section and footer with Product/Account/Legal link columns and auto-updated copyright year
+- Scroll-triggered fade-in via IntersectionObserver; responsive (stacks vertically on mobile, arrow rotates 90°)
