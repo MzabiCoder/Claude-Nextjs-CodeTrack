@@ -1,16 +1,32 @@
-# Current Feature
+# Current Feature: Homepage
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Replace redirect-only `src/app/page.tsx` — call `auth()`, redirect authenticated users to `/dashboard`, render homepage for guests
+- `MarketingNav` (client) — fixed nav, transparent → opaque/blurred on scroll, mobile hamburger menu
+- `HeroChaos` (client) — full hero visual: chaos icon animation (drift + bounce + mouse repel via `requestAnimationFrame`) + pulsing arrow + dashboard mockup skeleton
+- `HeroText` (server) — headline with gradient text, subheadline, CTA buttons
+- `FeaturesSection` (server) — 6 feature cards with per-type accent colors, PRO badge on Files & Docs
+- `AiSection` (server) — 2-col layout: Pro checklist left, decorative `<pre><code>` editor mockup right with AI tags
+- `PricingSection` (client) — monthly/yearly toggle, Free + Pro cards with dynamic price ($8/mo or $72/yr)
+- `CtaSection` (server) — centered headline + Get Started button
+- `MarketingFooter` (server) — logo, link columns, server-rendered copyright year
+- `FadeIn` (client) — small `IntersectionObserver` wrapper component for scroll-triggered fade-in on static sections
+- All buttons/links point to correct destinations: Sign In → `/sign-in`, Get Started → `/register`, Features/Pricing → `#features`/`#pricing`
+- All styling via Tailwind only — no separate CSS file
 
 ## Notes
 
-<!-- Add notes here -->
+- All marketing components live in `src/components/marketing/`
+- No DB queries on this page — only `auth()` session check
+- `src/proxy.ts` already ignores `/` — no middleware changes needed
+- Chaos animation: port from `prototypes/homepage/script.js` using `useRef` for arena + `useEffect` for loop + cleanup
+- Editor mockup in AiSection: plain `<pre><code>` with Tailwind color classes for syntax tokens (no Monaco)
+- Copyright year: `new Date().getFullYear()` runs server-side in `MarketingFooter`, no client component needed
 
 ## History
 
