@@ -1,32 +1,16 @@
-# Current Feature: Homepage
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Replace redirect-only `src/app/page.tsx` — call `auth()`, redirect authenticated users to `/dashboard`, render homepage for guests
-- `MarketingNav` (client) — fixed nav, transparent → opaque/blurred on scroll, mobile hamburger menu
-- `HeroChaos` (client) — full hero visual: chaos icon animation (drift + bounce + mouse repel via `requestAnimationFrame`) + pulsing arrow + dashboard mockup skeleton
-- `HeroText` (server) — headline with gradient text, subheadline, CTA buttons
-- `FeaturesSection` (server) — 6 feature cards with per-type accent colors, PRO badge on Files & Docs
-- `AiSection` (server) — 2-col layout: Pro checklist left, decorative `<pre><code>` editor mockup right with AI tags
-- `PricingSection` (client) — monthly/yearly toggle, Free + Pro cards with dynamic price ($8/mo or $72/yr)
-- `CtaSection` (server) — centered headline + Get Started button
-- `MarketingFooter` (server) — logo, link columns, server-rendered copyright year
-- `FadeIn` (client) — small `IntersectionObserver` wrapper component for scroll-triggered fade-in on static sections
-- All buttons/links point to correct destinations: Sign In → `/sign-in`, Get Started → `/register`, Features/Pricing → `#features`/`#pricing`
-- All styling via Tailwind only — no separate CSS file
+<!-- Add feature goals here -->
 
 ## Notes
 
-- All marketing components live in `src/components/marketing/`
-- No DB queries on this page — only `auth()` session check
-- `src/proxy.ts` already ignores `/` — no middleware changes needed
-- Chaos animation: port from `prototypes/homepage/script.js` using `useRef` for arena + `useEffect` for loop + cleanup
-- Editor mockup in AiSection: plain `<pre><code>` with Tailwind color classes for syntax tokens (no Monaco)
-- Copyright year: `new Date().getFullYear()` runs server-side in `MarketingFooter`, no client component needed
+<!-- Add notes here -->
 
 ## History
 
@@ -369,3 +353,16 @@ In Progress
 - Pricing section: Monthly/Yearly toggle ($8/mo ↔ $72/yr, "save 25%"), Free vs Pro cards, Pro highlighted as "Most Popular"
 - CTA section and footer with Product/Account/Legal link columns and auto-updated copyright year
 - Scroll-triggered fade-in via IntersectionObserver; responsive (stacks vertically on mobile, arrow rotates 90°)
+
+### 2026-07-06 — Homepage ✅ Completed
+- Replaced redirect-only `src/app/page.tsx` with full marketing homepage; authenticated users redirect to `/dashboard`, guests see marketing page
+- `MarketingNav` (client) — fixed nav, transparent → opaque/blurred on scroll, mobile hamburger menu
+- `HeroChaos` (client) — chaos icon animation (drift + bounce + mouse repel via RAF) + pulsing arrow + dashboard mockup skeleton
+- `HeroText` (server) — gradient headline, subheadline, CTA buttons linking to `/sign-in` and `/register`
+- `FeaturesSection` (server) — 6 feature cards with per-type accent colors, PRO badge on Files & Images
+- `AiSection` (server) — 2-col layout: Pro checklist left, `<pre><code>` editor mockup right with AI tags
+- `PricingSection` (client) — monthly/yearly toggle, Free + Pro cards with dynamic price ($8/mo or $72/yr)
+- `CtaSection` (server) — centered headline + Get Started button
+- `MarketingFooter` (server) — logo, link columns, server-rendered copyright year
+- `FadeIn` (client) — `IntersectionObserver` wrapper for scroll-triggered fade-in on all sections
+- All components in `src/components/marketing/`; Tailwind-only styling
