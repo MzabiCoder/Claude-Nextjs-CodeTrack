@@ -3,6 +3,7 @@
 import { Search, Plus, FolderPlus, LayoutGrid, Menu, LogOut, User, Star } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -22,8 +23,10 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick, onSearchClick, user }: TopBarProps) {
+  const router = useRouter();
+
   return (
-    <header className="relative flex items-center border-b border-border px-4 py-3">
+    <header className="flex items-center border-b border-border px-4 py-3 gap-3">
       <div className="flex items-center gap-2 shrink-0">
         <Button
           variant="ghost"
@@ -34,15 +37,15 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
           <Menu className="h-5 w-5" />
         </Button>
         <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <LayoutGrid className="h-5 w-5 text-primary" />
+          <LayoutGrid className="h-5 w-5 text-blue-500" />
           <span className="text-lg font-bold tracking-tight">DevStash</span>
         </Link>
       </div>
 
-      <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
+      <div className="flex-1 min-w-0 flex justify-center">
         <button
           onClick={onSearchClick}
-          className="relative flex w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground shadow-xs hover:bg-accent/50 transition-colors"
+          className="relative flex w-full max-w-md items-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground shadow-xs hover:bg-accent/50 transition-colors"
         >
           <Search className="mr-2 h-4 w-4 shrink-0" />
           <span className="flex-1 text-left">Search items and collections...</span>
@@ -52,7 +55,7 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
         </button>
       </div>
 
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center gap-2 shrink-0">
         <Link href="/favorites">
           <Button variant="ghost" size="icon" className="h-8 w-8" title="Favorites">
             <Star className="h-4 w-4" />
@@ -77,7 +80,7 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
                 <p className="text-sm font-medium truncate">{user.name ?? "User"}</p>
                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
               </div>
-              <DropdownMenuItem onClick={() => { window.location.href = "/profile"; }}>
+              <DropdownMenuItem onClick={() => router.push('/profile')}>
                 <User className="h-4 w-4" />
                 Profile
               </DropdownMenuItem>
