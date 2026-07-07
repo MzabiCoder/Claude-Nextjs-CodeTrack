@@ -354,6 +354,23 @@ Not Started
 - CTA section and footer with Product/Account/Legal link columns and auto-updated copyright year
 - Scroll-triggered fade-in via IntersectionObserver; responsive (stacks vertically on mobile, arrow rotates 90°)
 
+### 2026-07-06 — UI Review Fixes ✅ Completed
+- Fixed security bug: `getPinnedItems` and `getRecentItems` now scoped to `userId` (previously returned all users' data)
+- Converted `ItemCard` outer `<div onClick>` to `<button>` for keyboard accessibility
+- Added `group-focus-within:opacity-100` to `CollectionCard` action menu and `ItemCard` copy button so keyboard users can reach them
+- Added `aria-pressed` to `NewItemDialog` type selector buttons
+- Added `aria-expanded` to `MarketingNav` hamburger button; added `onClick` close to mobile "Get Started" link
+- Added `aria-hidden` to `HeroChaos` animation arena; `aria-label` to pricing toggle; replaced blank `<p>` spacer with `<div aria-hidden>`
+- Removed `FadeIn` from above-the-fold hero content to prevent flash of invisible content
+- Replaced absolute-positioned TopBar search bar with flex layout to prevent overlap on small viewports
+- Switched TopBar Profile nav from `window.location.href` to `router.push` (no full-page reload)
+- Added `min-w-0 max-w-full` to `AiSection` `<pre>` to contain horizontal overflow on mobile
+- Removed dead `href="#"` footer links (Changelog, Privacy, Terms)
+
+### 2026-07-07 — Auth Page Nav + Dashboard Logo ✅ Completed
+- Added `MarketingNav` to `/sign-in` and `/register` pages with `pt-16` to offset fixed nav height
+- Changed dashboard `TopBar` `LayoutGrid` icon from `text-primary` to `text-blue-500` to match the marketing nav
+
 ### 2026-07-06 — Homepage ✅ Completed
 - Replaced redirect-only `src/app/page.tsx` with full marketing homepage; authenticated users redirect to `/dashboard`, guests see marketing page
 - `MarketingNav` (client) — fixed nav, transparent → opaque/blurred on scroll, mobile hamburger menu
