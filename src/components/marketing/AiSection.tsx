@@ -55,7 +55,7 @@ export function AiSection() {
             <span className="ml-auto text-[11px] text-muted-foreground font-mono">TypeScript</span>
           </div>
           <div className="p-5 overflow-x-auto">
-            <pre className="text-[13px] leading-[1.75] font-mono">
+            <pre className="text-[13px] leading-[1.75] font-mono min-w-0 max-w-full">
               <code>
                 <span className="text-[#ff7b72]">function </span>
                 <span className="text-[#d2a8ff]">useDebounce</span>

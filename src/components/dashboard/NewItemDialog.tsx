@@ -144,6 +144,7 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
                 <button
                   key={name}
                   type="button"
+                  aria-pressed={selectedType === name}
                   onClick={() => handleTypeChange(name)}
                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
                     selectedType === name

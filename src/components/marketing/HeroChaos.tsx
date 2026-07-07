@@ -113,7 +113,7 @@ export function HeroChaos() {
         <span className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 block mb-3">
           Your knowledge today...
         </span>
-        <div ref={arenaRef} className="relative w-full h-[230px] overflow-hidden" />
+        <div ref={arenaRef} className="relative w-full h-[230px] overflow-hidden" aria-hidden="true" />
       </div>
 
       {/* Arrow */}

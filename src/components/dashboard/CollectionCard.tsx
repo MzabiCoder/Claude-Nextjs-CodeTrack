@@ -122,7 +122,7 @@ export function CollectionCard({
         )}
 
         <div
-          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
           onClick={(e) => e.stopPropagation()}
         >
           <DropdownMenu>

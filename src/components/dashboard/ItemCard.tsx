@@ -40,8 +40,9 @@ export function ItemCard({ item }: { item: ItemForCard }) {
   }
 
   return (
-    <div
-      className="flex items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors cursor-pointer group"
+    <button
+      type="button"
+      className="flex w-full text-left items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors group"
       style={{ borderLeftColor: color }}
       onClick={() => openDrawer(item.id)}
     >
@@ -86,13 +87,13 @@ export function ItemCard({ item }: { item: ItemForCard }) {
         {copyValue(item) && (
           <button
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
             aria-label="Copy content"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
           </button>
         )}
       </div>
-    </div>
+    </button>
   );
 }
