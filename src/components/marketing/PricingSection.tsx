@@ -49,6 +49,7 @@ export function PricingSection() {
             <button
               role="switch"
               aria-checked={yearly}
+              aria-label="Toggle yearly billing"
               onClick={() => setYearly(y => !y)}
               className={`relative w-10 h-[22px] rounded-full border transition-colors ${
                 yearly ? 'bg-primary border-primary' : 'bg-muted border-border'
@@ -77,7 +78,7 @@ export function PricingSection() {
               <span className="text-4xl font-extrabold tracking-tight">$0</span>
               <span className="text-muted-foreground text-sm">forever</span>
             </div>
-            <p className="text-muted-foreground text-xs mb-5 h-4" />
+            <div className="h-4 mb-5" aria-hidden="true" />
             <Link href="/register" className={buttonVariants({ variant: 'outline' }) + ' w-full mb-6'}>
               Get Started
             </Link>

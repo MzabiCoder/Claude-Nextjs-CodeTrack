@@ -88,9 +88,9 @@ export type ItemDetail = {
   collections: { id: string; name: string }[];
 };
 
-export async function getPinnedItems(): Promise<ItemForCard[]> {
+export async function getPinnedItems(userId: string): Promise<ItemForCard[]> {
   const items = await prisma.item.findMany({
-    where: { isPinned: true },
+    where: { userId, isPinned: true },
     orderBy: { updatedAt: 'desc' },
     take: 20,
     select: itemSelect,
@@ -98,8 +98,9 @@ export async function getPinnedItems(): Promise<ItemForCard[]> {
   return items.map(mapItem);
 }
 
-export async function getRecentItems(limit = DASHBOARD_RECENT_ITEMS_LIMIT): Promise<ItemForCard[]> {
+export async function getRecentItems(userId: string, limit = DASHBOARD_RECENT_ITEMS_LIMIT): Promise<ItemForCard[]> {
   const items = await prisma.item.findMany({
+    where: { userId },
     orderBy: { createdAt: 'desc' },
     take: limit,
     select: itemSelect,

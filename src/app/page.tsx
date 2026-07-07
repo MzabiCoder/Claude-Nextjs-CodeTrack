@@ -13,14 +13,10 @@ export default function Page() {
     <>
       <MarketingNav />
 
-      {/* Hero */}
+      {/* Hero — no FadeIn here; content is above the fold and must be immediately visible */}
       <section className="min-h-screen flex flex-col items-center justify-center gap-14 px-6 pt-24 pb-16">
-        <FadeIn>
-          <HeroText />
-        </FadeIn>
-        <FadeIn className="w-full">
-          <HeroChaos />
-        </FadeIn>
+        <HeroText />
+        <HeroChaos />
       </section>
 
       <FadeIn>

@@ -7,7 +7,6 @@ const LINKS = [
     items: [
       { label: 'Features', href: '#features' },
       { label: 'Pricing', href: '#pricing' },
-      { label: 'Changelog', href: '#' },
     ],
   },
   {
@@ -15,13 +14,6 @@ const LINKS = [
     items: [
       { label: 'Sign In', href: '/sign-in' },
       { label: 'Register', href: '/register' },
-    ],
-  },
-  {
-    heading: 'Legal',
-    items: [
-      { label: 'Privacy', href: '#' },
-      { label: 'Terms', href: '#' },
     ],
   },
 ];

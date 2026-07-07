@@ -51,6 +51,7 @@ export function MarketingNav() {
           className="md:hidden ml-auto p-1 text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => setMenuOpen(o => !o)}
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
           {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -67,7 +68,7 @@ export function MarketingNav() {
           <Link href="/sign-in" className="text-sm font-medium text-muted-foreground" onClick={() => setMenuOpen(false)}>
             Sign In
           </Link>
-          <Link href="/register" className={buttonVariants({ size: 'sm' })}>
+          <Link href="/register" className={buttonVariants({ size: 'sm' })} onClick={() => setMenuOpen(false)}>
             Get Started
           </Link>
         </div>
