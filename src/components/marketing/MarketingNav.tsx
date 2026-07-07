@@ -30,10 +30,10 @@ export function MarketingNav() {
         </Link>
 
         <div className="hidden md:flex items-center gap-6 ml-4">
-          <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <a href="/#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Features
           </a>
-          <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <a href="/#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Pricing
           </a>
         </div>
@@ -59,10 +59,10 @@ export function MarketingNav() {
 
       {menuOpen && (
         <div className="md:hidden flex flex-col gap-3 px-6 py-4 border-t border-border bg-background/95 backdrop-blur-md">
-          <a href="#features" className="text-sm font-medium text-muted-foreground" onClick={() => setMenuOpen(false)}>
+          <a href="/#features" className="text-sm font-medium text-muted-foreground" onClick={() => setMenuOpen(false)}>
             Features
           </a>
-          <a href="#pricing" className="text-sm font-medium text-muted-foreground" onClick={() => setMenuOpen(false)}>
+          <a href="/#pricing" className="text-sm font-medium text-muted-foreground" onClick={() => setMenuOpen(false)}>
             Pricing
           </a>
           <Link href="/sign-in" className="text-sm font-medium text-muted-foreground" onClick={() => setMenuOpen(false)}>
