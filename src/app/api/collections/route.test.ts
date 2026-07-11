@@ -5,12 +5,20 @@ vi.mock('@/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/lib/prisma', () => ({
   prisma: { collection: { create: vi.fn(), findMany: vi.fn() } },
 }));
+vi.mock('@/lib/gates', () => ({
+  getUserIsPro: vi.fn(),
+  getUserCollectionCount: vi.fn(),
+  FREE_COLLECTION_LIMIT: 3,
+}));
 
 const { auth } = await import('@/auth');
 const { prisma } = await import('@/lib/prisma');
+const { getUserIsPro, getUserCollectionCount } = await import('@/lib/gates');
 const mockAuth = vi.mocked(auth);
 const mockCreate = vi.mocked(prisma.collection.create);
 const mockFindMany = vi.mocked(prisma.collection.findMany);
+const mockGetUserIsPro = vi.mocked(getUserIsPro);
+const mockGetUserCollectionCount = vi.mocked(getUserCollectionCount);
 
 function makeRequest(body: unknown) {
   return new Request('http://localhost/api/collections', {
@@ -32,7 +40,10 @@ const stubCollection = {
 const getRequest = new Request('http://localhost/api/collections');
 
 describe('GET /api/collections', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetUserIsPro.mockResolvedValue(true);
+  });
 
   it('returns 401 when unauthenticated', async () => {
     mockAuth.mockResolvedValue(null as never);
@@ -66,7 +77,11 @@ describe('GET /api/collections', () => {
 });
 
 describe('POST /api/collections', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetUserIsPro.mockResolvedValue(true);
+    mockGetUserCollectionCount.mockResolvedValue(0);
+  });
 
   it('returns 401 when unauthenticated', async () => {
     mockAuth.mockResolvedValue(null as never);

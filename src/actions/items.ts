@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { auth } from '@/auth';
 import { updateItemById, updateItemBasicById, deleteItemById, createItemInDb, getItemFileUrl, type ItemDetail } from '@/lib/db/items';
 import { deleteObject, keyFromPublicUrl } from '@/lib/r2';
+import { getUserIsPro, getUserItemCount, FREE_ITEM_LIMIT, PRO_ONLY_TYPES } from '@/lib/gates';
 
 const createItemSchema = z.object({
   typeName: z.enum(['snippet', 'prompt', 'command', 'note', 'link', 'file', 'image']),
@@ -38,6 +39,17 @@ export async function createItem(data: CreateItemInput): Promise<CreateItemResul
   }
   if (['file', 'image'].includes(parsed.data.typeName) && !parsed.data.fileUrl) {
     return { success: false, error: 'File upload required' };
+  }
+
+  const isPro = await getUserIsPro(session.user.id);
+  if (PRO_ONLY_TYPES.has(parsed.data.typeName) && !isPro) {
+    return { success: false, error: 'File and image uploads require a Pro subscription.' };
+  }
+  if (!isPro) {
+    const count = await getUserItemCount(session.user.id);
+    if (count >= FREE_ITEM_LIMIT) {
+      return { success: false, error: `Free plan is limited to ${FREE_ITEM_LIMIT} items. Upgrade to Pro for unlimited items.` };
+    }
   }
 
   const created = await createItemInDb(session.user.id, {

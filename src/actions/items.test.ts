@@ -8,6 +8,12 @@ vi.mock('@/lib/db/items', () => ({
   createItemInDb: vi.fn(),
   getItemFileUrl: vi.fn(),
 }));
+vi.mock('@/lib/gates', () => ({
+  getUserIsPro: vi.fn(),
+  getUserItemCount: vi.fn(),
+  FREE_ITEM_LIMIT: 50,
+  PRO_ONLY_TYPES: new Set(['file', 'image']),
+}));
 
 const baseDetail = {
   id: 'item-1',
@@ -34,11 +40,14 @@ vi.mock('@/lib/r2', () => ({
 
 const { auth } = await import('@/auth');
 const { deleteItemById, createItemInDb, getItemFileUrl, updateItemById } = await import('@/lib/db/items');
+const { getUserIsPro, getUserItemCount } = await import('@/lib/gates');
 const mockAuth = vi.mocked(auth);
 const mockDeleteItemById = vi.mocked(deleteItemById);
 const mockCreateItemInDb = vi.mocked(createItemInDb);
 const mockGetItemFileUrl = vi.mocked(getItemFileUrl);
 const mockUpdateItemById = vi.mocked(updateItemById);
+const mockGetUserIsPro = vi.mocked(getUserIsPro);
+const mockGetUserItemCount = vi.mocked(getUserItemCount);
 
 const baseCardItem = {
   id: 'item-1',
@@ -58,7 +67,11 @@ const baseCardItem = {
 };
 
 describe('createItem', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetUserIsPro.mockResolvedValue(true);
+    mockGetUserItemCount.mockResolvedValue(0);
+  });
 
   it('returns unauthorized when there is no session', async () => {
     mockAuth.mockResolvedValue(null as never);

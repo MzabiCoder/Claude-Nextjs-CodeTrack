@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon, Lock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -50,9 +50,10 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 interface NewItemDialogProps {
   open: boolean;
   onClose: () => void;
+  isPro?: boolean;
 }
 
-export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
+export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogProps) {
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<TypeName>('snippet');
   const [title, setTitle] = useState('');
@@ -140,27 +141,35 @@ export function NewItemDialog({ open, onClose }: NewItemDialogProps) {
           <div>
             <FieldLabel>Type</FieldLabel>
             <div className="flex gap-2 flex-wrap">
-              {TYPES.map(({ name, label, icon: Icon, color }) => (
-                <button
-                  key={name}
-                  type="button"
-                  aria-pressed={selectedType === name}
-                  onClick={() => handleTypeChange(name)}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
-                    selectedType === name
-                      ? 'border-transparent'
-                      : 'border-border bg-transparent text-muted-foreground hover:text-foreground'
-                  }`}
-                  style={
-                    selectedType === name
-                      ? { backgroundColor: `${color}20`, color, borderColor: `${color}40` }
-                      : {}
-                  }
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {label}
-                </button>
-              ))}
+              {TYPES.map(({ name, label, icon: Icon, color }) => {
+                const locked = !isPro && (name === 'file' || name === 'image');
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    aria-pressed={selectedType === name}
+                    disabled={locked}
+                    title={locked ? 'Pro feature' : undefined}
+                    onClick={() => !locked && handleTypeChange(name)}
+                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
+                      locked
+                        ? 'border-border bg-transparent text-muted-foreground opacity-40 cursor-not-allowed'
+                        : selectedType === name
+                        ? 'border-transparent'
+                        : 'border-border bg-transparent text-muted-foreground hover:text-foreground'
+                    }`}
+                    style={
+                      !locked && selectedType === name
+                        ? { backgroundColor: `${color}20`, color, borderColor: `${color}40` }
+                        : {}
+                    }
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {label}
+                    {locked && <Lock className="h-3 w-3 ml-auto" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
