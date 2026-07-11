@@ -62,7 +62,7 @@ export function DashboardShell({ children, sidebarData, user, searchData, editor
         onClose={() => setSelectedItemId(null)}
         itemId={selectedItemId}
       />
-      <NewItemDialog open={newItemOpen} onClose={() => setNewItemOpen(false)} />
+      <NewItemDialog open={newItemOpen} onClose={() => setNewItemOpen(false)} isPro={user?.isPro ?? false} />
       <NewCollectionDialog open={newCollectionOpen} onClose={() => setNewCollectionOpen(false)} />
       <CommandPalette
         ref={paletteRef}

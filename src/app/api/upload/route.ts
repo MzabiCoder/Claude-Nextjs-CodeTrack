@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { putObject, getPublicUrl } from '@/lib/r2';
 import { randomUUID } from 'crypto';
 import path from 'path';
+import { getUserIsPro } from '@/lib/gates';
 
 const IMAGE_TYPES = new Set([
   'image/png',
@@ -31,6 +32,11 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const isPro = await getUserIsPro(session.user.id);
+  if (!isPro) {
+    return NextResponse.json({ error: 'File and image uploads require a Pro subscription.' }, { status: 403 });
   }
 
   let formData: FormData;
