@@ -1,29 +1,16 @@
-# Current Feature: Stripe Integration — Phase 1: Core Infrastructure
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Install `stripe` npm package
-- Create `src/lib/stripe.ts` Stripe singleton client
-- Extend `src/types/next-auth.d.ts` with `isPro: boolean` on Session and `isPro?: boolean` on JWT
-- Add `jwt` callback to `src/auth.ts` that syncs `isPro` from DB on every token validation
-- Update `session` callback to forward `token.isPro` onto `session.user.isPro`
-- Add `isPro?: boolean` to `SessionUser` interface in `DashboardShell`
-- Create `src/lib/gates.ts` with `FREE_ITEM_LIMIT`, `FREE_COLLECTION_LIMIT`, `PRO_ONLY_TYPES`, `getUserItemCount`, `getUserCollectionCount`, `getUserIsPro`
-- Write unit tests for all 5 exported functions/constants in `gates.ts`
-- Add `NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY` and `NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY` to `.env.example`
+<!-- Add feature goals here -->
 
 ## Notes
 
-- No UI, no API routes, no webhooks in this phase — pure plumbing only
-- `jwt` callback must do a DB read on every token validation so sessions reflect Stripe webhook updates without requiring re-login
-- `isPro` is already in the Prisma schema (`User.isPro Boolean @default(false)`) — no migration needed
-- Private Stripe env vars are already in `.env.example`; only the two `NEXT_PUBLIC_` price ID vars need to be added
-- All 72 existing tests must still pass after implementation
-- Spec: `context/features/stripe-phase-1-spec.md`
+<!-- Add notes here -->
 
 ## History
 
@@ -396,3 +383,14 @@ In Progress
 - `MarketingFooter` (server) — logo, link columns, server-rendered copyright year
 - `FadeIn` (client) — `IntersectionObserver` wrapper for scroll-triggered fade-in on all sections
 - All components in `src/components/marketing/`; Tailwind-only styling
+
+### 2026-07-11 — Stripe Integration Phase 1: Core Infrastructure ✅ Completed
+- Installed `stripe` npm package (`apiVersion: 2026-06-24.dahlia`)
+- Created `src/lib/stripe.ts` Stripe singleton client
+- Created `src/lib/gates.ts` with `FREE_ITEM_LIMIT (50)`, `FREE_COLLECTION_LIMIT (3)`, `PRO_ONLY_TYPES` set (`file`, `image`), and `getUserItemCount`, `getUserCollectionCount`, `getUserIsPro` DB helpers
+- Added `jwt` callback to `src/auth.ts` that reads `isPro` from DB on every JWT validation — keeps sessions in sync after Stripe webhook updates without requiring re-login
+- Updated `session` callback to forward `token.isPro` onto `session.user.isPro`
+- Extended `src/types/next-auth.d.ts` with `isPro: boolean` on Session and `isPro?: boolean` on JWT
+- Added `isPro?: boolean` to `SessionUser` interface in `DashboardShell`
+- Added `NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY` and `NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY` to `.env.example`; fixed `.gitignore` to allow `.env.example` to be committed
+- 21 unit tests for `gates.ts`; 93 total passing, build clean
