@@ -6,7 +6,7 @@ Not Started
 
 ## Goals
 
-<!-- Add feature goals here -->
+<!-- Add goals here -->
 
 ## Notes
 
@@ -394,3 +394,15 @@ Not Started
 - Added `isPro?: boolean` to `SessionUser` interface in `DashboardShell`
 - Added `NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY` and `NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY` to `.env.example`; fixed `.gitignore` to allow `.env.example` to be committed
 - 21 unit tests for `gates.ts`; 93 total passing, build clean
+
+### 2026-07-11 — Stripe Integration Phase 2: Webhooks, Feature Gating & UI ✅ Completed
+- `POST /api/stripe/checkout`: creates Checkout session, validates price server-side against private env vars to prevent tampering
+- `GET /api/stripe/portal`: creates Customer Portal session for managing/cancelling subscriptions
+- `POST /api/webhooks/stripe`: handles `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`; syncs `isPro` and `stripeSubscriptionId` in DB
+- Gated `createItem` server action: 50-item limit + blocks `file`/`image` types for free users
+- Gated `POST /api/collections`: 3-collection limit for free users
+- Gated `POST /api/upload`: returns 403 for free users
+- `/billing` page with plan status, monthly/yearly upgrade buttons, manage subscription for Pro users, `?success`/`?canceled` banners
+- Billing section in `/settings`: plan status + link to `/billing`
+- `NewItemDialog`: `file`/`image` type buttons disabled with lock icon for free users
+- Protected `/billing` route in `src/proxy.ts`
