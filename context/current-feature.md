@@ -1,16 +1,29 @@
-# Current Feature
+# Current Feature: Stripe Integration — Phase 1: Core Infrastructure
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add feature goals here -->
+- Install `stripe` npm package
+- Create `src/lib/stripe.ts` Stripe singleton client
+- Extend `src/types/next-auth.d.ts` with `isPro: boolean` on Session and `isPro?: boolean` on JWT
+- Add `jwt` callback to `src/auth.ts` that syncs `isPro` from DB on every token validation
+- Update `session` callback to forward `token.isPro` onto `session.user.isPro`
+- Add `isPro?: boolean` to `SessionUser` interface in `DashboardShell`
+- Create `src/lib/gates.ts` with `FREE_ITEM_LIMIT`, `FREE_COLLECTION_LIMIT`, `PRO_ONLY_TYPES`, `getUserItemCount`, `getUserCollectionCount`, `getUserIsPro`
+- Write unit tests for all 5 exported functions/constants in `gates.ts`
+- Add `NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY` and `NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY` to `.env.example`
 
 ## Notes
 
-<!-- Add notes here -->
+- No UI, no API routes, no webhooks in this phase — pure plumbing only
+- `jwt` callback must do a DB read on every token validation so sessions reflect Stripe webhook updates without requiring re-login
+- `isPro` is already in the Prisma schema (`User.isPro Boolean @default(false)`) — no migration needed
+- Private Stripe env vars are already in `.env.example`; only the two `NEXT_PUBLIC_` price ID vars need to be added
+- All 72 existing tests must still pass after implementation
+- Spec: `context/features/stripe-phase-1-spec.md`
 
 ## History
 
