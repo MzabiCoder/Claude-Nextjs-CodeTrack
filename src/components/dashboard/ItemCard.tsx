@@ -40,11 +40,13 @@ export function ItemCard({ item }: { item: ItemForCard }) {
   }
 
   return (
-    <button
-      type="button"
-      className="flex w-full text-left items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors group"
+    <div
+      role="button"
+      tabIndex={0}
+      className="flex w-full text-left items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors group cursor-pointer"
       style={{ borderLeftColor: color }}
       onClick={() => openDrawer(item.id)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer(item.id); } }}
     >
       <div
         className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
@@ -94,6 +96,6 @@ export function ItemCard({ item }: { item: ItemForCard }) {
           </button>
         )}
       </div>
-    </button>
+    </div>
   );
 }

@@ -43,6 +43,18 @@ async function main() {
     },
   });
 
+  // Remove collections that were removed from the seed so they don't linger
+  await prisma.collection.deleteMany({
+    where: {
+      id: {
+        in: [
+          "seed-collection-terminal-commands",
+          "seed-collection-design-resources",
+        ],
+      },
+    },
+  });
+
   const typeMap = Object.fromEntries(
     (
       await prisma.itemType.findMany({
@@ -285,7 +297,7 @@ Show the refactored version and briefly explain each change you made.
     create: {
       id: "seed-collection-devops",
       name: "DevOps",
-      description: "Infrastructure and deployment resources",
+      description: "Infrastructure, deployment, and shell commands",
       userId: user.id,
     },
   });
@@ -339,57 +351,6 @@ CMD ["node", "server.js"]`,
       },
     }),
     prisma.item.upsert({
-      where: { id: "seed-item-neon-docs" },
-      update: {},
-      create: {
-        id: "seed-item-neon-docs",
-        title: "Neon PostgreSQL documentation",
-        contentType: ContentType.URL,
-        url: "https://neon.tech/docs/introduction",
-        description: "Official Neon serverless Postgres docs — branching, connection pooling, and more.",
-        userId: user.id,
-        itemTypeId: typeMap.link,
-      },
-    }),
-    prisma.item.upsert({
-      where: { id: "seed-item-gh-actions-docs" },
-      update: {},
-      create: {
-        id: "seed-item-gh-actions-docs",
-        title: "GitHub Actions documentation",
-        contentType: ContentType.URL,
-        url: "https://docs.github.com/en/actions",
-        description: "Automate CI/CD workflows with GitHub Actions — triggers, jobs, runners, and secrets.",
-        userId: user.id,
-        itemTypeId: typeMap.link,
-      },
-    }),
-  ]);
-
-  await Promise.all(
-    devopsItems.map((item) =>
-      prisma.itemCollection.upsert({
-        where: { itemId_collectionId: { itemId: item.id, collectionId: devops.id } },
-        update: {},
-        create: { itemId: item.id, collectionId: devops.id },
-      })
-    )
-  );
-
-  // ── Terminal Commands ─────────────────────────────────────────────
-  const terminalCmds = await prisma.collection.upsert({
-    where: { id: "seed-collection-terminal-commands" },
-    update: {},
-    create: {
-      id: "seed-collection-terminal-commands",
-      name: "Terminal Commands",
-      description: "Useful shell commands for everyday development",
-      userId: user.id,
-    },
-  });
-
-  const terminalItems = await Promise.all([
-    prisma.item.upsert({
       where: { id: "seed-item-git-undo" },
       update: {},
       create: {
@@ -397,18 +358,6 @@ CMD ["node", "server.js"]`,
         title: "Git — undo last commit (keep changes staged)",
         contentType: ContentType.TEXT,
         content: `git reset --soft HEAD~1`,
-        userId: user.id,
-        itemTypeId: typeMap.command,
-      },
-    }),
-    prisma.item.upsert({
-      where: { id: "seed-item-docker-clean" },
-      update: {},
-      create: {
-        id: "seed-item-docker-clean",
-        title: "Docker — remove all stopped containers, dangling images, and unused volumes",
-        contentType: ContentType.TEXT,
-        content: `docker system prune --volumes -f`,
         userId: user.id,
         itemTypeId: typeMap.command,
       },
@@ -426,55 +375,32 @@ CMD ["node", "server.js"]`,
       },
     }),
     prisma.item.upsert({
-      where: { id: "seed-item-npm-clean" },
+      where: { id: "seed-item-neon-docs" },
       update: {},
       create: {
-        id: "seed-item-npm-clean",
-        title: "npm — clean install from lockfile",
-        contentType: ContentType.TEXT,
-        content: `rm -rf node_modules && npm ci`,
+        id: "seed-item-neon-docs",
+        title: "Neon PostgreSQL documentation",
+        contentType: ContentType.URL,
+        url: "https://neon.tech/docs/introduction",
+        description: "Official Neon serverless Postgres docs — branching, connection pooling, and more.",
         userId: user.id,
-        itemTypeId: typeMap.command,
+        itemTypeId: typeMap.link,
       },
     }),
   ]);
 
   await Promise.all(
-    terminalItems.map((item) =>
+    devopsItems.map((item) =>
       prisma.itemCollection.upsert({
-        where: { itemId_collectionId: { itemId: item.id, collectionId: terminalCmds.id } },
+        where: { itemId_collectionId: { itemId: item.id, collectionId: devops.id } },
         update: {},
-        create: { itemId: item.id, collectionId: terminalCmds.id },
+        create: { itemId: item.id, collectionId: devops.id },
       })
     )
   );
 
-  // ── Design Resources ──────────────────────────────────────────────
-  const designResources = await prisma.collection.upsert({
-    where: { id: "seed-collection-design-resources" },
-    update: {},
-    create: {
-      id: "seed-collection-design-resources",
-      name: "Design Resources",
-      description: "UI/UX resources and references",
-      userId: user.id,
-    },
-  });
-
-  const designItems = await Promise.all([
-    prisma.item.upsert({
-      where: { id: "seed-item-tailwind-docs" },
-      update: {},
-      create: {
-        id: "seed-item-tailwind-docs",
-        title: "Tailwind CSS v4 documentation",
-        contentType: ContentType.URL,
-        url: "https://tailwindcss.com/docs",
-        description: "Official Tailwind CSS docs — utility classes, theming with @theme, and responsive design.",
-        userId: user.id,
-        itemTypeId: typeMap.link,
-      },
-    }),
+  // ── Uncollected items (show up in items views, not in any collection) ──
+  await Promise.all([
     prisma.item.upsert({
       where: { id: "seed-item-shadcn-docs" },
       update: {},
@@ -489,48 +415,40 @@ CMD ["node", "server.js"]`,
       },
     }),
     prisma.item.upsert({
-      where: { id: "seed-item-radix-docs" },
+      where: { id: "seed-item-tailwind-docs" },
       update: {},
       create: {
-        id: "seed-item-radix-docs",
-        title: "Radix UI primitives",
+        id: "seed-item-tailwind-docs",
+        title: "Tailwind CSS v4 documentation",
         contentType: ContentType.URL,
-        url: "https://www.radix-ui.com/primitives/docs/overview/introduction",
-        description: "Unstyled, accessible UI primitives for building design systems.",
+        url: "https://tailwindcss.com/docs",
+        description: "Official Tailwind CSS docs — utility classes, theming with @theme, and responsive design.",
         userId: user.id,
         itemTypeId: typeMap.link,
       },
     }),
     prisma.item.upsert({
-      where: { id: "seed-item-lucide-icons" },
+      where: { id: "seed-item-npm-clean" },
       update: {},
       create: {
-        id: "seed-item-lucide-icons",
-        title: "Lucide React icons",
-        contentType: ContentType.URL,
-        url: "https://lucide.dev/icons",
-        description: "Searchable library of open-source icons with React component support.",
+        id: "seed-item-npm-clean",
+        title: "npm — clean install from lockfile",
+        contentType: ContentType.TEXT,
+        content: `rm -rf node_modules && npm ci`,
         userId: user.id,
-        itemTypeId: typeMap.link,
+        itemTypeId: typeMap.command,
       },
     }),
   ]);
 
-  await Promise.all(
-    designItems.map((item) =>
-      prisma.itemCollection.upsert({
-        where: { itemId_collectionId: { itemId: item.id, collectionId: designResources.id } },
-        update: {},
-        create: { itemId: item.id, collectionId: designResources.id },
-      })
-    )
-  );
+  const totalItems =
+    reactItems.length + aiItems.length + devopsItems.length + 3;
 
   console.log("Seeding complete!");
-  console.log(`  • 1 demo user`);
+  console.log(`  • 1 demo user (free plan)`);
   console.log(`  • 7 system item types`);
-  console.log(`  • 5 collections`);
-  console.log(`  • ${reactItems.length + aiItems.length + devopsItems.length + terminalItems.length + designItems.length} items`);
+  console.log(`  • 3 collections`);
+  console.log(`  • ${totalItems} items`);
 }
 
 main()
