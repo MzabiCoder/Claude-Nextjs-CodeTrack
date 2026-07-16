@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { auth } from '@/auth';
 import { getItemsByType } from '@/lib/db/items';
 import { ITEMS_PER_PAGE } from '@/lib/constants';
@@ -38,39 +38,7 @@ export default async function ItemsTypePage({
   if (singular && PRO_ONLY_TYPES.has(singular)) {
     const session = await auth();
     if (!session?.user?.id) redirect('/sign-in');
-    if (!session.user.isPro) {
-      return (
-        <div className="space-y-6">
-          <div>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 group"
-            >
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-              Back to Dashboard
-            </Link>
-            <h1 className="text-2xl font-bold">{capitalize(type)}</h1>
-          </div>
-          <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
-              <Lock className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <div className="space-y-1">
-              <p className="font-semibold text-lg">Pro feature</p>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                Uploading and managing {type} is available on the Pro plan.
-              </p>
-            </div>
-            <Link
-              href="/billing"
-              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors"
-            >
-              Upgrade to Pro
-            </Link>
-          </div>
-        </div>
-      );
-    }
+    if (!session.user.isPro) redirect('/upgrade');
   }
 
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
