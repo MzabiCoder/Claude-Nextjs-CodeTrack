@@ -4,6 +4,10 @@ import { prisma } from '@/lib/prisma';
 import { getStripe } from '@/lib/stripe';
 
 export async function GET(req: NextRequest) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: 'Stripe is not configured on this server.' }, { status: 500 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
