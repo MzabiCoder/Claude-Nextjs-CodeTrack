@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface BillingContentProps {
   isPro: boolean;
@@ -32,10 +33,19 @@ export function BillingContent({ isPro, monthlyPriceId, yearlyPriceId }: Billing
 
   async function handlePortal() {
     setLoading(true);
-    const res = await fetch('/api/stripe/portal');
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
-    else setLoading(false);
+    try {
+      const res = await fetch('/api/stripe/portal');
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error(data.error ?? 'Could not open billing portal. Please try again.');
+        setLoading(false);
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+      setLoading(false);
+    }
   }
 
   return (

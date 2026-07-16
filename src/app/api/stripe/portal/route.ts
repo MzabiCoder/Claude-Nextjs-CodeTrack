@@ -18,10 +18,14 @@ export async function GET(req: NextRequest) {
   }
 
   const origin = req.headers.get('origin') ?? process.env.NEXTAUTH_URL!;
-  const portalSession = await getStripe().billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
-    return_url: `${origin}/billing`,
-  });
-
-  return NextResponse.json({ url: portalSession.url });
+  try {
+    const portalSession = await getStripe().billingPortal.sessions.create({
+      customer: user.stripeCustomerId,
+      return_url: `${origin}/billing`,
+    });
+    return NextResponse.json({ url: portalSession.url });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to create portal session';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
