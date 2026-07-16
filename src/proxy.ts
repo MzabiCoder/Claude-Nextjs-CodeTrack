@@ -12,8 +12,9 @@ export const proxy = auth((req) => {
   const isOnCollections = req.nextUrl.pathname.startsWith("/collections");
   const isOnFavorites = req.nextUrl.pathname.startsWith("/favorites");
   const isOnBilling = req.nextUrl.pathname.startsWith("/billing");
+  const isOnUpgrade = req.nextUrl.pathname.startsWith("/upgrade");
 
-  if ((isOnDashboard || isOnProfile || isOnSettings || isOnItems || isOnCollections || isOnFavorites || isOnBilling) && !isLoggedIn) {
+  if ((isOnDashboard || isOnProfile || isOnSettings || isOnItems || isOnCollections || isOnFavorites || isOnBilling || isOnUpgrade) && !isLoggedIn) {
     const signInUrl = new URL("/sign-in", req.nextUrl);
     return Response.redirect(signInUrl);
   }

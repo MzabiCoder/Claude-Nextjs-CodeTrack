@@ -162,7 +162,7 @@ function SidebarContent({
                   <>
                     <span className="capitalize">{TYPE_SLUGS[type.name] ?? `${type.name}s`}</span>
                     {(type.name === 'file' || type.name === 'image') && (
-                      <Badge variant="secondary" className="h-4 px-1 text-[10px] font-semibold leading-none">
+                      <Badge className="h-4 px-1 text-[10px] font-semibold leading-none bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20">
                         PRO
                       </Badge>
                     )}

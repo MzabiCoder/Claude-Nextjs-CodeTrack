@@ -61,6 +61,13 @@ export function TopBar({ onMobileMenuClick, onNewCollectionClick, onNewItemClick
             <Star className="h-4 w-4" />
           </Button>
         </Link>
+        {user && !user.isPro && (
+          <Link href="/upgrade">
+            <Button variant="ghost" className="hidden sm:flex h-8 text-xs text-muted-foreground hover:text-foreground">
+              Upgrade
+            </Button>
+          </Link>
+        )}
         <Button variant="outline" className="hidden sm:flex" onClick={onNewCollectionClick}>
           <FolderPlus className="h-4 w-4" />
           New Collection
