@@ -367,10 +367,6 @@ Not Started
 - Added `min-w-0 max-w-full` to `AiSection` `<pre>` to contain horizontal overflow on mobile
 - Removed dead `href="#"` footer links (Changelog, Privacy, Terms)
 
-### 2026-07-07 — Auth Page Nav + Dashboard Logo ✅ Completed
-- Added `MarketingNav` to `/sign-in` and `/register` pages with `pt-16` to offset fixed nav height
-- Changed dashboard `TopBar` `LayoutGrid` icon from `text-primary` to `text-blue-500` to match the marketing nav
-
 ### 2026-07-06 — Homepage ✅ Completed
 - Replaced redirect-only `src/app/page.tsx` with full marketing homepage; authenticated users redirect to `/dashboard`, guests see marketing page
 - `MarketingNav` (client) — fixed nav, transparent → opaque/blurred on scroll, mobile hamburger menu
@@ -383,6 +379,10 @@ Not Started
 - `MarketingFooter` (server) — logo, link columns, server-rendered copyright year
 - `FadeIn` (client) — `IntersectionObserver` wrapper for scroll-triggered fade-in on all sections
 - All components in `src/components/marketing/`; Tailwind-only styling
+
+### 2026-07-07 — Auth Page Nav + Dashboard Logo ✅ Completed
+- Added `MarketingNav` to `/sign-in` and `/register` pages with `pt-16` to offset fixed nav height
+- Changed dashboard `TopBar` `LayoutGrid` icon from `text-primary` to `text-blue-500` to match the marketing nav
 
 ### 2026-07-11 — Stripe Integration Phase 1: Core Infrastructure ✅ Completed
 - Installed `stripe` npm package (`apiVersion: 2026-06-24.dahlia`)
