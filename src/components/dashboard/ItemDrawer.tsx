@@ -18,6 +18,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { LANGUAGES } from '@/lib/constants/languages';
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
@@ -338,12 +346,13 @@ interface DrawerEditBodyProps {
   updatedAt: string;
   updateField: (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onContentChange: (v: string) => void;
+  onLanguageChange: (v: string) => void;
 }
 
 function DrawerEditBody({
   formData, typeName, showContent, showLanguage, showUrl,
   useCodeEditor, useMarkdownEditor, selectedCollectionIds, onCollectionChange,
-  createdAt, updatedAt, updateField, onContentChange,
+  createdAt, updatedAt, updateField, onContentChange, onLanguageChange,
 }: DrawerEditBodyProps) {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-5">
@@ -357,6 +366,27 @@ function DrawerEditBody({
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
         />
       </section>
+
+      {showLanguage && (
+        <section>
+          <FieldLabel>Language</FieldLabel>
+          <Select
+            value={formData.language || ''}
+            onValueChange={(v) => onLanguageChange(v ?? '')}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select language…" />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map((lang) => (
+                <SelectItem key={lang.value} value={lang.value}>
+                  {lang.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </section>
+      )}
 
       {showContent && (
         <section>
@@ -383,13 +413,6 @@ function DrawerEditBody({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
             />
           )}
-        </section>
-      )}
-
-      {showLanguage && (
-        <section>
-          <FieldLabel>Language</FieldLabel>
-          <Input value={formData.language} onChange={updateField('language')} placeholder="e.g. TypeScript" />
         </section>
       )}
 
@@ -456,7 +479,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
     setItem(null);
     fetch(`/api/items/${itemId}`)
       .then((r) => r.json())
-      .then((data) => setItem(data))
+      .then((data) => { if (data?.itemType) setItem(data); })
       .finally(() => setLoading(false));
   }, [open, itemId]);
 
@@ -644,6 +667,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                   updatedAt={item.updatedAt}
                   updateField={updateField}
                   onContentChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
+                  onLanguageChange={(v) => setFormData((prev) => ({ ...prev, language: v }))}
                 />
               ) : (
                 <DrawerViewBody

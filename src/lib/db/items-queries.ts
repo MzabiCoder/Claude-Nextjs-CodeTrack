@@ -147,13 +147,14 @@ export async function getItemFileUrl(userId: string, id: string): Promise<string
 }
 
 export async function getItemsByType(
+  userId: string,
   typeSlug: string,
   page = 1
 ): Promise<{ items: ItemForCard[]; totalCount: number }> {
   const typeName = SLUG_TO_TYPE[typeSlug];
   if (!typeName) return { items: [], totalCount: 0 };
 
-  const where = { itemType: { name: typeName } };
+  const where = { userId, itemType: { name: typeName } };
   const [items, totalCount] = await Promise.all([
     prisma.item.findMany({
       where,
