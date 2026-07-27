@@ -406,3 +406,10 @@ Not Started
 - Billing section in `/settings`: plan status + link to `/billing`
 - `NewItemDialog`: `file`/`image` type buttons disabled with lock icon for free users
 - Protected `/billing` route in `src/proxy.ts`
+
+### 2026-07-27 — Language Picker Dropdown ✅ Completed
+- Created `src/lib/constants/languages.ts` with 28 languages as single source of truth
+- Replaced free-text `Input` with ShadCN `Select` dropdown in `NewItemDialog` and `ItemDrawer` edit mode
+- Dropdown positioned above the code editor so language is chosen before typing
+- Fixed security issue: `getItemsByType` now scoped to `userId` (items were previously unfiltered by user)
+- Moved `auth()` call in `/items/[type]/page.tsx` to apply to all types, not just Pro-only ones
