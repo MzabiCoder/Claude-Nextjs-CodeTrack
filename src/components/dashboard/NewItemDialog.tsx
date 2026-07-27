@@ -148,12 +148,18 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
                     key={name}
                     type="button"
                     aria-pressed={selectedType === name}
-                    disabled={locked}
-                    title={locked ? 'Pro feature' : undefined}
-                    onClick={() => !locked && handleTypeChange(name)}
+                    title={locked ? 'Pro feature — click to upgrade' : undefined}
+                    onClick={() => {
+                      if (locked) {
+                        handleClose();
+                        router.push('/upgrade');
+                      } else {
+                        handleTypeChange(name);
+                      }
+                    }}
                     className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
                       locked
-                        ? 'border-border bg-transparent text-muted-foreground opacity-40 cursor-not-allowed'
+                        ? 'border-border bg-transparent text-muted-foreground opacity-40 cursor-pointer hover:opacity-60'
                         : selectedType === name
                         ? 'border-transparent'
                         : 'border-border bg-transparent text-muted-foreground hover:text-foreground'

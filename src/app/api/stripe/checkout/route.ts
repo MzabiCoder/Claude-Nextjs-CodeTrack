@@ -35,7 +35,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const origin = req.headers.get('origin') ?? process.env.NEXTAUTH_URL!;
+  const origin =
+    req.headers.get('origin') ??
+    process.env.NEXTAUTH_URL ??
+    `${req.nextUrl.protocol}//${req.nextUrl.host}`;
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',

@@ -21,7 +21,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'No billing account found' }, { status: 404 });
   }
 
-  const origin = req.headers.get('origin') ?? process.env.NEXTAUTH_URL!;
+  const proto = req.headers.get('x-forwarded-proto') ?? req.nextUrl.protocol.replace(/:$/, '');
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? req.nextUrl.host;
+  const origin =
+    req.headers.get('origin') ??
+    process.env.NEXTAUTH_URL ??
+    `${proto}://${host}`;
   try {
     const portalSession = await getStripe().billingPortal.sessions.create({
       customer: user.stripeCustomerId,
