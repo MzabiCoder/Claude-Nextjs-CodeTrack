@@ -34,15 +34,16 @@ export default async function ItemsTypePage({
 
   if (!VALID_TYPES.has(type)) notFound();
 
+  const session = await auth();
+  if (!session?.user?.id) redirect('/sign-in');
+
   const singular = SLUG_TO_SINGULAR[type];
   if (singular && PRO_ONLY_TYPES.has(singular)) {
-    const session = await auth();
-    if (!session?.user?.id) redirect('/sign-in');
     if (!session.user.isPro) redirect('/upgrade');
   }
 
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
-  const { items, totalCount } = await getItemsByType(type, page);
+  const { items, totalCount } = await getItemsByType(session.user.id, type, page);
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const isImageGallery = type === 'images';
   const isFileList = type === 'files';

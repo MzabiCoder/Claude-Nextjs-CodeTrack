@@ -14,6 +14,14 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { LANGUAGES } from '@/lib/constants/languages';
 import { createItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
@@ -198,6 +206,24 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
             />
           </div>
 
+          {showLanguage && (
+            <div>
+              <FieldLabel>Language</FieldLabel>
+              <Select value={language || ''} onValueChange={(v) => setLanguage(v ?? '')}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select language…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {showContent && (
             <div>
               <FieldLabel>Content</FieldLabel>
@@ -235,17 +261,6 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
                 itemType={selectedType as 'file' | 'image'}
                 onUploadComplete={setUploadResult}
                 onClear={() => setUploadResult(null)}
-              />
-            </div>
-          )}
-
-          {showLanguage && (
-            <div>
-              <FieldLabel>Language</FieldLabel>
-              <Input
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                placeholder="e.g. TypeScript"
               />
             </div>
           )}

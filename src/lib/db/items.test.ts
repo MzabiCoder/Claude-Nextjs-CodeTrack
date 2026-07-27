@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getItemById, deleteItemById, createItemInDb } from './items';
+import { getItemById, deleteItemById, createItemInDb, getItemsByType } from './items';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     item: {
       findFirst: vi.fn(),
       findMany: vi.fn(),
+      count: vi.fn(),
       delete: vi.fn(),
       create: vi.fn(),
     },
@@ -17,6 +18,8 @@ vi.mock('@/lib/prisma', () => ({
 
 const { prisma } = await import('@/lib/prisma');
 const mockFindFirst = vi.mocked(prisma.item.findFirst);
+const mockFindMany = vi.mocked(prisma.item.findMany);
+const mockCount = vi.mocked(prisma.item.count);
 const mockDelete = vi.mocked(prisma.item.delete);
 const mockCreate = vi.mocked(prisma.item.create);
 const mockItemTypeFindFirst = vi.mocked(prisma.itemType.findFirst);
