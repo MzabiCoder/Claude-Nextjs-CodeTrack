@@ -440,3 +440,15 @@ Not Started
 - Added `ActionResult<T = void>` shared type in `src/types/actions.ts` — replaces 4 identical local `{ success: true } | { success: false; error: string }` type declarations (`CreateItemResult`, `BasicResult`, `DeleteItemResult` in `items.ts`, `SaveResult` in `settings.ts`); `UpdateItemResult` converted to `ActionResult<ItemDetail>`
 - Added `toggleOwnedBooleanField(model, userId, id, field)` to `src/lib/db/utils.ts` — generic find-then-flip helper replacing the identical `toggleFavoriteItem`/`toggleItemPin`/`toggleFavoriteCollection` logic (only the Prisma model and field name differed)
 - No behavior changes — all 105 existing unit tests pass unmodified, `npm run build` clean
+
+### 2026-07-28 — Components Folder Dedup + Decomposition ✅ Completed
+- Added `src/lib/constants/item-types.ts` (`ITEM_TYPE_ICON_MAP`, `CONTENT_TYPES`, `LANGUAGE_TYPES`, `CODE_EDITOR_TYPES`, `MARKDOWN_EDITOR_TYPES`, `FILE_TYPES`) — replaces the identical icon map redefined in 6 files (`ItemDrawer`, `ItemCard`, `CommandPalette`, `CollectionCard`, `CollectionItemCard`, `FavoritesList`) and the type-behavior `Set`s duplicated between `ItemDrawer` and `NewItemDialog`
+- Added `src/hooks/useSuggestedTags.ts` + `src/components/shared/SuggestedTagsField.tsx` — replaces the duplicated AI "suggest tags" state machine and badge-list JSX in `ItemDrawer` and `NewItemDialog`; `SuggestedTagsField` takes an optional `labelComponent` so the drawer keeps its own distinct label styling
+- Added `src/components/shared/ConfirmDeleteDialog.tsx` — replaces 4 duplicated confirm-delete `AlertDialog` blocks (`ItemDrawer`, `CollectionCard`, `CollectionActions`, `CollectionItemCard`)
+- Added `src/components/shared/FieldLabel.tsx` — replaces 4 identical local `FieldLabel` definitions (`NewCollectionDialog`, `NewItemDialog`, `EditCollectionDialog`, `EditItemDialog`); `ItemDrawer`'s intentionally-different label kept local to its folder
+- Added `src/components/shared/CollectionFormDialog.tsx` — merges `NewCollectionDialog` + `EditCollectionDialog` into one dialog keyed off an optional `collection` prop (POST vs PATCH); deleted both originals
+- Added `src/components/shared/ItemCardBody.tsx` — shared icon/title/favorite/description/badge/tags block used by `ItemCard` and `CollectionItemCard`
+- Split `ItemDrawer.tsx` (819 lines) into `src/components/dashboard/item-drawer/` — `ItemDrawer.tsx`, `DrawerActionBar.tsx`, `DrawerViewBody.tsx`, `DrawerEditBody.tsx`, `DrawerSkeleton.tsx`, `FieldLabel.tsx`, `types.ts`
+- Extracted `TypeSelector` sub-component from `NewItemDialog.tsx` (386 → ~290 lines)
+- Verified end-to-end in the browser: item drawer view/edit, suggest-tags error path, new item dialog + type switching, collection create dialog, collection delete confirm dialog
+- No behavior changes — all 105 unit tests pass unmodified, `npm run build` clean; pre-existing lint issues (`set-state-in-effect` in `ItemDrawer`/`EditItemDialog`/`CollectionFormDialog`, `MarketingNav`, `CodeEditor`) confirmed via `git show` to predate this refactor, not introduced by it
