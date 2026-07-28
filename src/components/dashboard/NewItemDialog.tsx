@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon, Lock } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon, Lock, Check, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { generateAutoTags } from '@/actions/ai';
 import {
   Dialog,
   DialogContent,
@@ -73,6 +74,8 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [collectionIds, setCollectionIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
 
   function handleClose() {
     setSelectedType('snippet');
@@ -84,7 +87,40 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
     setTags('');
     setUploadResult(null);
     setCollectionIds([]);
+    setSuggestedTags([]);
     onClose();
+  }
+
+  async function handleSuggestTags() {
+    if (!title.trim()) return;
+    setLoadingTags(true);
+    setSuggestedTags([]);
+    try {
+      const result = await generateAutoTags({ title, content: content || null, typeName: selectedType });
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      const existingTags = tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+      setSuggestedTags(result.tags.filter((t) => !existingTags.includes(t)));
+    } finally {
+      setLoadingTags(false);
+    }
+  }
+
+  function acceptSuggestedTag(tag: string) {
+    setTags((prev) => {
+      const parts = prev.split(',').map((t) => t.trim()).filter(Boolean);
+      if (!parts.map((t) => t.toLowerCase()).includes(tag.toLowerCase())) {
+        parts.push(tag);
+      }
+      return parts.join(', ');
+    });
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
+  }
+
+  function rejectSuggestedTag(tag: string) {
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
   }
 
   function handleTypeChange(type: TypeName) {
@@ -278,13 +314,56 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
           )}
 
           <div>
-            <FieldLabel>Tags</FieldLabel>
+            <div className="flex items-center justify-between mb-1.5">
+              <FieldLabel>Tags</FieldLabel>
+              {isPro && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={handleSuggestTags}
+                  disabled={loadingTags || !title.trim()}
+                >
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  {loadingTags ? 'Suggesting…' : 'Suggest Tags'}
+                </Button>
+              )}
+            </div>
             <Input
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="react, hooks, typescript"
             />
             <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
+            {suggestedTags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {suggestedTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => acceptSuggestedTag(tag)}
+                      className="hover:text-green-400 transition-colors"
+                      aria-label={`Accept tag ${tag}`}
+                    >
+                      <Check className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => rejectSuggestedTag(tag)}
+                      className="hover:text-destructive transition-colors"
+                      aria-label={`Reject tag ${tag}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
