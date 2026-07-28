@@ -1,27 +1,16 @@
-# Current Feature: UI Polish
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add active/highlight state to sidebar links based on current route (`usePathname`)
-- Add GitHub OAuth button to the register page (mirrors sign-in)
-- Fix dead Copy button in drawer action bar (no `onClick` wired up)
-- Bump drawer section labels from `text-xs uppercase` to `text-sm` for readability
-- Add empty state CTA (New Item button) on `/items/[type]` pages when there are no items
-- Make the Back link context-aware (use router history instead of hardcoded "← Dashboard")
+<!-- Add goals here -->
 
 ## Notes
 
-Findings from Playwright UI review on 2026-07-28. Priority order:
-1. Sidebar active state — most impactful for navigation clarity
-2. Register GitHub button — blocks OAuth signup flow
-3. Drawer section label font size — `DESCRIPTION`, `CONTENT`, `TAGS`, `DETAILS` labels are `text-xs uppercase tracking-wider`, stacked with `text-xs` metadata in DETAILS section makes it feel cramped
-4. Copy button — dead affordance in drawer action bar
-5. Empty state CTA — `/items/[type]` shows plain "No X yet." with no action
-6. Back link — hardcoded to Dashboard regardless of where user came from
+<!-- Add notes here -->
 
 ## History
 
@@ -436,3 +425,11 @@ Findings from Playwright UI review on 2026-07-28. Priority order:
 - Threaded `isPro` prop from `DashboardShell` → `ItemDrawer`; `NewItemDialog` already received it
 - Added `scripts/set-pro.ts` dev utility to flip `isPro = true` in the dev database
 - 11 unit tests for `generateAutoTags` (auth, Pro gate, rate limit, both response formats, lowercase normalization, 5-tag cap, invalid JSON, service error, content truncation); 105 total passing
+
+### 2026-07-28 — UI Polish ✅ Completed
+- Sidebar type links now highlight the active page using `usePathname` — active link gets `bg-accent text-foreground font-medium`
+- Register page gains a GitHub OAuth button + divider above the credentials form, matching sign-in layout
+- Copy button in drawer action bar now copies item content (or URL for link type) to clipboard; shows "Copied!" with green icon for 1.5s
+- Drawer section labels (`FieldLabel`) changed from `text-xs font-semibold uppercase tracking-wider` to `text-sm font-medium` for improved readability
+- Empty state on `/items/[type]` replaced with `EmptyTypeState` component — shows "New Item" button that dispatches `open-new-item-dialog` custom event; `DashboardShell` listens and opens the dialog
+- Back links on `/items/[type]` and `/collections/[id]` replaced with `BackButton` client component using `router.back()` — label is "← Back" instead of hardcoded page names
