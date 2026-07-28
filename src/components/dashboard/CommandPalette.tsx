@@ -4,13 +4,9 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
-import { Search, Code, Sparkles, Terminal, StickyNote, File, Image, Link, FolderOpen } from 'lucide-react';
-import { type LucideIcon } from 'lucide-react';
+import { Search, Code, FolderOpen } from 'lucide-react';
 import { type SearchData } from '@/lib/db/search';
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code, Sparkles, Terminal, StickyNote, File, Image, Link,
-};
+import { ITEM_TYPE_ICON_MAP } from '@/lib/constants/item-types';
 
 export interface CommandPaletteRef {
   open: () => void;
@@ -91,7 +87,7 @@ export const CommandPalette = forwardRef<CommandPaletteRef, CommandPaletteProps>
                     className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground"
                   >
                     {searchData.items.map((item) => {
-                      const Icon = ICON_MAP[item.typeIcon] ?? Code;
+                      const Icon = ITEM_TYPE_ICON_MAP[item.typeIcon] ?? Code;
                       return (
                         <Command.Item
                           key={item.id}

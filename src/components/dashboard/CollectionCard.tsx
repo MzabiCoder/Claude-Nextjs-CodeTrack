@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Star, Code, Sparkles, Terminal, StickyNote, File, Image, Link as LinkIcon, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { type LucideIcon } from 'lucide-react';
+import { Star, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import NextLink from 'next/link';
 import {
   DropdownMenu,
@@ -12,29 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { EditCollectionDialog } from '@/components/collections/EditCollectionDialog';
+import { ConfirmDeleteDialog } from '@/components/shared/ConfirmDeleteDialog';
+import { CollectionFormDialog } from '@/components/shared/CollectionFormDialog';
 import { type CollectionForCard } from '@/lib/db/collections';
 import { toggleFavoriteCollection } from '@/actions/collections';
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link: LinkIcon,
-};
+import { ITEM_TYPE_ICON_MAP } from '@/lib/constants/item-types';
 
 export function CollectionCard({
   collection,
@@ -100,7 +81,7 @@ export function CollectionCard({
       {collection.typeIcons.length > 0 && (
         <div className="flex items-center gap-1.5 mt-auto">
           {collection.typeIcons.map((type) => {
-            const Icon = ICON_MAP[type.icon];
+            const Icon = ITEM_TYPE_ICON_MAP[type.icon];
             return Icon ? (
               <Icon key={type.id} className="h-3.5 w-3.5" style={{ color: type.color }} />
             ) : null;
@@ -156,33 +137,20 @@ export function CollectionCard({
         </div>
       </div>
 
-      <EditCollectionDialog
+      <CollectionFormDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
         collection={collection}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete &ldquo;{collection.name}&rdquo;?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove the collection and all its item memberships. Items themselves will
-              not be deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleting ? 'Deleting…' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={`Delete "${collection.name}"?`}
+        description="This will remove the collection and all its item memberships. Items themselves will not be deleted."
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

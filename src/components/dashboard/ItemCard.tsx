@@ -1,22 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Pin, Star, Copy, Check } from 'lucide-react';
-import { type LucideIcon } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 import { type ItemForCard } from '@/lib/db/items';
 import { formatDateCompact } from '@/lib/format';
 import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link,
-};
-
+import { ITEM_TYPE_ICON_MAP } from '@/lib/constants/item-types';
+import { ItemCardBody } from '@/components/shared/ItemCardBody';
 
 function copyValue(item: ItemForCard): string | null {
   if (item.itemType.name === 'link') return item.url;
@@ -25,7 +15,7 @@ function copyValue(item: ItemForCard): string | null {
 
 export function ItemCard({ item }: { item: ItemForCard }) {
   const { openDrawer } = useItemDrawer();
-  const Icon = ICON_MAP[item.itemType.icon] ?? Code;
+  const Icon = ITEM_TYPE_ICON_MAP[item.itemType.icon] ?? ITEM_TYPE_ICON_MAP.Code;
   const color = item.itemType.color;
   const [copied, setCopied] = useState(false);
 
@@ -48,41 +38,16 @@ export function ItemCard({ item }: { item: ItemForCard }) {
       onClick={() => openDrawer(item.id)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer(item.id); } }}
     >
-      <div
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
-        style={{ backgroundColor: `${color}20`, color }}
-      >
-        <Icon className="h-4 w-4" />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium truncate">{item.title}</span>
-          {item.isFavorite && <Star className="h-3 w-3 shrink-0 fill-yellow-400 text-yellow-400" />}
-          {item.isPinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" />}
-        </div>
-
-        {item.description && (
-          <p className="text-sm text-muted-foreground line-clamp-1 mb-2">{item.description}</p>
-        )}
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className="rounded px-1.5 py-0.5 text-xs font-medium"
-            style={{ backgroundColor: `${color}20`, color }}
-          >
-            {item.itemType.name}
-          </span>
-          {item.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
+      <ItemCardBody
+        icon={Icon}
+        color={color}
+        title={item.title}
+        description={item.description}
+        isFavorite={item.isFavorite}
+        isPinned={item.isPinned}
+        typeName={item.itemType.name}
+        tags={item.tags}
+      />
 
       <div className="shrink-0 flex flex-col items-end gap-2">
         <span className="text-xs text-muted-foreground">{formatDateCompact(item.createdAt)}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
@@ -13,49 +13,52 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { FieldLabel } from '@/components/shared/FieldLabel';
 
-interface NewCollectionDialogProps {
+interface CollectionFormDialogProps {
   open: boolean;
   onClose: () => void;
+  collection?: { id: string; name: string; description: string | null };
 }
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
-  return (
-    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
-      {children}
-      {required && <span className="text-destructive ml-0.5">*</span>}
-    </label>
-  );
-}
-
-export function NewCollectionDialog({ open, onClose }: NewCollectionDialogProps) {
+export function CollectionFormDialog({ open, onClose, collection }: CollectionFormDialogProps) {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const isEdit = !!collection;
+  const [name, setName] = useState(collection?.name ?? '');
+  const [description, setDescription] = useState(collection?.description ?? '');
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setName(collection?.name ?? '');
+      setDescription(collection?.description ?? '');
+    }
+  }, [open, collection]);
+
   function handleClose() {
-    setName('');
-    setDescription('');
+    if (!isEdit) {
+      setName('');
+      setDescription('');
+    }
     onClose();
   }
 
   async function handleSubmit() {
     setSaving(true);
     try {
-      const res = await fetch('/api/collections', {
-        method: 'POST',
+      const res = await fetch(isEdit ? `/api/collections/${collection.id}` : '/api/collections', {
+        method: isEdit ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description: description || null }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error ?? 'Failed to create collection');
+        toast.error(data.error ?? `Failed to ${isEdit ? 'update' : 'create'} collection`);
         return;
       }
 
-      toast.success('Collection created');
+      toast.success(`Collection ${isEdit ? 'updated' : 'created'}`);
       handleClose();
       router.refresh();
     } finally {
@@ -67,7 +70,7 @@ export function NewCollectionDialog({ open, onClose }: NewCollectionDialogProps)
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Collection</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Collection' : 'New Collection'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -96,7 +99,7 @@ export function NewCollectionDialog({ open, onClose }: NewCollectionDialogProps)
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={saving || !name.trim()}>
-            {saving ? 'Creating…' : 'Create'}
+            {saving ? (isEdit ? 'Saving…' : 'Creating…') : isEdit ? 'Save' : 'Create'}
           </Button>
         </DialogFooter>
       </DialogContent>

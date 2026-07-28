@@ -5,17 +5,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Pencil, Trash2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { EditCollectionDialog } from './EditCollectionDialog';
+import { ConfirmDeleteDialog } from '@/components/shared/ConfirmDeleteDialog';
+import { CollectionFormDialog } from '@/components/shared/CollectionFormDialog';
 import { toggleFavoriteCollection } from '@/actions/collections';
 
 interface CollectionActionsProps {
@@ -95,33 +86,20 @@ export function CollectionActions({ collection }: CollectionActionsProps) {
         </Button>
       </div>
 
-      <EditCollectionDialog
+      <CollectionFormDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
         collection={collection}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete &ldquo;{collection.name}&rdquo;?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove the collection and all its item memberships. Items themselves will
-              not be deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleting ? 'Deleting…' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={`Delete "${collection.name}"?`}
+        description="This will remove the collection and all its item memberships. Items themselves will not be deleted."
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

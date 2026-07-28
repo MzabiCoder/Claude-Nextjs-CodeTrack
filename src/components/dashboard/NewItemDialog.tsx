@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon, Lock, Check, X } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, Link, File as FileIcon, Image as ImageIcon, Lock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateAutoTags } from '@/actions/ai';
 import {
   Dialog,
   DialogContent,
@@ -23,11 +22,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { LANGUAGES } from '@/lib/constants/languages';
+import {
+  CONTENT_TYPES,
+  LANGUAGE_TYPES,
+  CODE_EDITOR_TYPES,
+  MARKDOWN_EDITOR_TYPES,
+  FILE_TYPES,
+} from '@/lib/constants/item-types';
 import { createItem } from '@/actions/items';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { FileUpload, type UploadResult } from '@/components/shared/FileUpload';
 import { CollectionPicker } from '@/components/shared/CollectionPicker';
+import { FieldLabel } from '@/components/shared/FieldLabel';
+import { SuggestedTagsField } from '@/components/shared/SuggestedTagsField';
+import { useSuggestedTags } from '@/hooks/useSuggestedTags';
 
 type TypeName = 'snippet' | 'prompt' | 'command' | 'note' | 'link' | 'file' | 'image';
 
@@ -41,18 +50,45 @@ const TYPES: { name: TypeName; label: string; icon: LucideIcon; color: string }[
   { name: 'image', label: 'Image', icon: ImageIcon, color: '#ec4899' },
 ];
 
-const CONTENT_TYPES = new Set<TypeName>(['snippet', 'prompt', 'command', 'note']);
-const LANGUAGE_TYPES = new Set<TypeName>(['snippet', 'command']);
-const CODE_EDITOR_TYPES = new Set<TypeName>(['snippet', 'command']);
-const MARKDOWN_EDITOR_TYPES = new Set<TypeName>(['note', 'prompt']);
-const FILE_UPLOAD_TYPES = new Set<TypeName>(['file', 'image']);
+interface TypeSelectorProps {
+  selectedType: TypeName;
+  isPro: boolean;
+  onSelect: (type: TypeName) => void;
+  onLockedClick: () => void;
+}
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function TypeSelector({ selectedType, isPro, onSelect, onLockedClick }: TypeSelectorProps) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
-      {children}
-      {required && <span className="text-destructive ml-0.5">*</span>}
-    </label>
+    <div className="flex gap-2 flex-wrap">
+      {TYPES.map(({ name, label, icon: Icon, color }) => {
+        const locked = !isPro && (name === 'file' || name === 'image');
+        return (
+          <button
+            key={name}
+            type="button"
+            aria-pressed={selectedType === name}
+            title={locked ? 'Pro feature — click to upgrade' : undefined}
+            onClick={() => (locked ? onLockedClick() : onSelect(name))}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
+              locked
+                ? 'border-border bg-transparent text-muted-foreground opacity-40 cursor-pointer hover:opacity-60'
+                : selectedType === name
+                ? 'border-transparent'
+                : 'border-border bg-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            style={
+              !locked && selectedType === name
+                ? { backgroundColor: `${color}20`, color, borderColor: `${color}40` }
+                : {}
+            }
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+            {locked && <Lock className="h-3 w-3 ml-auto" />}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -74,8 +110,7 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [collectionIds, setCollectionIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
-  const [loadingTags, setLoadingTags] = useState(false);
+  const suggestedTags = useSuggestedTags();
 
   function handleClose() {
     setSelectedType('snippet');
@@ -87,40 +122,8 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
     setTags('');
     setUploadResult(null);
     setCollectionIds([]);
-    setSuggestedTags([]);
+    suggestedTags.reset();
     onClose();
-  }
-
-  async function handleSuggestTags() {
-    if (!title.trim()) return;
-    setLoadingTags(true);
-    setSuggestedTags([]);
-    try {
-      const result = await generateAutoTags({ title, content: content || null, typeName: selectedType });
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
-      const existingTags = tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
-      setSuggestedTags(result.tags.filter((t) => !existingTags.includes(t)));
-    } finally {
-      setLoadingTags(false);
-    }
-  }
-
-  function acceptSuggestedTag(tag: string) {
-    setTags((prev) => {
-      const parts = prev.split(',').map((t) => t.trim()).filter(Boolean);
-      if (!parts.map((t) => t.toLowerCase()).includes(tag.toLowerCase())) {
-        parts.push(tag);
-      }
-      return parts.join(', ');
-    });
-    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
-  }
-
-  function rejectSuggestedTag(tag: string) {
-    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
   }
 
   function handleTypeChange(type: TypeName) {
@@ -166,7 +169,7 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
   const showContent = CONTENT_TYPES.has(selectedType);
   const showLanguage = LANGUAGE_TYPES.has(selectedType);
   const showUrl = selectedType === 'link';
-  const showFileUpload = FILE_UPLOAD_TYPES.has(selectedType);
+  const showFileUpload = FILE_TYPES.has(selectedType);
   const useCodeEditor = CODE_EDITOR_TYPES.has(selectedType);
   const useMarkdownEditor = MARKDOWN_EDITOR_TYPES.has(selectedType);
   const canSubmit =
@@ -184,43 +187,12 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
         <div className="space-y-4">
           <div>
             <FieldLabel>Type</FieldLabel>
-            <div className="flex gap-2 flex-wrap">
-              {TYPES.map(({ name, label, icon: Icon, color }) => {
-                const locked = !isPro && (name === 'file' || name === 'image');
-                return (
-                  <button
-                    key={name}
-                    type="button"
-                    aria-pressed={selectedType === name}
-                    title={locked ? 'Pro feature — click to upgrade' : undefined}
-                    onClick={() => {
-                      if (locked) {
-                        handleClose();
-                        router.push('/upgrade');
-                      } else {
-                        handleTypeChange(name);
-                      }
-                    }}
-                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors border ${
-                      locked
-                        ? 'border-border bg-transparent text-muted-foreground opacity-40 cursor-pointer hover:opacity-60'
-                        : selectedType === name
-                        ? 'border-transparent'
-                        : 'border-border bg-transparent text-muted-foreground hover:text-foreground'
-                    }`}
-                    style={
-                      !locked && selectedType === name
-                        ? { backgroundColor: `${color}20`, color, borderColor: `${color}40` }
-                        : {}
-                    }
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {label}
-                    {locked && <Lock className="h-3 w-3 ml-auto" />}
-                  </button>
-                );
-              })}
-            </div>
+            <TypeSelector
+              selectedType={selectedType}
+              isPro={isPro}
+              onSelect={handleTypeChange}
+              onLockedClick={() => { handleClose(); router.push('/upgrade'); }}
+            />
           </div>
 
           <div>
@@ -314,56 +286,19 @@ export function NewItemDialog({ open, onClose, isPro = false }: NewItemDialogPro
           )}
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <FieldLabel>Tags</FieldLabel>
-              {isPro && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-                  onClick={handleSuggestTags}
-                  disabled={loadingTags || !title.trim()}
-                >
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  {loadingTags ? 'Suggesting…' : 'Suggest Tags'}
-                </Button>
-              )}
-            </div>
-            <Input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="react, hooks, typescript"
+            <SuggestedTagsField
+              tags={tags}
+              onTagsChange={setTags}
+              isPro={isPro}
+              canSuggest={title.trim() !== ''}
+              suggestedTags={suggestedTags.suggestedTags}
+              loadingTags={suggestedTags.loading}
+              onSuggestTags={() =>
+                suggestedTags.suggest({ title, content, typeName: selectedType, currentTags: tags })
+              }
+              onAcceptTag={(tag) => suggestedTags.accept(tag, tags, setTags)}
+              onRejectTag={suggestedTags.reject}
             />
-            <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
-            {suggestedTags.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {suggestedTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => acceptSuggestedTag(tag)}
-                      className="hover:text-green-400 transition-colors"
-                      aria-label={`Accept tag ${tag}`}
-                    >
-                      <Check className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => rejectSuggestedTag(tag)}
-                      className="hover:text-destructive transition-colors"
-                      aria-label={`Reject tag ${tag}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           <div>

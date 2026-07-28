@@ -14,20 +14,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { updateItemBasic } from '@/actions/items';
+import { FieldLabel } from '@/components/shared/FieldLabel';
 
 interface EditItemDialogProps {
   open: boolean;
   onClose: () => void;
   item: { id: string; title: string; description: string | null; tags: string[] };
-}
-
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
-  return (
-    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">
-      {children}
-      {required && <span className="text-destructive ml-0.5">*</span>}
-    </label>
-  );
 }
 
 export function EditItemDialog({ open, onClose, item }: EditItemDialogProps) {

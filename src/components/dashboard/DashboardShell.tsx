@@ -3,10 +3,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { TopBar } from '@/components/dashboard/TopBar';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-import { ItemDrawer } from '@/components/dashboard/ItemDrawer';
+import { ItemDrawer } from '@/components/dashboard/item-drawer/ItemDrawer';
 import { ItemDrawerContext } from '@/components/dashboard/ItemDrawerContext';
 import { NewItemDialog } from '@/components/dashboard/NewItemDialog';
-import { NewCollectionDialog } from '@/components/dashboard/NewCollectionDialog';
+import { CollectionFormDialog } from '@/components/shared/CollectionFormDialog';
 import { CommandPalette, type CommandPaletteRef } from '@/components/dashboard/CommandPalette';
 import { EditorPreferencesProvider } from '@/context/EditorPreferencesContext';
 import type { SidebarData } from '@/lib/db/sidebar';
@@ -70,7 +70,7 @@ export function DashboardShell({ children, sidebarData, user, searchData, editor
         isPro={user?.isPro ?? false}
       />
       <NewItemDialog open={newItemOpen} onClose={() => setNewItemOpen(false)} isPro={user?.isPro ?? false} />
-      <NewCollectionDialog open={newCollectionOpen} onClose={() => setNewCollectionOpen(false)} />
+      <CollectionFormDialog open={newCollectionOpen} onClose={() => setNewCollectionOpen(false)} />
       <CommandPalette
         ref={paletteRef}
         searchData={searchData}

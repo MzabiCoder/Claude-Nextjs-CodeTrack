@@ -3,34 +3,19 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import {
-  Code, Sparkles, Terminal, StickyNote, File, Image, Link,
-  MoreHorizontal, Pencil, Trash2, Star,
-} from 'lucide-react';
-import { type LucideIcon } from 'lucide-react';
+import { Code, MoreHorizontal, Pencil, Trash2, Star } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { ConfirmDeleteDialog } from '@/components/shared/ConfirmDeleteDialog';
+import { ItemCardBody } from '@/components/shared/ItemCardBody';
 import { EditItemDialog } from './EditItemDialog';
 import { toggleFavoriteItem } from '@/actions/items';
 import { type ItemForCard } from '@/lib/db/items';
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code, Sparkles, Terminal, StickyNote, File, Image, Link,
-};
+import { ITEM_TYPE_ICON_MAP } from '@/lib/constants/item-types';
 
 interface CollectionItemCardProps {
   item: ItemForCard;
@@ -44,7 +29,7 @@ export function CollectionItemCard({ item, collectionId }: CollectionItemCardPro
   const [removing, setRemoving] = useState(false);
   const [isFavorite, setIsFavorite] = useState(item.isFavorite);
 
-  const Icon = ICON_MAP[item.itemType.icon] ?? Code;
+  const Icon = ITEM_TYPE_ICON_MAP[item.itemType.icon] ?? Code;
   const color = item.itemType.color;
 
   async function handleFavorite() {
@@ -81,40 +66,15 @@ export function CollectionItemCard({ item, collectionId }: CollectionItemCardPro
         className="relative group flex items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors"
         style={{ borderLeftColor: color }}
       >
-        <div
-          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
-          style={{ backgroundColor: `${color}20`, color }}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium truncate">{item.title}</span>
-            {isFavorite && <Star className="h-3 w-3 shrink-0 text-yellow-400 fill-yellow-400" />}
-          </div>
-
-          {item.description && (
-            <p className="text-sm text-muted-foreground line-clamp-1 mb-2">{item.description}</p>
-          )}
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className="rounded px-1.5 py-0.5 text-xs font-medium"
-              style={{ backgroundColor: `${color}20`, color }}
-            >
-              {item.itemType.name}
-            </span>
-            {item.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded px-1.5 py-0.5 text-xs bg-muted text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
+        <ItemCardBody
+          icon={Icon}
+          color={color}
+          title={item.title}
+          description={item.description}
+          isFavorite={isFavorite}
+          typeName={item.itemType.name}
+          tags={item.tags}
+        />
 
         <div
           className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -154,26 +114,16 @@ export function CollectionItemCard({ item, collectionId }: CollectionItemCardPro
         item={{ id: item.id, title: item.title, description: item.description, tags: item.tags }}
       />
 
-      <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove &ldquo;{item.title}&rdquo;?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This removes the item from this collection. The item itself will not be deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={removing}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleRemove}
-              disabled={removing}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {removing ? 'Removing…' : 'Remove'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={removeOpen}
+        onOpenChange={setRemoveOpen}
+        title={`Remove "${item.title}"?`}
+        description="This removes the item from this collection. The item itself will not be deleted."
+        confirmLabel="Remove"
+        loadingLabel="Removing…"
+        loading={removing}
+        onConfirm={handleRemove}
+      />
     </>
   );
 }

@@ -2,8 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Folder, Star } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Code, Folder, Star } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -14,16 +13,7 @@ import {
 import type { FavoritesData, FavoriteItem, FavoriteCollection } from '@/lib/db/favorites';
 import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
 import { formatDateCompact } from '@/lib/format';
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link,
-};
+import { ITEM_TYPE_ICON_MAP } from '@/lib/constants/item-types';
 
 type ItemSortKey = 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc' | 'type-asc';
 type CollectionSortKey = 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc';
@@ -98,7 +88,7 @@ export function FavoritesList({ data }: { data: FavoritesData }) {
           </div>
           <div className="divide-y divide-border border border-border rounded-md overflow-hidden">
             {sortedItems.map((item) => {
-              const Icon = ICON_MAP[item.itemType.icon] ?? Code;
+              const Icon = ITEM_TYPE_ICON_MAP[item.itemType.icon] ?? Code;
               const color = item.itemType.color;
               return (
                 <button
