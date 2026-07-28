@@ -101,7 +101,7 @@ function DrawerSkeleton() {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+    <h3 className="text-sm font-medium text-muted-foreground mb-1.5">
       {children}
     </h3>
   );
@@ -118,6 +118,7 @@ interface DrawerActionBarProps {
   isFileType: boolean;
   fileUrl: string | null;
   itemId: string;
+  copyText: string | null;
   onSave: () => void;
   onCancel: () => void;
   onEdit: () => void;
@@ -128,9 +129,17 @@ interface DrawerActionBarProps {
 
 function DrawerActionBar({
   isEditing, saving, isTitleEmpty, isFavorite, isPinned,
-  isFileType, fileUrl, itemId,
+  isFileType, fileUrl, itemId, copyText,
   onSave, onCancel, onEdit, onDeleteClick, onFavoriteClick, onPinClick,
 }: DrawerActionBarProps) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    if (!copyText) return;
+    await navigator.clipboard.writeText(copyText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
   return (
     <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-border">
       {isEditing ? (
@@ -170,9 +179,9 @@ function DrawerActionBar({
             <Pin className={`h-4 w-4 ${isPinned ? 'fill-blue-400' : ''}`} />
             Pin
           </Button>
-          <Button variant="ghost" size="sm">
-            <Copy className="h-4 w-4" />
-            Copy
+          <Button variant="ghost" size="sm" onClick={handleCopy} disabled={!copyText}>
+            <Copy className={`h-4 w-4 ${copied ? 'text-green-400' : ''}`} />
+            {copied ? 'Copied!' : 'Copy'}
           </Button>
           {isFileType && fileUrl && (
             <a
@@ -739,6 +748,7 @@ export function ItemDrawer({ open, onClose, itemId, isPro = false }: ItemDrawerP
                 isFileType={isFileType}
                 fileUrl={item.fileUrl}
                 itemId={item.id}
+                copyText={item.content ?? item.url ?? null}
                 onSave={handleSave}
                 onCancel={() => { setIsEditing(false); setSuggestedTags([]); }}
                 onEdit={enterEditMode}

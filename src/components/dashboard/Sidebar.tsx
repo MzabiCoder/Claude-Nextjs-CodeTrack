@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Code, Sparkles, Terminal, StickyNote, File, Image as ImageIcon,
   Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, ChevronDown, LogOut, User, Settings,
@@ -129,6 +129,7 @@ function SidebarContent({
   user: SessionUser | null;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
@@ -144,15 +145,20 @@ function SidebarContent({
         <nav className="space-y-0.5">
           {sidebarData.itemTypes.map((type) => {
             const Icon = TYPE_ICONS[type.name] ?? Code;
+            const slug = TYPE_SLUGS[type.name] ?? `${type.name}s`;
+            const isActive = pathname === `/items/${slug}`;
             return (
               <Link
                 key={type.id}
-                href={`/items/${TYPE_SLUGS[type.name] ?? `${type.name}s`}`}
+                href={`/items/${slug}`}
                 className={cn(
-                  'flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
+                  'flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors',
+                  isActive
+                    ? 'bg-accent text-foreground font-medium'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                   collapsed && 'justify-center px-0'
                 )}
-                title={collapsed ? (TYPE_SLUGS[type.name] ?? `${type.name}s`) : undefined}
+                title={collapsed ? slug : undefined}
               >
                 <Icon
                   className="h-4 w-4 shrink-0"

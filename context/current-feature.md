@@ -1,16 +1,27 @@
-# Current Feature
+# Current Feature: UI Polish
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Add active/highlight state to sidebar links based on current route (`usePathname`)
+- Add GitHub OAuth button to the register page (mirrors sign-in)
+- Fix dead Copy button in drawer action bar (no `onClick` wired up)
+- Bump drawer section labels from `text-xs uppercase` to `text-sm` for readability
+- Add empty state CTA (New Item button) on `/items/[type]` pages when there are no items
+- Make the Back link context-aware (use router history instead of hardcoded "← Dashboard")
 
 ## Notes
 
-<!-- Add notes here -->
+Findings from Playwright UI review on 2026-07-28. Priority order:
+1. Sidebar active state — most impactful for navigation clarity
+2. Register GitHub button — blocks OAuth signup flow
+3. Drawer section label font size — `DESCRIPTION`, `CONTENT`, `TAGS`, `DETAILS` labels are `text-xs uppercase tracking-wider`, stacked with `text-xs` metadata in DETAILS section makes it feel cramped
+4. Copy button — dead affordance in drawer action bar
+5. Empty state CTA — `/items/[type]` shows plain "No X yet." with no action
+6. Back link — hardcoded to Dashboard regardless of where user came from
 
 ## History
 

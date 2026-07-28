@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
-import { Star, ArrowLeft, Code, Sparkles, Terminal, StickyNote, File, Image, Link as LinkIcon } from 'lucide-react';
+import { Star, Code, Sparkles, Terminal, StickyNote, File, Image, Link as LinkIcon } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
-import NextLink from 'next/link';
 import { auth } from '@/auth';
+import { BackButton } from '@/components/shared/BackButton';
 import { getCollectionById } from '@/lib/db/collections';
 import { COLLECTIONS_PER_PAGE } from '@/lib/constants';
 import { type ItemForCard } from '@/lib/db/items-queries';
@@ -93,13 +93,7 @@ export default async function CollectionPage({
   return (
     <div className="space-y-6">
       <div>
-        <NextLink
-          href="/collections"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 group"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-          Back to Collections
-        </NextLink>
+        <BackButton />
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">

@@ -1,6 +1,4 @@
 import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { auth } from '@/auth';
 import { getItemsByType } from '@/lib/db/items';
 import { ITEMS_PER_PAGE } from '@/lib/constants';
@@ -9,6 +7,8 @@ import { ItemCard } from '@/components/dashboard/ItemCard';
 import { ImageCard } from '@/components/dashboard/ImageCard';
 import { FileRow } from '@/components/dashboard/FileRow';
 import { Pagination } from '@/components/shared/Pagination';
+import { BackButton } from '@/components/shared/BackButton';
+import { EmptyTypeState } from '@/components/shared/EmptyTypeState';
 
 const VALID_TYPES = new Set([
   'snippets', 'prompts', 'commands', 'notes', 'files', 'images', 'links',
@@ -51,13 +51,7 @@ export default async function ItemsTypePage({
   return (
     <div className="space-y-6">
       <div>
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 group"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-          Back to Dashboard
-        </Link>
+        <BackButton />
         <h1 className="text-2xl font-bold">{capitalize(type)}</h1>
         <p className="text-sm text-muted-foreground mt-1">
           {totalCount} {totalCount === 1 ? 'item' : 'items'}
@@ -65,7 +59,7 @@ export default async function ItemsTypePage({
       </div>
 
       {totalCount === 0 ? (
-        <p className="text-muted-foreground">No {type} yet.</p>
+        <EmptyTypeState type={type} />
       ) : isFileList ? (
         <div className="rounded-lg border border-border overflow-hidden divide-y divide-border">
           {items.map((item) => (

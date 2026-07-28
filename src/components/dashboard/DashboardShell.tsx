@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { TopBar } from '@/components/dashboard/TopBar';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { ItemDrawer } from '@/components/dashboard/ItemDrawer';
@@ -35,6 +35,12 @@ export function DashboardShell({ children, sidebarData, user, searchData, editor
   const [newItemOpen, setNewItemOpen] = useState(false);
   const [newCollectionOpen, setNewCollectionOpen] = useState(false);
   const paletteRef = useRef<CommandPaletteRef>(null);
+
+  useEffect(() => {
+    function handler() { setNewItemOpen(true); }
+    window.addEventListener('open-new-item-dialog', handler);
+    return () => window.removeEventListener('open-new-item-dialog', handler);
+  }, []);
 
   return (
     <EditorPreferencesProvider initial={editorPreferences ?? DEFAULT_EDITOR_PREFERENCES}>
