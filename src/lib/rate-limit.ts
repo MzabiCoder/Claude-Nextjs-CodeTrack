@@ -27,6 +27,11 @@ export const rateLimiters = {
     limiter: Ratelimit.slidingWindow(5, "15 m"),
     prefix: "rl:reset-password",
   }),
+  aiAutoTag: new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(20, "1 h"),
+    prefix: "rl:ai-auto-tag",
+  }),
 };
 
 export function getIP(req: Request): string {

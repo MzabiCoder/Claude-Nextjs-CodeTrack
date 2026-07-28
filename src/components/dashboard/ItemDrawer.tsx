@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Star, Pin, Copy, Pencil, Trash2, Check, X, Download } from 'lucide-react';
+import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, Star, Pin, Copy, Pencil, Trash2, Check, X, Download, Loader2 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import { LANGUAGES } from '@/lib/constants/languages';
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from '@/actions/items';
+import { generateAutoTags } from '@/actions/ai';
 import { CodeEditor } from '@/components/shared/CodeEditor';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { formatBytes, formatDateLong } from '@/lib/format';
@@ -347,12 +348,19 @@ interface DrawerEditBodyProps {
   updateField: (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onContentChange: (v: string) => void;
   onLanguageChange: (v: string) => void;
+  isPro: boolean;
+  suggestedTags: string[];
+  loadingTags: boolean;
+  onSuggestTags: () => void;
+  onAcceptTag: (tag: string) => void;
+  onRejectTag: (tag: string) => void;
 }
 
 function DrawerEditBody({
   formData, typeName, showContent, showLanguage, showUrl,
   useCodeEditor, useMarkdownEditor, selectedCollectionIds, onCollectionChange,
   createdAt, updatedAt, updateField, onContentChange, onLanguageChange,
+  isPro, suggestedTags, loadingTags, onSuggestTags, onAcceptTag, onRejectTag,
 }: DrawerEditBodyProps) {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-5">
@@ -424,9 +432,56 @@ function DrawerEditBody({
       )}
 
       <section>
-        <FieldLabel>Tags</FieldLabel>
+        <div className="flex items-center justify-between mb-1.5">
+          <FieldLabel>Tags</FieldLabel>
+          {isPro && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={onSuggestTags}
+              disabled={loadingTags || !formData.title.trim()}
+            >
+              {loadingTags ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3 mr-1" />
+              )}
+              {loadingTags ? 'Suggesting…' : 'Suggest Tags'}
+            </Button>
+          )}
+        </div>
         <Input value={formData.tags} onChange={updateField('tags')} placeholder="react, hooks, typescript" />
         <p className="mt-1 text-xs text-muted-foreground">Comma-separated</p>
+        {suggestedTags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {suggestedTags.map((tag) => (
+              <span
+                key={tag}
+                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => onAcceptTag(tag)}
+                  className="hover:text-green-400 transition-colors"
+                  aria-label={`Accept tag ${tag}`}
+                >
+                  <Check className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRejectTag(tag)}
+                  className="hover:text-destructive transition-colors"
+                  aria-label={`Reject tag ${tag}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </section>
 
       <section>
@@ -457,9 +512,10 @@ interface ItemDrawerProps {
   open: boolean;
   onClose: () => void;
   itemId: string | null;
+  isPro?: boolean;
 }
 
-export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
+export function ItemDrawer({ open, onClose, itemId, isPro = false }: ItemDrawerProps) {
   const router = useRouter();
   const [item, setItem] = useState<ItemDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -471,6 +527,8 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   const [formData, setFormData] = useState<FormData>({
     title: '', description: '', content: '', url: '', language: '', tags: '',
   });
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
 
   useEffect(() => {
     if (!open || !itemId) return;
@@ -486,7 +544,44 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
   function handleClose() {
     setIsEditing(false);
     setDeleteOpen(false);
+    setSuggestedTags([]);
     onClose();
+  }
+
+  async function handleSuggestTags() {
+    if (!item) return;
+    setLoadingTags(true);
+    setSuggestedTags([]);
+    try {
+      const result = await generateAutoTags({
+        title: formData.title,
+        content: formData.content || null,
+        typeName: item.itemType.name,
+      });
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      const existingTags = formData.tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+      setSuggestedTags(result.tags.filter((t) => !existingTags.includes(t)));
+    } finally {
+      setLoadingTags(false);
+    }
+  }
+
+  function acceptSuggestedTag(tag: string) {
+    setFormData((prev) => {
+      const parts = prev.tags.split(',').map((t) => t.trim()).filter(Boolean);
+      if (!parts.map((t) => t.toLowerCase()).includes(tag.toLowerCase())) {
+        parts.push(tag);
+      }
+      return { ...prev, tags: parts.join(', ') };
+    });
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
+  }
+
+  function rejectSuggestedTag(tag: string) {
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
   }
 
   async function handleFavorite() {
@@ -645,7 +740,7 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                 fileUrl={item.fileUrl}
                 itemId={item.id}
                 onSave={handleSave}
-                onCancel={() => setIsEditing(false)}
+                onCancel={() => { setIsEditing(false); setSuggestedTags([]); }}
                 onEdit={enterEditMode}
                 onDeleteClick={() => setDeleteOpen(true)}
                 onFavoriteClick={handleFavorite}
@@ -668,6 +763,12 @@ export function ItemDrawer({ open, onClose, itemId }: ItemDrawerProps) {
                   updateField={updateField}
                   onContentChange={(v) => setFormData((prev) => ({ ...prev, content: v }))}
                   onLanguageChange={(v) => setFormData((prev) => ({ ...prev, language: v }))}
+                  isPro={isPro}
+                  suggestedTags={suggestedTags}
+                  loadingTags={loadingTags}
+                  onSuggestTags={handleSuggestTags}
+                  onAcceptTag={acceptSuggestedTag}
+                  onRejectTag={rejectSuggestedTag}
                 />
               ) : (
                 <DrawerViewBody
