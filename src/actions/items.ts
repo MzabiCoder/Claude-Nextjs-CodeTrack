@@ -1,7 +1,10 @@
 'use server';
 
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { getAuthUserId } from '@/lib/auth-helpers';
+import { parseOrError } from '@/lib/validation';
+import { toggleOwnedBooleanField } from '@/lib/db/utils';
+import type { ActionResult } from '@/types/actions';
 import { updateItemById, updateItemBasicById, deleteItemById, createItemInDb, getItemFileUrl, type ItemDetail } from '@/lib/db/items';
 import { deleteObject, keyFromPublicUrl } from '@/lib/r2';
 import { getUserIsPro, getUserItemCount, FREE_ITEM_LIMIT, PRO_ONLY_TYPES } from '@/lib/gates';
@@ -21,17 +24,16 @@ const createItemSchema = z.object({
 });
 
 export type CreateItemInput = z.infer<typeof createItemSchema>;
-type CreateItemResult = { success: true } | { success: false; error: string };
 
-export async function createItem(data: CreateItemInput): Promise<CreateItemResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
+export async function createItem(data: CreateItemInput): Promise<ActionResult> {
+  const userId = await getAuthUserId();
+  if (!userId) {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const parsed = createItemSchema.safeParse(data);
+  const parsed = parseOrError(createItemSchema, data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0].message };
+    return parsed;
   }
 
   if (parsed.data.typeName === 'link' && !parsed.data.url) {
@@ -41,18 +43,18 @@ export async function createItem(data: CreateItemInput): Promise<CreateItemResul
     return { success: false, error: 'File upload required' };
   }
 
-  const isPro = await getUserIsPro(session.user.id);
+  const isPro = await getUserIsPro(userId);
   if (PRO_ONLY_TYPES.has(parsed.data.typeName) && !isPro) {
     return { success: false, error: 'File and image uploads require a Pro subscription.' };
   }
   if (!isPro) {
-    const count = await getUserItemCount(session.user.id);
+    const count = await getUserItemCount(userId);
     if (count >= FREE_ITEM_LIMIT) {
       return { success: false, error: `Free plan is limited to ${FREE_ITEM_LIMIT} items. Upgrade to Pro for unlimited items.` };
     }
   }
 
-  const created = await createItemInDb(session.user.id, {
+  const created = await createItemInDb(userId, {
     typeName: parsed.data.typeName,
     title: parsed.data.title,
     description: parsed.data.description ?? null,
@@ -85,22 +87,18 @@ const updateItemSchema = z.object({
 
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
 
-type UpdateItemResult =
-  | { success: true; data: ItemDetail }
-  | { success: false; error: string };
-
-export async function updateItem(itemId: string, data: UpdateItemInput): Promise<UpdateItemResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
+export async function updateItem(itemId: string, data: UpdateItemInput): Promise<ActionResult<ItemDetail>> {
+  const userId = await getAuthUserId();
+  if (!userId) {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const parsed = updateItemSchema.safeParse(data);
+  const parsed = parseOrError(updateItemSchema, data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0].message };
+    return parsed;
   }
 
-  const updated = await updateItemById(session.user.id, itemId, {
+  const updated = await updateItemById(userId, itemId, {
     title: parsed.data.title,
     description: parsed.data.description ?? null,
     content: parsed.data.content ?? null,
@@ -117,17 +115,15 @@ export async function updateItem(itemId: string, data: UpdateItemInput): Promise
   return { success: true, data: updated };
 }
 
-type BasicResult = { success: true } | { success: false; error: string };
-
 export async function updateItemBasic(
   itemId: string,
   data: { title: string; description: string | null; tags: string[] }
-): Promise<BasicResult> {
-  const session = await auth();
-  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+): Promise<ActionResult> {
+  const userId = await getAuthUserId();
+  if (!userId) return { success: false, error: 'Unauthorized' };
   if (!data.title.trim()) return { success: false, error: 'Title is required' };
 
-  const updated = await updateItemBasicById(session.user.id, itemId, {
+  const updated = await updateItemBasicById(userId, itemId, {
     title: data.title.trim(),
     description: data.description,
     tags: data.tags,
@@ -138,57 +134,37 @@ export async function updateItemBasic(
 export async function toggleFavoriteItem(
   itemId: string
 ): Promise<{ success: true; isFavorite: boolean } | { success: false; error: string }> {
-  const session = await auth();
-  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+  const userId = await getAuthUserId();
+  if (!userId) return { success: false, error: 'Unauthorized' };
 
-  const { prisma } = await import('@/lib/prisma');
-  const item = await prisma.item.findFirst({
-    where: { id: itemId, userId: session.user.id },
-    select: { isFavorite: true },
-  });
-  if (!item) return { success: false, error: 'Item not found' };
+  const result = await toggleOwnedBooleanField('item', userId, itemId, 'isFavorite');
+  if (!result.found) return { success: false, error: 'Item not found' };
 
-  const updated = await prisma.item.update({
-    where: { id: itemId },
-    data: { isFavorite: !item.isFavorite },
-    select: { isFavorite: true },
-  });
-  return { success: true, isFavorite: updated.isFavorite };
+  return { success: true, isFavorite: result.value };
 }
 
 export async function toggleItemPin(
   itemId: string
 ): Promise<{ success: true; isPinned: boolean } | { success: false; error: string }> {
-  const session = await auth();
-  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+  const userId = await getAuthUserId();
+  if (!userId) return { success: false, error: 'Unauthorized' };
 
-  const { prisma } = await import('@/lib/prisma');
-  const item = await prisma.item.findFirst({
-    where: { id: itemId, userId: session.user.id },
-    select: { isPinned: true },
-  });
-  if (!item) return { success: false, error: 'Item not found' };
+  const result = await toggleOwnedBooleanField('item', userId, itemId, 'isPinned');
+  if (!result.found) return { success: false, error: 'Item not found' };
 
-  const updated = await prisma.item.update({
-    where: { id: itemId },
-    data: { isPinned: !item.isPinned },
-    select: { isPinned: true },
-  });
-  return { success: true, isPinned: updated.isPinned };
+  return { success: true, isPinned: result.value };
 }
 
-type DeleteItemResult = { success: true } | { success: false; error: string };
-
-export async function deleteItem(itemId: string): Promise<DeleteItemResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
+export async function deleteItem(itemId: string): Promise<ActionResult> {
+  const userId = await getAuthUserId();
+  if (!userId) {
     return { success: false, error: 'Unauthorized' };
   }
 
   // Fetch fileUrl before deletion for R2 cleanup
-  const fileUrl = await getItemFileUrl(session.user.id, itemId);
+  const fileUrl = await getItemFileUrl(userId, itemId);
 
-  const deleted = await deleteItemById(session.user.id, itemId);
+  const deleted = await deleteItemById(userId, itemId);
   if (!deleted) {
     return { success: false, error: 'Item not found' };
   }

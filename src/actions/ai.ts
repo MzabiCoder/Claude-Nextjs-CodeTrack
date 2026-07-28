@@ -1,7 +1,8 @@
 'use server';
 
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { getAuthUserId } from '@/lib/auth-helpers';
+import { parseOrError } from '@/lib/validation';
 import { getUserIsPro } from '@/lib/gates';
 import { openai, AI_MODEL } from '@/lib/openai';
 import { rateLimiters, checkRateLimit } from '@/lib/rate-limit';
@@ -20,19 +21,19 @@ export type GenerateAutoTagsResult =
 export async function generateAutoTags(
   data: GenerateAutoTagsInput
 ): Promise<GenerateAutoTagsResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const userId = await getAuthUserId();
+  if (!userId) {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const isPro = await getUserIsPro(session.user.id);
+  const isPro = await getUserIsPro(userId);
   if (!isPro) {
     return { success: false, error: 'AI features require a Pro subscription.' };
   }
 
   const { limited, retryAfter } = await checkRateLimit(
     rateLimiters.aiAutoTag,
-    session.user.id
+    userId
   );
   if (limited) {
     const minutes = Math.max(1, Math.ceil(retryAfter / 60));
@@ -42,9 +43,9 @@ export async function generateAutoTags(
     };
   }
 
-  const parsed = generateAutoTagsSchema.safeParse(data);
+  const parsed = parseOrError(generateAutoTagsSchema, data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0].message };
+    return parsed;
   }
 
   const { title, content, typeName } = parsed.data;

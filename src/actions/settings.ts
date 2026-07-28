@@ -1,8 +1,9 @@
 'use server';
 
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { getAuthUserId } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
+import type { ActionResult } from '@/types/actions';
 
 const editorPreferencesSchema = z.object({
   fontSize: z.number().int().min(8).max(32),
@@ -12,19 +13,17 @@ const editorPreferencesSchema = z.object({
   theme: z.enum(['vs-dark', 'monokai', 'github-dark']),
 });
 
-type SaveResult = { success: true } | { success: false; error: string };
-
 export async function saveEditorPreferences(
   data: z.infer<typeof editorPreferencesSchema>
-): Promise<SaveResult> {
-  const session = await auth();
-  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+): Promise<ActionResult> {
+  const userId = await getAuthUserId();
+  if (!userId) return { success: false, error: 'Unauthorized' };
 
   const parsed = editorPreferencesSchema.safeParse(data);
   if (!parsed.success) return { success: false, error: 'Invalid preferences' };
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: userId },
     data: { editorPreferences: parsed.data },
   });
 
