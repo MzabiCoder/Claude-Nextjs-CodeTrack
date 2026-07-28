@@ -433,3 +433,10 @@ Not Started
 - Drawer section labels (`FieldLabel`) changed from `text-xs font-semibold uppercase tracking-wider` to `text-sm font-medium` for improved readability
 - Empty state on `/items/[type]` replaced with `EmptyTypeState` component — shows "New Item" button that dispatches `open-new-item-dialog` custom event; `DashboardShell` listens and opens the dialog
 - Back links on `/items/[type]` and `/collections/[id]` replaced with `BackButton` client component using `router.back()` — label is "← Back" instead of hardcoded page names
+
+### 2026-07-28 — Actions Folder Dedup ✅ Completed
+- Added `getAuthUserId()` to `src/lib/auth-helpers.ts` — replaces the repeated `auth()` + `session?.user?.id` unauthorized-check boilerplate across all 4 files in `src/actions`
+- Added `parseOrError(schema, data)` to `src/lib/validation.ts` — replaces repeated Zod `safeParse` → first-issue-message mapping in `createItem`, `updateItem`, `generateAutoTags`
+- Added `ActionResult<T = void>` shared type in `src/types/actions.ts` — replaces 4 identical local `{ success: true } | { success: false; error: string }` type declarations (`CreateItemResult`, `BasicResult`, `DeleteItemResult` in `items.ts`, `SaveResult` in `settings.ts`); `UpdateItemResult` converted to `ActionResult<ItemDetail>`
+- Added `toggleOwnedBooleanField(model, userId, id, field)` to `src/lib/db/utils.ts` — generic find-then-flip helper replacing the identical `toggleFavoriteItem`/`toggleItemPin`/`toggleFavoriteCollection` logic (only the Prisma model and field name differed)
+- No behavior changes — all 105 existing unit tests pass unmodified, `npm run build` clean
