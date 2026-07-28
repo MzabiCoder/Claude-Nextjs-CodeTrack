@@ -413,3 +413,15 @@ Not Started
 - Dropdown positioned above the code editor so language is chosen before typing
 - Fixed security issue: `getItemsByType` now scoped to `userId` (items were previously unfiltered by user)
 - Moved `auth()` call in `/items/[type]/page.tsx` to apply to all types, not just Pro-only ones
+
+### 2026-07-28 — AI Auto-Tagging ✅ Completed
+- Installed `openai` npm package; created `src/lib/openai.ts` singleton with `AI_MODEL = 'gpt-5-nano'`
+- Created `generateAutoTags` server action (`src/actions/ai.ts`) — auth check, Pro gate, rate limit (20 req/hr per user via Upstash), Zod validation, OpenAI Responses API call
+- Used `client.responses.create()` with `text: { format: { type: 'json_object' } }` and `response.output_text` — Responses API required for gpt-5-nano (Chat Completions returns empty content)
+- Handles both `{"tags":[...]}` and `[...]` response formats; normalizes to lowercase; caps at 5 tags; truncates content to 2000 chars
+- Added `aiAutoTag` rate limiter to `src/lib/rate-limit.ts` (20 req/hr sliding window by userId)
+- Added "Suggest Tags" button (Sparkles icon, ghost variant) in Tags section of `NewItemDialog` and `ItemDrawer` edit mode — hidden for free users, enforced server-side too
+- Suggested tags render as purple badges below the tag input with per-tag accept (✓) and reject (✗) buttons; accepted tags merge into the comma-separated tag list
+- Threaded `isPro` prop from `DashboardShell` → `ItemDrawer`; `NewItemDialog` already received it
+- Added `scripts/set-pro.ts` dev utility to flip `isPro = true` in the dev database
+- 11 unit tests for `generateAutoTags` (auth, Pro gate, rate limit, both response formats, lowercase normalization, 5-tag cap, invalid JSON, service error, content truncation); 105 total passing
