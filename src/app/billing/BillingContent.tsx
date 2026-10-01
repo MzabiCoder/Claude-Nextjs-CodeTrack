@@ -52,7 +52,7 @@ export function BillingContent({ isPro, monthlyPriceId, yearlyPriceId }: Billing
     <div className="space-y-4">
       {success && (
         <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-500 flex items-center gap-2">
-          <Check className="h-4 w-4" /> You&apos;re now on DevStash Pro. Enjoy!
+          <Check className="h-4 w-4" /> You&apos;re now on DevCodeCave Pro. Enjoy!
         </div>
       )}
       {canceled && (
@@ -64,7 +64,7 @@ export function BillingContent({ isPro, monthlyPriceId, yearlyPriceId }: Billing
       <div className="rounded-lg border border-border bg-card p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-semibold">{isPro ? 'DevStash Pro' : 'DevStash Free'}</p>
+            <p className="font-semibold">{isPro ? 'DevCodeCave Pro' : 'DevCodeCave Free'}</p>
             <p className="text-sm text-muted-foreground">
               {isPro ? 'Unlimited items and all features' : '50 items · 3 collections'}
             </p>

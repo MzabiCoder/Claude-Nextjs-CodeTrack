@@ -23,7 +23,7 @@ async function main() {
   // Demo user
   console.log("\nDemo user:");
   const user = await prisma.user.findUnique({
-    where: { email: "demo@devstash.io" },
+    where: { email: "demo@devcodecave.io" },
     select: { id: true, email: true, name: true, isPro: true, emailVerified: true },
   });
   if (!user) {

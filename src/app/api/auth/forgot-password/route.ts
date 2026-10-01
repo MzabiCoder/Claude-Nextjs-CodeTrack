@@ -47,13 +47,13 @@ export async function POST(req: NextRequest) {
       const resetUrl = `${origin}/reset-password?token=${token}`;
 
       await resend.emails.send({
-        from: "DevStash <onboarding@resend.dev>",
+        from: "DevCodeCave <onboarding@resend.dev>",
         to: email,
-        subject: "Reset your DevStash password",
+        subject: "Reset your DevCodeCave password",
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
             <h2 style="margin:0 0 8px">Reset your password</h2>
-            <p style="color:#6b7280;margin:0 0 24px">Hi${user.name ? ` ${user.name}` : ""}, click the button below to reset your DevStash password. This link expires in 1 hour.</p>
+            <p style="color:#6b7280;margin:0 0 24px">Hi${user.name ? ` ${user.name}` : ""}, click the button below to reset your DevCodeCave password. This link expires in 1 hour.</p>
             <a href="${resetUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600">Reset password</a>
             <p style="color:#9ca3af;font-size:13px;margin:24px 0 0">Or copy this link: ${resetUrl}</p>
             <p style="color:#9ca3af;font-size:13px;margin:8px 0 0">If you didn't request this, you can safely ignore this email.</p>

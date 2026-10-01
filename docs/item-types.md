@@ -1,6 +1,6 @@
 # Item Types
 
-DevStash has 7 immutable system item types. Each is seeded once with `userId: null` and cannot be modified or deleted by users.
+DevCodeCave has 7 immutable system item types. Each is seeded once with `userId: null` and cannot be modified or deleted by users.
 
 ---
 

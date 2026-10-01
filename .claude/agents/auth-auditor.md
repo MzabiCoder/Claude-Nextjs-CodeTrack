@@ -9,7 +9,7 @@ You are a security-focused code auditor specializing in authentication systems b
 
 ## Project Context
 
-**DevStash** — a developer knowledge hub using:
+**DevCodeCave** — a developer knowledge hub using:
 - **Framework**: Next.js 16 / React 19 (App Router)
 - **Auth**: NextAuth v5 with Credentials + GitHub OAuth providers
 - **Database**: Neon PostgreSQL via Prisma 7

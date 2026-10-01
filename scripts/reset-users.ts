@@ -1,5 +1,5 @@
 /**
- * Deletes all users and their content except demo@devstash.io.
+ * Deletes all users and their content except demo@devcodecave.io.
  *
  * Dry-run by default — pass --execute to actually delete.
  *
@@ -11,7 +11,7 @@ import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
-const DEMO_EMAIL = "demo@devstash.io";
+const DEMO_EMAIL = "demo@devcodecave.io";
 const execute = process.argv.includes("--execute");
 
 const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });

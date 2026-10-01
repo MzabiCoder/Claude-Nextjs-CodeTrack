@@ -8,7 +8,9 @@ import {
   Link as LinkIcon, PanelLeftClose, PanelLeftOpen, Star, ChevronDown, LogOut, User, Settings,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { staggerContainerTight, staggerItem, tapSpring } from '@/components/motion/variants';
 import type { SidebarData } from '@/lib/db/sidebar';
 import type { SessionUser } from '@/components/dashboard/DashboardShell';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -48,12 +50,12 @@ function SidebarCollections({ collections }: { collections: SidebarData['collect
   const recent = collections.filter((c) => !c.isFavorite);
 
   return (
-    <div className="px-3 border-t border-border pt-3 flex-1">
+    <div className="flex-1 border-t border-border px-3 pt-4">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 px-2 mb-1.5 w-full group"
+        className="group mb-2 flex w-full items-center gap-1.5 px-2"
       >
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors group-hover:text-foreground">
           Collections
         </span>
         <ChevronDown
@@ -68,15 +70,15 @@ function SidebarCollections({ collections }: { collections: SidebarData['collect
         <>
           {favorites.length > 0 && (
             <div className="mb-3">
-              <p className="px-2 mb-1 text-xs text-muted-foreground">Favorites</p>
+              <p className="mb-1 px-2 text-[11px] font-medium text-muted-foreground/80">Favorites</p>
               <nav className="space-y-0.5">
                 {favorites.map((col) => (
                   <Link
                     key={col.id}
                     href={`/collections/${col.id}`}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    className="flex min-h-10 items-center gap-2.5 rounded-xl px-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:min-h-9"
                   >
-                    <Star className="h-3.5 w-3.5 shrink-0 text-yellow-400 fill-yellow-400" />
+                    <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
                     <span className="truncate flex-1">{col.name}</span>
                     <span className="text-xs tabular-nums text-muted-foreground">{col.itemCount}</span>
                   </Link>
@@ -87,16 +89,16 @@ function SidebarCollections({ collections }: { collections: SidebarData['collect
 
           {recent.length > 0 && (
             <div>
-              <p className="px-2 mb-1 text-xs text-muted-foreground">Recent</p>
+              <p className="mb-1 px-2 text-[11px] font-medium text-muted-foreground/80">Recent</p>
               <nav className="space-y-0.5">
                 {recent.map((col) => (
                   <Link
                     key={col.id}
                     href={`/collections/${col.id}`}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    className="flex min-h-10 items-center gap-2.5 rounded-xl px-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:min-h-9"
                   >
                     <span
-                      className="h-3.5 w-3.5 rounded-full shrink-0"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-inset ring-white/10"
                       style={{ backgroundColor: col.dominantColor }}
                     />
                     <span className="truncate flex-1">{col.name}</span>
@@ -109,7 +111,7 @@ function SidebarCollections({ collections }: { collections: SidebarData['collect
 
           <Link
             href="/collections"
-            className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="mt-1.5 flex items-center rounded-xl px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             View all collections →
           </Link>
@@ -136,63 +138,78 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Item Types */}
-      <div className="px-3 py-3">
+      <div className="px-3 py-4">
         {!collapsed && (
-          <p className="px-2 mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Types
           </p>
         )}
-        <nav className="space-y-0.5">
+        <motion.nav
+          variants={staggerContainerTight}
+          initial="hidden"
+          animate="visible"
+          className="space-y-1"
+        >
           {sidebarData.itemTypes.map((type) => {
             const Icon = TYPE_ICONS[type.name] ?? Code;
             const slug = TYPE_SLUGS[type.name] ?? `${type.name}s`;
             const isActive = pathname === `/items/${slug}`;
             return (
-              <Link
-                key={type.id}
-                href={`/items/${slug}`}
-                className={cn(
-                  'flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors',
-                  isActive
-                    ? 'bg-accent text-foreground font-medium'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent',
-                  collapsed && 'justify-center px-0'
-                )}
-                title={collapsed ? slug : undefined}
-              >
-                <Icon
-                  className="h-4 w-4 shrink-0"
-                  style={{ color: type.color }}
-                />
-                {!collapsed && (
-                  <>
-                    <span className="capitalize">{TYPE_SLUGS[type.name] ?? `${type.name}s`}</span>
-                    {(type.name === 'file' || type.name === 'image') && (
-                      <Badge className="h-4 px-1 text-[10px] font-semibold leading-none bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20">
-                        PRO
-                      </Badge>
-                    )}
-                    <span className="ml-auto text-xs tabular-nums text-muted-foreground">
-                      {type.count}
-                    </span>
-                  </>
-                )}
-              </Link>
+              <motion.div key={type.id} variants={staggerItem}>
+                <Link
+                  href={`/items/${slug}`}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'relative flex min-h-11 items-center gap-2.5 rounded-xl px-2.5 text-sm transition-colors md:min-h-9',
+                    isActive
+                      ? 'text-foreground font-medium'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                    collapsed && 'justify-center px-0'
+                  )}
+                  title={collapsed ? slug : undefined}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="sidebar-active-pill"
+                      transition={tapSpring}
+                      className="absolute inset-0 -z-10 rounded-xl border border-border bg-accent shadow-ambient"
+                    />
+                  )}
+                  <Icon
+                    className="h-[17px] w-[17px] shrink-0"
+                    style={{ color: type.color }}
+                    aria-hidden="true"
+                  />
+                  {!collapsed && (
+                    <>
+                      <span className="capitalize">{TYPE_SLUGS[type.name] ?? `${type.name}s`}</span>
+                      {(type.name === 'file' || type.name === 'image') && (
+                        <Badge className="h-4 border-0 bg-gradient-brand px-1 text-[9px] font-bold leading-none tracking-wide text-white">
+                          PRO
+                        </Badge>
+                      )}
+                      <span className="ml-auto text-xs tabular-nums text-muted-foreground">
+                        {type.count}
+                      </span>
+                    </>
+                  )}
+                </Link>
+              </motion.div>
             );
           })}
-        </nav>
+        </motion.nav>
       </div>
 
       {/* Collections */}
       {!collapsed && <SidebarCollections collections={sidebarData.collections} />}
 
       {/* User */}
-      <div className="mt-auto px-3 py-3 border-t border-border">
+      <div className="mt-auto border-t border-border px-3 py-3">
         {mounted ? (
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
-                'flex items-center gap-2.5 w-full rounded-md px-1 py-1 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'flex w-full min-h-11 items-center gap-2.5 rounded-xl px-1.5 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-10',
                 collapsed && 'justify-center px-0'
               )}
             >
@@ -262,8 +279,8 @@ export function Sidebar({ mobileOpen, onMobileClose, sidebarData, user }: Sideba
       {/* Desktop */}
       <aside
         className={cn(
-          'hidden md:flex flex-col border-r border-border bg-sidebar transition-all duration-200 shrink-0',
-          collapsed ? 'w-14' : 'w-56'
+          'hidden shrink-0 flex-col border-r border-border bg-sidebar/80 backdrop-blur-xl transition-[width] duration-300 ease-out md:flex',
+          collapsed ? 'w-16' : 'w-60 xl:w-64'
         )}
       >
         <div
@@ -275,7 +292,7 @@ export function Sidebar({ mobileOpen, onMobileClose, sidebarData, user }: Sideba
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="h-8 w-8 rounded-lg"
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
@@ -291,8 +308,8 @@ export function Sidebar({ mobileOpen, onMobileClose, sidebarData, user }: Sideba
 
       {/* Mobile Sheet */}
       <Sheet open={mobileOpen} onOpenChange={onMobileClose}>
-        <SheetContent side="left" className="w-56 p-0 bg-sidebar">
-          <div className="pt-10">
+        <SheetContent side="left" className="w-[17rem] border-r border-border bg-sidebar p-0">
+          <div className="pt-12">
             <SidebarContent sidebarData={sidebarData} user={user} />
           </div>
         </SheetContent>

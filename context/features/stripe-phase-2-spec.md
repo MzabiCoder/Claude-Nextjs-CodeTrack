@@ -79,7 +79,7 @@ if (!isPro) {
 ### `BillingContent` client component
 
 - Uses `NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY` and `NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY` (public env vars) to pass the selected price to the checkout handler — the server validates them against the private vars
-- `?success=true` → green banner ("You're now on DevStash Pro. Enjoy!")
+- `?success=true` → green banner ("You're now on DevCodeCave Pro. Enjoy!")
 - `?canceled=true` → neutral banner ("Checkout canceled. Your plan was not changed.")
 - Single `loading` state covers both checkout and portal button clicks
 
@@ -102,7 +102,7 @@ Add after the existing account action sections in `src/app/settings/page.tsx`:
   <div>
     <h2 className="font-semibold">Billing</h2>
     <p className="text-sm text-muted-foreground">
-      {user.isPro ? 'You are on DevStash Pro.' : 'You are on the free plan.'}
+      {user.isPro ? 'You are on DevCodeCave Pro.' : 'You are on the free plan.'}
     </p>
   </div>
   <Link href="/billing" className={buttonVariants({ variant: user.isPro ? 'outline' : 'default' })}>
@@ -163,7 +163,7 @@ stripe trigger customer.subscription.deleted
 - [ ] Click "Upgrade — $8/month" → redirects to Stripe Checkout
 - [ ] Complete with test card `4242 4242 4242 4242`, any future date, any CVC
 - [ ] After checkout: redirected to `/billing?success=true` → green banner visible
-- [ ] Reload `/billing` → banner gone, plan shows "DevStash Pro — Active"
+- [ ] Reload `/billing` → banner gone, plan shows "DevCodeCave Pro — Active"
 - [ ] Next page load: `session.user.isPro === true` (JWT re-synced from DB)
 
 **Pro user behavior**
@@ -175,7 +175,7 @@ stripe trigger customer.subscription.deleted
 - [ ] Click "Manage subscription" → Stripe portal opens
 - [ ] Cancel subscription in portal → returns to `/billing`
 - [ ] `stripe trigger customer.subscription.deleted` fires → DB sets `isPro: false`
-- [ ] Reload → plan shows "DevStash Free"
+- [ ] Reload → plan shows "DevCodeCave Free"
 
 **Yearly plan**
 - [ ] "Upgrade — $72/year" → Stripe Checkout with yearly price → completes successfully

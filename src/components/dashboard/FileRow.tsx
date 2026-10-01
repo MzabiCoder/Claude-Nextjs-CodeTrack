@@ -7,8 +7,10 @@ import { type ItemForCard } from '@/lib/db/items';
 import { formatBytes, formatDate } from '@/lib/format';
 import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
 import { buttonVariants } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { tapSpring } from '@/components/motion/variants';
 
-const FILE_COLOR = '#6b7280';
+const FILE_COLOR = '#6366f1';
 
 function iconForFile(fileName: string | null): LucideIcon {
   const ext = fileName?.split('.').pop()?.toLowerCase() ?? '';
@@ -34,21 +36,23 @@ export function FileRow({ item }: { item: ItemForCard }) {
   }
 
   return (
-    <div
-      className="flex items-center gap-3 px-4 py-3 bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+    <motion.div
+      whileHover={{ x: 2 }}
+      transition={tapSpring}
+      className="flex cursor-pointer items-center gap-3 bg-card/70 px-3 py-3 backdrop-blur-sm transition-colors hover:bg-accent/40 sm:px-4"
       onClick={() => openDrawer(item.id)}
     >
       {/* File type icon */}
       <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
-        style={{ backgroundColor: `${FILE_COLOR}20`, color: FILE_COLOR }}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+        style={{ backgroundColor: `${FILE_COLOR}1f`, color: FILE_COLOR }}
       >
-        <Icon className="h-4 w-4" />
+        <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
       </div>
 
       {/* Title + actual filename */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{item.title}</p>
+        <p className="truncate text-sm font-semibold tracking-tight">{item.title}</p>
         {showSecondaryName && (
           <p className="text-xs text-muted-foreground truncate">{item.fileName}</p>
         )}
@@ -59,11 +63,11 @@ export function FileRow({ item }: { item: ItemForCard }) {
       </div>
 
       {/* Desktop: size + date as columns */}
-      <div className="hidden sm:flex items-center gap-6 shrink-0">
-        <span className="text-sm text-muted-foreground w-20 text-right tabular-nums">
+      <div className="hidden shrink-0 items-center gap-6 sm:flex">
+        <span className="w-20 text-right text-sm tabular-nums text-muted-foreground">
           {formatBytes(item.fileSize)}
         </span>
-        <span className="text-sm text-muted-foreground w-28 text-right">
+        <span className="w-28 text-right text-sm text-muted-foreground">
           {formatDate(item.createdAt)}
         </span>
       </div>
@@ -71,11 +75,11 @@ export function FileRow({ item }: { item: ItemForCard }) {
       {/* Copy URL button */}
       {item.fileUrl && (
         <button
-          className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+          className={buttonVariants({ variant: 'ghost', size: 'icon-sm' }) + ' tap-target rounded-xl sm:min-h-8 sm:min-w-8'}
           onClick={handleCopy}
           aria-label="Copy file URL"
         >
-          {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+          {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
         </button>
       )}
 
@@ -83,12 +87,12 @@ export function FileRow({ item }: { item: ItemForCard }) {
       <a
         href={`/api/download/${item.id}`}
         download
-        className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+        className={buttonVariants({ variant: 'ghost', size: 'icon-sm' }) + ' tap-target rounded-xl sm:min-h-8 sm:min-w-8'}
         onClick={(e) => e.stopPropagation()}
         aria-label={`Download ${item.title}`}
       >
         <Download className="h-4 w-4" />
       </a>
-    </div>
+    </motion.div>
   );
 }

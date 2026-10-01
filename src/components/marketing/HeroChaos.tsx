@@ -124,7 +124,7 @@ export function HeroChaos() {
       {/* Dashboard mockup */}
       <div className="flex-1 w-full border border-white/10 rounded-xl bg-white/[0.02] p-4">
         <span className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 block mb-3">
-          ...with DevStash
+          ...with DevCodeCave
         </span>
         <div className="flex gap-2.5 h-[230px]">
           {/* Sidebar */}

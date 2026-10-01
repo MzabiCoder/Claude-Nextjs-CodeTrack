@@ -1,9 +1,10 @@
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { AuthShell } from "@/components/shared/AuthShell";
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <AuthShell>
       <ForgotPasswordForm />
-    </div>
+    </AuthShell>
   );
 }

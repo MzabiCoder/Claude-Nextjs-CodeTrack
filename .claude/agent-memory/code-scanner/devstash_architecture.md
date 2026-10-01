@@ -1,5 +1,5 @@
 ---
-name: DevStash Architecture Patterns
+name: DevCodeCave Architecture Patterns
 description: Key architectural decisions, conventions, and recurring patterns found in this codebase
 type: project
 ---

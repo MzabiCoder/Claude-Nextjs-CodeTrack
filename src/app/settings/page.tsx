@@ -27,7 +27,7 @@ export default async function SettingsPage() {
         <div>
           <h2 className="font-semibold">Billing</h2>
           <p className="text-sm text-muted-foreground">
-            {user.isPro ? 'You are on DevStash Pro.' : 'You are on the free plan.'}
+            {user.isPro ? 'You are on DevCodeCave Pro.' : 'You are on the free plan.'}
           </p>
         </div>
         <Link

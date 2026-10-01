@@ -1,38 +1,28 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/components/motion/variants';
 
 interface FadeInProps {
   children: React.ReactNode;
   className?: string;
 }
 
+/**
+ * Scroll-triggered reveal for marketing sections.
+ * Backed by Framer Motion's viewport observer; `MotionConfig reducedMotion="user"`
+ * in the root layout neutralises the movement for reduced-motion users.
+ */
 export function FadeIn({ children, className = '' }: FadeInProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add('opacity-100', 'translate-y-0');
-          el.classList.remove('opacity-0', 'translate-y-6');
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.12 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className={`opacity-0 translate-y-6 transition-all duration-500 ease-out ${className}`}
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.12 }}
+      variants={fadeUp}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

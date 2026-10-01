@@ -54,7 +54,7 @@ Not Started
 
 ### 2026-05-11 — Seed Demo Data ✅ Completed
 - Overwrote `prisma/seed.ts` with full sample data
-- Created demo user (demo@devstash.io) with bcryptjs-hashed password (12 rounds)
+- Created demo user (demo@devcodecave.io) with bcryptjs-hashed password (12 rounds)
 - Upserted all 7 system item types
 - Created 5 collections with realistic items assigned
 
@@ -92,7 +92,7 @@ Not Started
 - Added Prisma migration `add_query_indexes` with 5 new indexes: `items(isFavorite)`, `items(isPinned)`, `collections(updatedAt)`, `collections(isFavorite, updatedAt)`, `item_collections(collectionId)`
 - Added `src/app/dashboard/loading.tsx` skeleton (header, stats cards, collections grid, items list)
 - Root `/` now redirects to `/dashboard`
-- Fixed app metadata: title `DevStash`, meaningful description
+- Fixed app metadata: title `DevCodeCave`, meaningful description
 - Replaced `${type.name}s` URL construction with `TYPE_SLUGS` map in `Sidebar.tsx`
 
 ### 2026-05-19 — Auth Phase 1: NextAuth v5 + GitHub OAuth ✅ Completed
@@ -111,13 +111,13 @@ Not Started
 - Fixed pre-existing duplicate `not` key bug in `scripts/reset-users.ts` itemType query
 
 ### 2026-05-29 — Auth Phase 4: Email Verification on Register ✅ Completed
-- Installed Resend; added `src/lib/resend.ts` singleton (reads `RESENT_API_KEY`)
+- Installed Resend; added `src/lib/resend.ts` singleton (reads `RESEND_API_KEY`)
 - Register route generates UUID token, stores in `VerificationToken` (24h expiry), sends verification email via `onboarding@resend.dev`
 - Added `GET /api/auth/verify-email`: validates token expiry, sets `emailVerified` on user, deletes token, redirects to `/sign-in?verified=true` (or error states for invalid/expired tokens)
 - `auth.ts` blocks unverified Credentials users via custom `UnverifiedEmail extends CredentialsSignin` error (code: `"unverified"`); GitHub OAuth unaffected
 - Added `/verify-email` "check your inbox" page shown immediately after registration
 - Sign-in page handles `?verified=true` (success banner), `?error=unverified`, `?error=InvalidToken`, `?error=ExpiredToken`
-- Added `scripts/reset-users.ts` to wipe all users and content except `demo@devstash.io` (dry-run by default, `--execute` to apply)
+- Added `scripts/reset-users.ts` to wipe all users and content except `demo@devcodecave.io` (dry-run by default, `--execute` to apply)
 
 ### 2026-05-29 — Forgot Password ✅ Completed
 - Added "Forgot password?" link inline with the Password label on the sign-in page
@@ -269,7 +269,7 @@ Not Started
 - Created `/collections/[id]` page showing collection items grouped by type with labeled section headers
 - Items rendered with the correct component per type: `ItemCard` for text types, `ImageCard` for images, `FileRow` for files
 - Collection cards on dashboard and sidebar "View all collections →" link to the new pages
-- DevStash logo in `TopBar` made clickable, links to `/dashboard`
+- DevCodeCave logo in `TopBar` made clickable, links to `/dashboard`
 - Back arrow added to `/items/[type]` (→ dashboard) and `/collections/[id]` (→ collections)
 - Protected `/collections` and `/collections/[id]` routes in `src/proxy.ts`
 - 11 unit tests for `getAllCollections` and `getCollectionById` (63 total passing)

@@ -57,15 +57,16 @@ export function RegisterForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="bg-card border border-border rounded-xl p-6 space-y-5">
+      <div className="ring-highlight space-y-5 rounded-2xl border border-border bg-card/80 p-6 backdrop-blur-xl shadow-lifted sm:p-7">
         <div>
-          <h1 className="text-xl font-semibold">Create account</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Start your DevStash</p>
+          <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Start your DevCodeCave</p>
         </div>
 
         <Button
           variant="outline"
-          className="w-full"
+          size="lg"
+          className="w-full rounded-xl"
           disabled={loading || githubLoading}
           onClick={() => {
             setGithubLoading(true);
@@ -138,13 +139,18 @@ export function RegisterForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full rounded-xl bg-gradient-brand text-white border-0 shadow-lifted"
+            disabled={loading}
+          >
             {loading ? "Creating account…" : "Create account"}
           </Button>
         </form>
       </div>
 
-      <p className="text-center text-sm text-muted-foreground mt-5">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <a href="/sign-in" className="text-foreground underline underline-offset-4 hover:text-primary transition-colors">
           Sign in

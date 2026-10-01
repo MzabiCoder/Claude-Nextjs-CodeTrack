@@ -59,13 +59,13 @@ export async function POST(req: NextRequest) {
     const verifyUrl = `${origin}/api/auth/verify-email?token=${token}`;
 
     await resend.emails.send({
-      from: "DevStash <onboarding@resend.dev>",
+      from: "DevCodeCave <onboarding@resend.dev>",
       to: email,
-      subject: "Verify your DevStash email",
+      subject: "Verify your DevCodeCave email",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
           <h2 style="margin:0 0 8px">Verify your email</h2>
-          <p style="color:#6b7280;margin:0 0 24px">Hi ${name}, click the button below to verify your DevStash account. This link expires in 24 hours.</p>
+          <p style="color:#6b7280;margin:0 0 24px">Hi ${name}, click the button below to verify your DevCodeCave account. This link expires in 24 hours.</p>
           <a href="${verifyUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600">Verify email</a>
           <p style="color:#9ca3af;font-size:13px;margin:24px 0 0">Or copy this link: ${verifyUrl}</p>
         </div>

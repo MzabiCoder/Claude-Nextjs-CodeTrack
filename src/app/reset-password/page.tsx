@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { ResetPasswordForm } from "./ResetPasswordForm";
+import { AuthShell } from "@/components/shared/AuthShell";
 
 interface Props {
   searchParams: Promise<{ token?: string }>;
@@ -13,8 +14,8 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <AuthShell>
       <ResetPasswordForm token={token} />
-    </div>
+    </AuthShell>
   );
 }

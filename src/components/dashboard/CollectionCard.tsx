@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Star, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import NextLink from 'next/link';
+import { motion } from 'framer-motion';
+import { interactiveSubtleProps } from '@/components/motion/variants';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,30 +62,30 @@ export function CollectionCard({
 
   const cardBody = (
     <>
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-medium truncate">{collection.name}</h3>
-        <div className="flex items-center gap-2 shrink-0">
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <h3 className="truncate font-semibold tracking-tight">{collection.name}</h3>
+        <div className="flex shrink-0 items-center gap-2">
           {isFavorite && (
-            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
           )}
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
+          <span className="whitespace-nowrap rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[11px] tabular-nums text-muted-foreground">
             {collection.itemCount} {collection.itemCount === 1 ? 'item' : 'items'}
           </span>
         </div>
       </div>
 
       {collection.description && (
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+        <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {collection.description}
         </p>
       )}
 
       {collection.typeIcons.length > 0 && (
-        <div className="flex items-center gap-1.5 mt-auto">
+        <div className="mt-auto flex items-center gap-2">
           {collection.typeIcons.map((type) => {
             const Icon = ITEM_TYPE_ICON_MAP[type.icon];
             return Icon ? (
-              <Icon key={type.id} className="h-3.5 w-3.5" style={{ color: type.color }} />
+              <Icon key={type.id} className="h-4 w-4" style={{ color: type.color }} aria-hidden="true" />
             ) : null;
           })}
         </div>
@@ -93,22 +95,26 @@ export function CollectionCard({
 
   return (
     <>
-      <div className="relative group rounded-lg border border-l-4 bg-card hover:bg-accent/50 transition-colors" style={style}>
+      <motion.div
+        {...interactiveSubtleProps}
+        className="group relative h-full rounded-2xl border border-l-[3px] border-border bg-card/80 backdrop-blur-sm shadow-ambient transition-colors hover:bg-accent/40 hover:shadow-lifted"
+        style={style}
+      >
         {href ? (
-          <NextLink href={href} className="block p-4">
+          <NextLink href={href} className="flex h-full flex-col p-4 sm:p-5">
             {cardBody}
           </NextLink>
         ) : (
-          <div className="p-4">{cardBody}</div>
+          <div className="flex h-full flex-col p-4 sm:p-5">{cardBody}</div>
         )}
 
         <div
-          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+          className="absolute bottom-2 right-2 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
           onClick={(e) => e.stopPropagation()}
         >
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="flex items-center justify-center h-7 w-7 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:h-8 sm:w-8"
               aria-label="Collection options"
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -119,7 +125,7 @@ export function CollectionCard({
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-yellow-500 focus:text-yellow-500"
+                className="text-amber-500 focus:text-amber-500"
                 onClick={handleFavorite}
               >
                 <Star className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
@@ -135,7 +141,7 @@ export function CollectionCard({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
+      </motion.div>
 
       <CollectionFormDialog
         open={editOpen}

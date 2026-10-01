@@ -17,10 +17,12 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 sm:space-y-10">
       <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">Your developer knowledge hub</p>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground sm:text-[15px]">
+          Your developer knowledge hub
+        </p>
       </div>
 
       <StatsCards
@@ -31,16 +33,16 @@ export default async function DashboardPage() {
       />
 
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Collections</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight sm:text-xl">Collections</h2>
           <a
             href="/collections"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             View all
           </a>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {collections.map((collection) => (
             <CollectionCard
               key={collection.id}
@@ -53,7 +55,7 @@ export default async function DashboardPage() {
 
       {pinnedItems.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold mb-4">Pinned</h2>
+          <h2 className="mb-4 text-lg font-semibold tracking-tight sm:text-xl">Pinned</h2>
           <div className="space-y-3">
             {pinnedItems.map((item) => (
               <ItemCard key={item.id} item={item} />
@@ -63,7 +65,7 @@ export default async function DashboardPage() {
       )}
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">Recent Items</h2>
+        <h2 className="mb-4 text-lg font-semibold tracking-tight sm:text-xl">Recent Items</h2>
         <div className="space-y-3">
           {recentItems.map((item) => (
             <ItemCard key={item.id} item={item} />

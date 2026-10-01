@@ -1,4 +1,4 @@
-# AI Integration Plan — DevStash Pro
+# AI Integration Plan — DevCodeCave Pro
 
 ## Model
 

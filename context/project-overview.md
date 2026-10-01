@@ -1,4 +1,4 @@
-# DevStash - Project Overview
+# DevCodeCave - Project Overview
 
 > A unified hub for developer knowledge & resources
 
@@ -32,7 +32,7 @@ Developers keep their essentials scattered across multiple tools and locations:
 
 **The Result:** Context switching, lost knowledge, and inconsistent workflows.
 
-**The Solution:** DevStash provides ONE fast, searchable, AI-enhanced hub for all developer knowledge & resources.
+**The Solution:** DevCodeCave provides ONE fast, searchable, AI-enhanced hub for all developer knowledge & resources.
 
 ---
 
@@ -51,7 +51,7 @@ Developers keep their essentials scattered across multiple tools and locations:
 
 ### A. Items & Item Types
 
-Items are the core unit of DevStash. Each item has a type that determines its behavior and appearance.
+Items are the core unit of DevCodeCave. Each item has a type that determines its behavior and appearance.
 
 #### System Types (Immutable)
 
@@ -593,7 +593,7 @@ Refer to the screenshots below as a base for the dashboard UI. It does not have 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  DevStash                                    🔍  ⚙️  👤     │
+│  DevCodeCave                                    🔍  ⚙️  👤     │
 ├──────────────┬──────────────────────────────────────────────┤
 │              │                                              │
 │  TYPES       │  Collections                                 │
@@ -685,7 +685,7 @@ export const ITEM_TYPE_COLORS = {
 ## 📁 Suggested Project Structure
 
 ```
-devstash/
+devcodecave/
 ├── prisma/
 │   ├── schema.prisma
 │   ├── migrations/

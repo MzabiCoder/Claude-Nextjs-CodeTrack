@@ -32,10 +32,10 @@ async function main() {
   console.log("Seeding demo user...");
   const hashedPassword = await bcrypt.hash("12345678", 12);
   const user = await prisma.user.upsert({
-    where: { email: "demo@devstash.io" },
+    where: { email: "demo@devcodecave.io" },
     update: {},
     create: {
-      email: "demo@devstash.io",
+      email: "demo@devcodecave.io",
       name: "Demo User",
       password: hashedPassword,
       isPro: false,

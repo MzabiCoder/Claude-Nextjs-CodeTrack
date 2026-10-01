@@ -1,4 +1,4 @@
-# DevSTash
+# DevCodeCave
 
 A developer knowledge hub for snippets, commands, prompts, notes, files, images, links and custom types.
 

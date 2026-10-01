@@ -58,10 +58,10 @@ export function SignInForm({ callbackUrl, urlError, registered, verified, reset 
 
   return (
     <div className="w-full max-w-sm">
-      <div className="bg-card border border-border rounded-xl p-6 space-y-5">
+      <div className="ring-highlight space-y-5 rounded-2xl border border-border bg-card/80 p-6 backdrop-blur-xl shadow-lifted sm:p-7">
         <div>
-          <h1 className="text-xl font-semibold">Sign in</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Welcome back</p>
+          <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Welcome back</p>
         </div>
 
         {reset && (
@@ -82,7 +82,8 @@ export function SignInForm({ callbackUrl, urlError, registered, verified, reset 
 
         <Button
           variant="outline"
-          className="w-full"
+          size="lg"
+          className="w-full rounded-xl"
           disabled={loading !== null}
           onClick={() => {
             setLoading("github");
@@ -151,7 +152,8 @@ export function SignInForm({ callbackUrl, urlError, registered, verified, reset 
 
           <Button
             type="submit"
-            className="w-full"
+            size="lg"
+            className="w-full rounded-xl bg-gradient-brand text-white border-0 shadow-lifted"
             disabled={loading !== null}
           >
             {loading === "credentials" ? "Signing in…" : "Sign in"}
@@ -159,9 +161,9 @@ export function SignInForm({ callbackUrl, urlError, registered, verified, reset 
         </form>
       </div>
 
-      <p className="text-center text-sm text-muted-foreground mt-5">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <a href="/register" className="text-foreground underline underline-offset-4 hover:text-primary transition-colors">
+        <a href="/register" className="font-medium text-brand-soft underline underline-offset-4 transition-colors hover:text-foreground">
           Sign up
         </a>
       </p>

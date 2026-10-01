@@ -1,6 +1,6 @@
 export const mockUser = {
   id: 'user_1',
-  email: 'demo@devstash.io',
+  email: 'demo@devcodecave.io',
   name: 'John Doe',
   isPro: false,
   createdAt: new Date('2024-01-01'),

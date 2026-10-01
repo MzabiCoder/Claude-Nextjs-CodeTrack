@@ -2,9 +2,10 @@ import Link from "next/link";
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm">
-        <div className="bg-card border border-border rounded-xl p-6 space-y-4 text-center">
+    <div className="relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden bg-background px-4">
+      <div className="aura-field" aria-hidden="true" />
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="ring-highlight space-y-4 rounded-2xl border border-border bg-card/80 p-6 text-center backdrop-blur-xl shadow-lifted sm:p-7">
           <div className="text-4xl">📬</div>
           <div>
             <h1 className="text-xl font-semibold">Check your inbox</h1>

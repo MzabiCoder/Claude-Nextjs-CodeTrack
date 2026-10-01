@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { interactiveSubtleProps } from '@/components/motion/variants';
 import { type ItemForCard } from '@/lib/db/items';
 import { formatDateCompact } from '@/lib/format';
 import { useItemDrawer } from '@/components/dashboard/ItemDrawerContext';
@@ -30,10 +32,11 @@ export function ItemCard({ item }: { item: ItemForCard }) {
   }
 
   return (
-    <div
+    <motion.div
       role="button"
       tabIndex={0}
-      className="flex w-full text-left items-start gap-4 rounded-lg border border-l-4 bg-card p-4 hover:bg-accent/50 transition-colors group cursor-pointer"
+      {...interactiveSubtleProps}
+      className="group flex w-full cursor-pointer items-start gap-3.5 rounded-2xl border border-l-[3px] border-border bg-card/80 p-4 text-left backdrop-blur-sm shadow-ambient transition-colors hover:bg-accent/40 hover:shadow-lifted sm:gap-4 sm:p-5"
       style={{ borderLeftColor: color }}
       onClick={() => openDrawer(item.id)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer(item.id); } }}
@@ -49,18 +52,18 @@ export function ItemCard({ item }: { item: ItemForCard }) {
         tags={item.tags}
       />
 
-      <div className="shrink-0 flex flex-col items-end gap-2">
-        <span className="text-xs text-muted-foreground">{formatDateCompact(item.createdAt)}</span>
+      <div className="flex shrink-0 flex-col items-end gap-2">
+        <span className="whitespace-nowrap text-xs text-muted-foreground">{formatDateCompact(item.createdAt)}</span>
         {copyValue(item) && (
           <button
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+            className="rounded-lg p-2 text-muted-foreground transition-opacity hover:bg-muted hover:text-foreground sm:p-1.5 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
             aria-label="Copy content"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

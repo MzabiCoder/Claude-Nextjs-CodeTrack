@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LayoutGrid } from 'lucide-react';
+import { BrandMark } from '@/components/shared/BrandMark';
 
 const LINKS = [
   {
@@ -20,29 +20,28 @@ const LINKS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-border">
-      <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col sm:flex-row gap-10">
+    <footer className="border-t border-border bg-card/30">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-14 sm:px-6 md:flex-row lg:px-8">
         <div className="shrink-0">
-          <Link href="/" className="flex items-center gap-2 font-bold text-base mb-2 hover:opacity-80 transition-opacity">
-            <LayoutGrid className="h-4 w-4 text-blue-500" />
-            DevStash
+          <Link href="/" className="inline-flex transition-opacity hover:opacity-85" aria-label="DevCodeCave home">
+            <BrandMark />
           </Link>
-          <p className="text-muted-foreground text-sm max-w-[180px] leading-relaxed">
+          <p className="mt-3 max-w-[220px] text-sm leading-relaxed text-muted-foreground">
             One hub for all your developer knowledge.
           </p>
         </div>
 
-        <div className="flex gap-10 sm:gap-16 sm:ml-auto flex-wrap">
+        <div className="grid grid-cols-2 gap-8 sm:gap-16 md:ml-auto md:flex">
           {LINKS.map((col) => (
-            <div key={col.heading} className="flex flex-col gap-2.5">
-              <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
+            <div key={col.heading} className="flex flex-col gap-3">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80">
                 {col.heading}
               </p>
               {col.items.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </a>
@@ -52,8 +51,8 @@ export function MarketingFooter() {
         </div>
       </div>
 
-      <div className="border-t border-border px-6 py-4 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} DevStash. All rights reserved.
+      <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground sm:px-6 lg:px-8">
+        © {new Date().getFullYear()} DevCodeCave. All rights reserved.
       </div>
     </footer>
   );

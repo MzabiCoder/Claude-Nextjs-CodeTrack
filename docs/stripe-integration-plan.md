@@ -1,4 +1,4 @@
-# Stripe Integration Plan — DevStash Pro
+# Stripe Integration Plan — DevCodeCave Pro
 
 **Pricing:** $8/month · $72/year  
 **Free limits:** 50 items, 3 collections  
@@ -24,8 +24,8 @@
 ## Stripe Dashboard Setup
 
 1. **Create products:**
-   - Product: *DevStash Pro Monthly* → Price: $8.00/month recurring → copy Price ID → `STRIPE_PRICE_ID_MONTHLY`
-   - Product: *DevStash Pro Yearly* → Price: $72.00/year recurring → copy Price ID → `STRIPE_PRICE_ID_YEARLY`
+   - Product: *DevCodeCave Pro Monthly* → Price: $8.00/month recurring → copy Price ID → `STRIPE_PRICE_ID_MONTHLY`
+   - Product: *DevCodeCave Pro Yearly* → Price: $72.00/year recurring → copy Price ID → `STRIPE_PRICE_ID_YEARLY`
 
 2. **Customer portal:** Stripe Dashboard → Billing → Customer Portal → Enable "Allow customers to cancel" and "View invoices" → Save
 
@@ -338,7 +338,7 @@ export function BillingContent({ isPro, hasStripeCustomer }: BillingContentProps
     <div className="space-y-4">
       {success && (
         <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-500 flex items-center gap-2">
-          <Check className="h-4 w-4" /> You're now on DevStash Pro. Enjoy!
+          <Check className="h-4 w-4" /> You're now on DevCodeCave Pro. Enjoy!
         </div>
       )}
       {canceled && (
@@ -350,7 +350,7 @@ export function BillingContent({ isPro, hasStripeCustomer }: BillingContentProps
       <div className="rounded-lg border border-border bg-card p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-semibold">{isPro ? 'DevStash Pro' : 'DevStash Free'}</p>
+            <p className="font-semibold">{isPro ? 'DevCodeCave Pro' : 'DevCodeCave Free'}</p>
             <p className="text-sm text-muted-foreground">
               {isPro ? 'Unlimited items and all features' : '50 items · 3 collections'}
             </p>
@@ -545,7 +545,7 @@ import { buttonVariants } from '@/components/ui/button';
   <div>
     <h2 className="font-semibold">Billing</h2>
     <p className="text-sm text-muted-foreground">
-      {user.isPro ? 'You are on DevStash Pro.' : 'You are on the free plan.'}
+      {user.isPro ? 'You are on DevCodeCave Pro.' : 'You are on the free plan.'}
     </p>
   </div>
   <Link href="/billing" className={buttonVariants({ variant: user.isPro ? 'outline' : 'default' })}>
@@ -626,7 +626,7 @@ stripe trigger customer.subscription.deleted
 - [ ] Free user: `NewItemDialog` file/image buttons are disabled with lock icon
 - [ ] Free user: direct `POST /api/upload` returns 403
 - [ ] Click "Upgrade — $8/month" → redirects to Stripe Checkout → complete with test card `4242 4242 4242 4242`
-- [ ] After checkout: redirect to `/billing?success=true` → page shows "You're now on DevStash Pro"
+- [ ] After checkout: redirect to `/billing?success=true` → page shows "You're now on DevCodeCave Pro"
 - [ ] After reload: session `isPro` = true (JWT re-synced from DB)
 - [ ] Pro user: file/image types enabled in `NewItemDialog`
 - [ ] Pro user: upload works

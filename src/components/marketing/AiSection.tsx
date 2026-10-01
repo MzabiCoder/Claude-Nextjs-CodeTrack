@@ -1,4 +1,8 @@
+'use client';
+
 import { Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { staggerContainer, staggerItem } from '@/components/motion/variants';
 
 const CHECKLIST = [
   {
@@ -21,31 +25,45 @@ const CHECKLIST = [
 
 export function AiSection() {
   return (
-    <section className="py-24 px-6 border-t border-border bg-blue-500/[0.02]">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+    <section className="relative isolate overflow-hidden border-y border-border px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+      <div className="aura-field opacity-60" aria-hidden="true" />
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-14 lg:gap-20">
         {/* Copy */}
         <div>
-          <span className="inline-block text-[11px] font-bold tracking-widest uppercase text-amber-500 border border-amber-500/30 bg-amber-500/[0.06] rounded-md px-2.5 py-1 mb-5">
+          <span className="mb-5 inline-block rounded-md border border-amber-500/30 bg-amber-500/[0.08] px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-amber-500">
             Pro Feature
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-8 leading-tight">
+          <h2 className="mb-8 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-[2.75rem]">
             AI that works for developers
           </h2>
-          <ul className="flex flex-col gap-6">
+          <motion.ul
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="flex flex-col gap-5 sm:gap-6"
+          >
             {CHECKLIST.map((item) => (
-              <li key={item.title} className="flex gap-3.5 items-start">
-                <Check className="h-[18px] w-[18px] text-green-500 shrink-0 mt-0.5" />
+              <motion.li key={item.title} variants={staggerItem} className="flex items-start gap-3.5">
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-emerald-500/12 text-emerald-500">
+                  <Check className="h-[15px] w-[15px]" aria-hidden="true" />
+                </span>
                 <div>
-                  <p className="font-semibold text-sm mb-1">{item.title}</p>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
+                  <p className="mb-1 text-[15px] font-semibold">{item.title}</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                 </div>
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         </div>
 
         {/* Editor mockup */}
-        <div className="rounded-xl overflow-hidden border border-border bg-[#0d1117]">
+        <motion.div
+          initial={{ opacity: 0, y: 24, rotateX: 4 }}
+          whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="overflow-hidden rounded-2xl border border-border bg-[#0d1117] shadow-lifted">
           <div className="flex items-center gap-2 px-4 py-3 bg-[#161b22] border-b border-border">
             <div className="flex gap-1.5">
               <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
@@ -112,7 +130,7 @@ export function AiSection() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
